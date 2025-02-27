@@ -1,44 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
-  Text,
-  TextInput,
-  TouchableOpacity,
+ 
   StyleSheet,
 } from "react-native";
-import { useRouter } from "expo-router";
+
 
 const LoginScreen = () => {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    // Placeholder for authentication logic
-    console.log("Logging in with:", email, password);
-    // Navigate to dashboard after login
-  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>User Login</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
+     
     </View>
   );
 };
