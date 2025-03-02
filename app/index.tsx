@@ -4,6 +4,7 @@ import {
  
   StyleSheet,
 } from "react-native";
+import CustomButton from "./components/ui/Button/Button";
 
 
 const LoginScreen = () => {
@@ -11,7 +12,7 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-     
+     <CustomButton variant="primary" buttonStyle="outlined" text='Register'/>
     </View>
   );
 };
