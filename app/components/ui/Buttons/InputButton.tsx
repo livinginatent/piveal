@@ -1,7 +1,7 @@
 import { normalize } from "@/app/theme/normalize";
 import type React from "react";
 import {
-  TouchableOpacity,
+  Pressable,
   Text,
   StyleSheet,
   View,
@@ -11,16 +11,16 @@ import {
 } from "react-native";
 
 // Define the button variants
-type ButtonVariant = "filled" | "outlined" | "text";
+type InputButtonVariant = "filled" | "outlined" | "text";
 
 // Define the button sizes
-type ButtonSize = "regular" | "compact";
+type InputButtonSize = "regular" | "compact";
 
 // Define the props for the CustomButton component
-interface CustomButtonProps {
+interface CustomInputButtonProps {
   label: string;
-  variant?: ButtonVariant;
-  size?: ButtonSize;
+  variant?: InputButtonVariant;
+  size?: InputButtonSize;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   onPress?: () => void;
@@ -37,7 +37,7 @@ const COLORS = {
   disabled: "#ABAEB2",
 };
 
-export const CustomButton: React.FC<CustomButtonProps> = ({
+export const CustomInputButton: React.FC<CustomInputButtonProps> = ({
   label,
   variant = "filled",
   size = "regular",
@@ -48,39 +48,46 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   labelStyle,
   disabled = false,
 }) => {
-  // Get the background color based on variant and disabled state
-  const getBackgroundColor = (): string => {
+  // Get the background color based on variant, disabled, and pressed state
+  const getBackgroundColor = (pressed: boolean): string => {
     if (disabled && variant === "filled") {
       return COLORS.disabled;
     }
     if (variant === "filled") {
-      return COLORS.primary;
+      return pressed ? COLORS.secondary : COLORS.primary;
     }
     return "transparent";
   };
 
-  // Get the text color based on variant and disabled state
-  const getTextColor = (): string => {
+  // Get the text color based on variant, disabled, and pressed state
+  const getTextColor = (pressed: boolean): string => {
     if (disabled) {
       return variant === "filled" ? COLORS.white : COLORS.disabled;
     }
     if (variant === "filled") {
       return COLORS.white;
     }
-    return COLORS.primary;
+    // For outlined and text variants, change color on press
+    return pressed ? COLORS.secondary : COLORS.primary;
   };
 
-  // Get the border color and width based on variant and disabled state
-  const getBorderStyle = (): { borderColor: string; borderWidth: number } => {
-    if (disabled && variant === "outlined") {
+  // Get the border style based on variant, disabled, pressed state, and size
+  const getBorderStyle = (
+    pressed: boolean
+  ): { borderColor: string; borderWidth: number } => {
+    if (variant === "filled") {
       return {
-        borderColor: COLORS.disabled,
+        borderColor: pressed ? COLORS.secondary : "transparent",
         borderWidth: size === "regular" ? 2 : 1,
       };
     }
     if (variant === "outlined") {
       return {
-        borderColor: COLORS.primary,
+        borderColor: disabled
+          ? COLORS.disabled
+          : pressed
+          ? COLORS.secondary
+          : COLORS.primary,
         borderWidth: size === "regular" ? 2 : 1,
       };
     }
@@ -90,9 +97,7 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
     };
   };
 
-  const getHeight = (): {
-    height: number;
-  } => {
+  const getHeight = (): { height: number } => {
     if (size === "regular") {
       return {
         height: normalize("height", 65),
@@ -122,7 +127,7 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
 
   // Get the font size based on size
   const getFontSize = (): number => {
-    return size === "regular" ? 18 : 14;
+    return size === "regular" ? normalize("font", 18) : normalize("font", 14);
   };
 
   // Get the icon size based on button size
@@ -136,39 +141,40 @@ export const CustomButton: React.FC<CustomButtonProps> = ({
   };
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
-      activeOpacity={0.7}
-      style={[
+      disabled={disabled}
+      style={({ pressed }) => [
         styles.button,
         {
-          backgroundColor: getBackgroundColor(),
+          backgroundColor: getBackgroundColor(pressed),
           borderRadius: getBorderRadius(),
-          ...getBorderStyle(),
+          ...getBorderStyle(pressed),
           ...getPadding(),
           ...getHeight(),
         },
         style,
       ]}
-      disabled={disabled}
     >
-      <View style={styles.contentContainer}>
-        {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
-        <Text
-          style={[
-            styles.label,
-            {
-              color: getTextColor(),
-              fontSize: getFontSize(),
-            },
-            labelStyle,
-          ]}
-        >
-          {label}
-        </Text>
-        {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
-      </View>
-    </TouchableOpacity>
+      {({ pressed }) => (
+        <View style={styles.contentContainer}>
+          {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
+          <Text
+            style={[
+              styles.label,
+              {
+                color: getTextColor(pressed),
+                fontSize: getFontSize(),
+              },
+              labelStyle,
+            ]}
+          >
+            {label}
+          </Text>
+          {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
+        </View>
+      )}
+    </Pressable>
   );
 };
 
@@ -176,14 +182,15 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     justifyContent: "center",
+    width: normalize("width", 196),
   },
   contentContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+  
   },
-  iconContainer: {},
+  iconContainer: { marginHorizontal:normalize('width',8)  },
   label: {
     fontWeight: "500",
   },
