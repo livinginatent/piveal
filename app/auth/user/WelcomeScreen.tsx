@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { normalize } from "@/app/theme/normalize";
 import { CustomInputButton } from "@/app/components/ui/Buttons/InputButton";
+import { registerUser } from "@/app/api/authService";
 
 export const LoginScreen: React.FC = () => {
   const handleLogin = () => {
@@ -17,6 +18,20 @@ export const LoginScreen: React.FC = () => {
 
   const handleRegister = () => {
     console.log("Register pressed");
+  };
+
+  const handleTestRegister = async () => {
+    try {
+      const response = await registerUser({
+        email: "test@example.com",
+        username: "testuser",
+        password: "test1234",
+        dob: "2000-01-01",
+      });
+      console.log("Register API response:", response);
+    } catch (error: any) {
+      console.error("Register API error:", error);
+    }
   };
 
   return (
@@ -29,7 +44,7 @@ export const LoginScreen: React.FC = () => {
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.greeting}>Salam!</Text> 
+        <Text style={styles.greeting}>Salam!</Text>
         <CustomInputButton
           label="Hesabıma gir"
           onPress={handleLogin}
@@ -41,6 +56,12 @@ export const LoginScreen: React.FC = () => {
           variant="outlined"
           onPress={handleRegister}
           style={styles.registerButton}
+        />
+        <CustomInputButton
+          label="Test Register API"
+          variant="outlined"
+          onPress={handleTestRegister}
+          style={styles.testButton}
         />
       </View>
     </SafeAreaView>
@@ -81,9 +102,10 @@ const styles = StyleSheet.create({
   },
   registerButton: {
     width: "100%",
+    marginBottom: normalize("height", 24),
   },
-  registerButtonText: {
-    color: "#6a9de1",
+  testButton: {
+    width: "100%",
   },
 });
 
