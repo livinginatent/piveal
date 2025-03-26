@@ -48,7 +48,7 @@ export const LoginScreen: React.FC = () => {
         <CustomInputButton
           label="Hesabıma gir"
           onPress={handleLogin}
-          variant="filled"
+          variant="primary"
           style={styles.loginButton}
         />
         <CustomInputButton
@@ -57,12 +57,12 @@ export const LoginScreen: React.FC = () => {
           onPress={handleRegister}
           style={styles.registerButton}
         />
-        <CustomInputButton
+       {/*  <CustomInputButton
           label="Test Register API"
           variant="outlined"
           onPress={handleTestRegister}
           style={styles.testButton}
-        />
+        /> */}
       </View>
     </SafeAreaView>
   );
@@ -71,7 +71,7 @@ export const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "white",
   },
   content: {
     flex: 1,
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     height: normalize("height", 120),
   },
   greeting: {
-    color: "#ffffff",
+    color: "black",
     fontSize: normalize("font", 36),
     fontWeight: "bold",
     marginBottom: normalize("height", 64),

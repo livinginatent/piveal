@@ -1,4 +1,5 @@
 import { normalize } from "@/app/theme/normalize";
+import { colors } from "@/app/theme/theme";
 import type React from "react";
 import {
   Pressable,
@@ -11,7 +12,7 @@ import {
 } from "react-native";
 
 // Define the button variants
-type InputButtonVariant = "filled" | "outlined" | "text";
+type InputButtonVariant = "primary" | "outlined" | "text";
 
 // Define the button sizes
 type InputButtonSize = "regular" | "compact";
@@ -31,15 +32,15 @@ interface CustomInputButtonProps {
 
 // Color palette based on Figma design
 const COLORS = {
-  primary: "#153a6a",
-  secondary: "#6a9de1",
+  primary: colors.orange500,
+  secondary: colors.orange400,
   white: "#ffffff",
-  disabled: "#ABAEB2",
+  disabled: colors.grey400,
 };
 
 export const CustomInputButton: React.FC<CustomInputButtonProps> = ({
   label,
-  variant = "filled",
+  variant = "primary",
   size = "regular",
   leftIcon,
   rightIcon,
@@ -50,10 +51,10 @@ export const CustomInputButton: React.FC<CustomInputButtonProps> = ({
 }) => {
   // Get the background color based on variant, disabled, and pressed state
   const getBackgroundColor = (pressed: boolean): string => {
-    if (disabled && variant === "filled") {
+    if (disabled && variant === "primary") {
       return COLORS.disabled;
     }
-    if (variant === "filled") {
+    if (variant === "primary") {
       return pressed ? COLORS.secondary : COLORS.primary;
     }
     return "transparent";
@@ -62,9 +63,9 @@ export const CustomInputButton: React.FC<CustomInputButtonProps> = ({
   // Get the text color based on variant, disabled, and pressed state
   const getTextColor = (pressed: boolean): string => {
     if (disabled) {
-      return variant === "filled" ? COLORS.white : COLORS.disabled;
+      return variant === "primary" ? COLORS.white : COLORS.disabled;
     }
-    if (variant === "filled") {
+    if (variant === "primary") {
       return COLORS.white;
     }
     // For outlined and text variants, change color on press
@@ -75,7 +76,7 @@ export const CustomInputButton: React.FC<CustomInputButtonProps> = ({
   const getBorderStyle = (
     pressed: boolean
   ): { borderColor: string; borderWidth: number } => {
-    if (variant === "filled") {
+    if (variant === "primary") {
       return {
         borderColor: pressed ? COLORS.secondary : "transparent",
         borderWidth: size === "regular" ? 2 : 1,
@@ -137,7 +138,7 @@ export const CustomInputButton: React.FC<CustomInputButtonProps> = ({
 
   // Get the border radius
   const getBorderRadius = (): number => {
-    return 6; // Based on the Figma design
+    return 12; // Based on the Figma design
   };
 
   return (
@@ -188,9 +189,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-  
   },
-  iconContainer: { marginHorizontal:normalize('width',8)  },
+  iconContainer: { marginHorizontal: normalize("width", 8) },
   label: {
     fontWeight: "500",
   },

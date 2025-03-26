@@ -1,4 +1,5 @@
 import { normalize } from "@/app/theme/normalize";
+import { colors } from "@/app/theme/theme";
 import type React from "react";
 import {
   Pressable,
@@ -11,7 +12,7 @@ import {
 } from "react-native";
 
 // Define the button variants
-type CTAButtonVariant = "filled" | "outlined" | "text";
+type CTAButtonVariant = "primary" | "outlined" | "text";
 
 // Define the button sizes
 type CTAButtonSize = "large" | "medium" | "small";
@@ -31,15 +32,15 @@ interface CustomCTAButtonProps {
 
 // Color palette based on Figma design
 const COLORS = {
-  primary: "#153a6a",
-  secondary: "#6a9de1",
+  primary: colors.orange500,
+  secondary: colors.orange400,
   white: "#ffffff",
-  disabled: "#ABAEB2",
+  disabled: colors.grey400,
 };
 
 export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
   label,
-  variant = "filled",
+  variant = "primary",
   size = "large",
   leftIcon,
   rightIcon,
@@ -51,9 +52,9 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
   // Get the background color based on variant, disabled, and pressed state
   const getBackgroundColor = (pressed: boolean): string => {
     if (disabled) {
-      return variant === "filled" ? COLORS.disabled : "transparent";
+      return variant === "primary" ? COLORS.disabled : "transparent";
     }
-    if (variant === "filled") {
+    if (variant === "primary") {
       return pressed ? COLORS.secondary : COLORS.primary;
     }
     return "transparent";
@@ -62,9 +63,9 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
   // Get the text color based on variant, disabled, and pressed state
   const getTextColor = (pressed: boolean): string => {
     if (disabled) {
-      return variant === "filled" ? COLORS.white : COLORS.disabled;
+      return variant === "primary" ? COLORS.white : COLORS.disabled;
     }
-    if (variant === "filled") {
+    if (variant === "primary") {
       return COLORS.white;
     }
     // For outlined and text variants, change color on press
@@ -73,7 +74,7 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
 
   // Get the border color based on variant, disabled, and pressed state
   const getBorderStyle = (pressed: boolean): { borderColor: string } => {
-    if (variant === "filled") {
+    if (variant === "primary") {
       return { borderColor: pressed ? COLORS.secondary : "transparent" };
     }
     if (variant === "outlined") {
@@ -175,7 +176,7 @@ const styles = StyleSheet.create({
   iconContainer: {
     alignItems: "center",
     justifyContent: "center",
-     marginHorizontal: normalize("width", 8) ,
+    marginHorizontal: normalize("width", 8),
   },
   label: {
     fontWeight: "500",
