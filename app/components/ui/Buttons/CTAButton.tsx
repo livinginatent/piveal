@@ -73,10 +73,9 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
   };
 
   // Get the border color based on variant, disabled, and pressed state
-  const getBorderStyle = (pressed: boolean): { borderColor: string } => {
-    if (variant === "primary") {
-      return { borderColor: pressed ? COLORS.secondary : "transparent" };
-    }
+  const getBorderStyle = (
+    pressed: boolean
+  ): { borderColor?: string; borderWidth?: number; borderStyle?: "solid" } => {
     if (variant === "outlined") {
       return {
         borderColor: disabled
@@ -84,9 +83,11 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
           : pressed
           ? COLORS.secondary
           : COLORS.primary,
+        borderWidth: 2, // Use a fixed value (or adjust with your normalize function if needed)
+        borderStyle: "solid",
       };
     }
-    return { borderColor: "transparent" };
+    return {};
   };
 
   const getHeight = (): { height: number } => {
@@ -98,26 +99,38 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
     return { height: normalize("height", 32) };
   };
 
-  // Get the padding based on size
+  // Get the padding based on size - Adjusted for more vertical space
   const getPadding = (): {
     paddingVertical?: number;
     paddingHorizontal?: number;
     padding?: number;
   } => {
     if (size === "large") {
-      return { padding: normalize("height", 16) };
+      return {
+        paddingHorizontal: normalize("width", 16),
+        // Reduced vertical padding to give text more room
+        paddingVertical: normalize("height", 8),
+      };
     } else if (size === "medium") {
       return {
         paddingHorizontal: normalize("width", 6),
-        paddingVertical: normalize("width", 5),
+        paddingVertical: normalize("height", 4),
       };
     }
-    return { paddingVertical: 4, paddingHorizontal: 6 };
+    return {
+      paddingHorizontal: normalize("width", 6),
+      paddingVertical: normalize("height", 2),
+    };
   };
 
   // Get the font size based on size
   const getFontSize = (): number => {
     return size === "small" ? normalize("font", 12) : normalize("font", 16);
+  };
+
+  // Get the line height based on size - Ensures text doesn't get cut off
+  const getLineHeight = (): number => {
+    return size === "small" ? normalize("font", 16) : normalize("font", 24);
   };
 
   // Get the border radius based on design
@@ -132,7 +145,7 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
         {
           backgroundColor: getBackgroundColor(pressed),
           borderRadius: getBorderRadius(),
-          ...getBorderStyle(pressed),
+          ...getBorderStyle(pressed), // Apply border style here
           ...getPadding(),
           ...getHeight(),
         },
@@ -148,10 +161,12 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
               {
                 color: getTextColor(pressed),
                 fontSize: getFontSize(),
+                lineHeight: getLineHeight(), // Added line height
                 textAlign: "center",
               },
               labelStyle,
             ]}
+            numberOfLines={1}
           >
             {label}
           </Text>
@@ -172,6 +187,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    // Added flex to ensure proper spacing within container
+    flex: 1,
   },
   iconContainer: {
     alignItems: "center",
@@ -180,5 +197,9 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: "500",
+    // Added vertical padding to ensure text isn't cut off
+    paddingVertical: normalize("height", 2),
+    // Include bottom padding to prevent text from being cut off
+    paddingBottom: normalize("height", 2),
   },
 });

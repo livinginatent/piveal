@@ -10,14 +10,20 @@ import {
 import { normalize } from "@/app/theme/normalize";
 import { CustomInputButton } from "@/app/components/ui/Buttons/InputButton";
 import { registerUser } from "@/app/api/authService";
+import { useRouter } from "expo-router";
+import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
+import { colors } from "@/app/theme/theme"; // Import colors
 
-export const LoginScreen: React.FC = () => {
+export const WelcomeScreen: React.FC = () => {
+  const router = useRouter();
+
   const handleLogin = () => {
     console.log("Login pressed");
   };
 
   const handleRegister = () => {
     console.log("Register pressed");
+    router.push("/(auth)/RegisterScreen");
   };
 
   const handleTestRegister = async () => {
@@ -45,19 +51,20 @@ export const LoginScreen: React.FC = () => {
           />
         </View>
         <Text style={styles.greeting}>Salam!</Text>
-        <CustomInputButton
+        <CustomCTAButton
           label="Hesabıma gir"
           onPress={handleLogin}
           variant="primary"
           style={styles.loginButton}
         />
-        <CustomInputButton
+        <CustomCTAButton
           label="Mən hələ təzəyəm"
           variant="outlined"
           onPress={handleRegister}
           style={styles.registerButton}
+          size="large"
         />
-       {/*  <CustomInputButton
+        {/*  <CustomInputButton
           label="Test Register API"
           variant="outlined"
           onPress={handleTestRegister}
@@ -109,4 +116,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default WelcomeScreen;

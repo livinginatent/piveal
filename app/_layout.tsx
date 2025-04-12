@@ -1,59 +1,60 @@
-// app/_layout.tsx
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
-import "react-native-reanimated";
-
-import { useColorScheme } from "@/hooks/useColorScheme";
+// File: app/_layout.tsx
+import React, { useEffect } from "react";
+import { Slot, useRouter, useSegments } from "expo-router";
+import { ActivityIndicator, View, StyleSheet } from "react-native";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
-SplashScreen.preventAutoHideAsync();
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
+const InitialLayout = () => {
   const { isAuthenticated, loading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
 
   useEffect(() => {
-    if (!loading) SplashScreen.hideAsync();
-  }, [loading]);
+    if (loading) return;
 
-  if (loading) return null;
+    const inAuthGroup = (segments[0] as string) === "(auth)";
 
-  return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        {isAuthenticated ? (
-          <Stack.Screen name="(app)" />
-        ) : (
-          <Stack.Screen name="(auth)" />
-        )}
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
-}
+    console.log(
+      `loading: ${loading}, isAuthenticated: ${
+        isAuthenticated ? "present" : "null"
+      }, inAuthGroup: ${inAuthGroup}`
+    );
+
+    if (!isAuthenticated && !inAuthGroup) {
+      console.log("Redirecting to auth welcome");
+      // --- CORRECTED PATH ---
+      router.replace("/(auth)/WelcomeScreen");
+    } else if (isAuthenticated && inAuthGroup) {
+      console.log("Redirecting to app tabs home");
+      // --- CORRECTED PATH (assuming filename is home.tsx) ---
+      router.replace("/(app)/(tabs)/home");
+    }
+  }, [isAuthenticated, segments, loading, router]);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#999999" />
+      </View>
+    );
+  }
+
+  return <Slot />;
+};
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  });
-
-  useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync();
-  }, [fontsLoaded]);
-
-  if (!fontsLoaded) return null;
-
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <InitialLayout />
     </AuthProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+  },
+});
