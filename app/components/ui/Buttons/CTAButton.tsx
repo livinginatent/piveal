@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     justifyContent: "center",
-    width: normalize("width", 187),
+    width: normalize("width", 338),
   },
   contentContainer: {
     flexDirection: "row",

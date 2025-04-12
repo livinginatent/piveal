@@ -5,6 +5,7 @@ export const colors = {
   tertiary: "#A9A9A9", // Gray
   white: "#FFFFFF",
   black: "#000000",
+  primaryBg:"#FAF5FF",
   transparent: "transparent",
   orange900: "#6A2613",
   orange800: "#7E301B",

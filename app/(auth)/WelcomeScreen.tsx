@@ -8,7 +8,6 @@ import {
   Image,
 } from "react-native";
 import { normalize } from "@/app/theme/normalize";
-import { CustomInputButton } from "@/app/components/ui/Buttons/InputButton";
 import { registerUser } from "@/app/api/authService";
 import { useRouter } from "expo-router";
 import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
@@ -78,7 +77,7 @@ export const WelcomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: colors.primaryBg,
   },
   content: {
     flex: 1,

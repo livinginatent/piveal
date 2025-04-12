@@ -1,5 +1,5 @@
 import { normalize } from "@/app/theme/normalize";
-import { colors } from "@/app/theme/theme"; // Assuming theme file exists at this path
+import { colors } from "@/app/theme/theme";
 import React from "react";
 import { useState } from "react";
 import {
@@ -13,20 +13,16 @@ import {
   type TextStyle,
   type KeyboardTypeOptions,
   Platform,
-  type TextInputProps, // Import TextInputProps type
+  type TextInputProps,
+  TouchableOpacity,
 } from "react-native";
 
-// Define the component variants (can be reused)
 type InputVariant = "primary" | "outlined" | "text";
 
-// Define the component sizes (can be reused)
 type InputSize = "regular" | "compact";
 
-// Define the input types the component will handle
 type InputFieldType = "text" | "email" | "numeric" | "password";
 
-// Define the props for the CustomTextInput component
-// Extend TextInputProps to inherit standard props and allow spreading
 interface CustomTextInputProps
   extends Omit<
     TextInputProps,
@@ -37,39 +33,37 @@ interface CustomTextInputProps
     | "onBlur"
     | "placeholder"
     | "editable"
-    // Remove secureTextEntry from Omit, we will define it
   > {
-  label: string; // Label shown when input is empty and not focused
-  topLabel?: string; // Optional smaller label above the main label
-  value: string; // Controlled input value
-  onChangeText: (text: string) => void; // Callback for value changes
+  label: string;
+  topLabel?: string;
+  value: string;
+  onChangeText: (text: string) => void;
   variant?: InputVariant;
   size?: InputSize;
-  inputType?: InputFieldType; // Prop to define input behavior
-  placeholder?: string; // Placeholder text when input is focused and empty
+  inputType?: InputFieldType;
+  placeholder?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  onFocus?: (e: any) => void; // Optional onFocus handler (accept event)
-  onBlur?: (e: any) => void; // Optional onBlur handler (accept event)
-  style?: StyleProp<ViewStyle>; // Style for the main container
-  inputStyle?: StyleProp<TextStyle>; // Style specifically for the TextInput element
-  labelStyle?: StyleProp<TextStyle>; // Style for the main label
-  topLabelStyle?: StyleProp<TextStyle>; // Style for the top label
+  onFocus?: (e: any) => void;
+  onBlur?: (e: any) => void;
+  style?: StyleProp<ViewStyle>;
+  inputStyle?: StyleProp<TextStyle>;
+  labelStyle?: StyleProp<TextStyle>;
+  topLabelStyle?: StyleProp<TextStyle>;
   disabled?: boolean;
-  secureTextEntry?: boolean; // Add secureTextEntry explicitly
+  secureTextEntry?: boolean;
 }
 
-// Color palette (slightly adjusted for input context if needed)
 const COLORS = {
   primary: colors.orange500,
-  secondary: colors.orange400, // Used for focus/active state maybe
+  secondary: colors.orange400,
   white: "#ffffff",
-  disabledBackground: colors.grey200, // Different disabled bg for input
+  disabledBackground: colors.grey200,
   disabledBorder: colors.grey400,
   disabledText: colors.grey500,
-  textDefault: colors.black, // Default text color when typing
+  textDefault: colors.black,
   placeholder: colors.grey500,
-  borderDefault: colors.grey300, // Default border for outlined/text if needed
+  borderDefault: colors.grey300,
   topLabelDefault: colors.grey500,
 };
 
@@ -77,31 +71,30 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
   label,
   topLabel,
   value,
-  onChangeText, // Original callback from parent
+  onChangeText,
   variant = "primary",
   size = "regular",
   inputType = "text",
-  placeholder: customPlaceholder, // Rename to avoid conflict
+  placeholder: customPlaceholder,
   leftIcon,
   rightIcon,
-  onFocus, // Get standard onFocus prop
-  onBlur, // Get standard onBlur prop
+  onFocus,
+  onBlur,
   style,
   inputStyle,
   labelStyle,
   topLabelStyle,
   disabled = false,
-  secureTextEntry, // Destructure the explicitly passed secureTextEntry
-  ...otherTextInputProps // Collect remaining TextInput props
+  secureTextEntry,
+  ...otherTextInputProps
 }) => {
   const [isFocused, setIsFocused] = useState(false);
-
-  // Determine if the labels should be shown
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const showLabels = !isFocused && !value;
-  // Determine placeholder text
-  const placeholderText = customPlaceholder ?? label; // Use custom or default label
-
-  // --- Style Calculation Functions (Adapted for Input) ---
+  const placeholderText = customPlaceholder ?? label;
+  const handleTogglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
   const getBackgroundColor = (): string => {
     if (disabled) {
       return variant === "primary" ? COLORS.disabledBorder : "transparent";
@@ -136,7 +129,6 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
   };
   const getInputTextColor = (): string => {
     if (disabled) return COLORS.disabledText;
-    // Using the colors from your last provided version
     if (variant === "primary") return colors.orange500;
     return colors.orange400;
   };
@@ -187,7 +179,6 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
     return 12;
   };
 
-  // --- Input Type Configuration (Determine keyboardType, etc., but NOT secureTextEntry) ---
   let keyboardType: KeyboardTypeOptions = "default";
   let textContentType: React.ComponentProps<
     typeof TextInput
@@ -206,7 +197,6 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
       textContentType = "none";
       break;
     case "password":
-      // Set defaults for password type, but secureTextEntry is controlled by prop
       textContentType = "password";
       autoCapitalize = "none";
       break;
@@ -215,33 +205,27 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
       break;
   }
 
-  // --- Event Handlers ---
   const handleFocus = (e: any) => {
     setIsFocused(true);
-    onFocus?.(e); // Call external handler if provided, passing the event
+    onFocus?.(e);
   };
   const handleBlur = (e: any) => {
     setIsFocused(false);
-    onBlur?.(e); // Call external handler if provided, passing the event
+    onBlur?.(e);
   };
-  // Intercept text change to filter based on inputType
   const handleTextChange = (newText: string) => {
     if (inputType === "numeric") {
-      // Remove any non-digit characters using a regular expression
       const numericText = newText.replace(/[^0-9]/g, "");
-      // Call the original onChangeText with the filtered value
       onChangeText(numericText);
     } else {
-      // For other input types, pass the text through directly
       onChangeText(newText);
     }
   };
 
-  // --- Render ---
   return (
     <Pressable
-      onPress={disabled ? undefined : handleFocus} // Trigger focus state directly
-      disabled={disabled} // Keep disabled prop on Pressable
+      onPress={disabled ? undefined : handleFocus}
+      disabled={disabled}
       style={[
         styles.container,
         {
@@ -252,11 +236,10 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
           ...getHeight(),
         },
         disabled && variant !== "primary" && { opacity: 0.6 },
-        style, // Allow overriding container style
+        style,
       ]}
     >
-      {/* Added pointerEvents none to children to ensure Pressable receives tap */}
-      <View style={styles.contentContainer} pointerEvents="none">
+      <View style={styles.contentContainer}>
         {leftIcon && (
           <View
             style={[
@@ -276,11 +259,8 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
           </View>
         )}
 
-        {/* Central area for labels or input */}
-        <View style={styles.inputAreaContainer}>
+        <View style={[styles.inputAreaContainer, { pointerEvents: "auto" }]}>
           {showLabels ? (
-            // --- Render Labels ---
-            // Added pointerEvents none
             <View style={styles.labelContainer} pointerEvents="none">
               {topLabel && (
                 <Text
@@ -309,50 +289,47 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
               </Text>
             </View>
           ) : (
-            // --- Render TextInput ---
             <TextInput
               style={[
                 styles.input,
-                // Using your specific color change from previous version
                 { fontSize: getMainFontSize(), color: colors.orange500 },
                 { paddingLeft: leftIcon ? 0 : normalize("width", 4) },
                 { paddingRight: rightIcon ? 0 : normalize("width", 4) },
                 inputStyle,
               ]}
               value={value}
-              onChangeText={handleTextChange} // Use filtering handler
+              onChangeText={handleTextChange}
               onFocus={handleFocus}
               onBlur={handleBlur}
               placeholder={placeholderText}
-              // Using your specific color change from previous version
               placeholderTextColor={colors.orange500}
               editable={!disabled}
-              keyboardType={keyboardType} // Still useful to show the right keyboard
+              keyboardType={keyboardType}
               autoCapitalize={autoCapitalize}
-              secureTextEntry={secureTextEntry} // Use the passed prop directly
+              secureTextEntry={secureTextEntry && !isPasswordVisible}
               textContentType={textContentType}
+              key={secureTextEntry ? "secure" : "plain"}
               textAlignVertical="center"
               underlineColorAndroid="transparent"
-              autoFocus={true}
-              pointerEvents="auto" // Ensure TextInput itself is interactive
-              {...otherTextInputProps} // Spread other props
+              autoFocus={false}
+              pointerEvents="auto"
+              {...otherTextInputProps}
             />
           )}
         </View>
 
-        {/* Right Icon */}
-        {/* Wrap the icon rendering logic in a View that allows pointer events */}
-        {/* This allows the Pressable *inside* the icon (passed from parent) to be tapped */}
         {rightIcon && (
-          <View
-            pointerEvents="auto"
-            style={[
-              styles.iconContainer,
-              { paddingRight: getPadding().paddingHorizontal / 2 },
-            ]}
-          >
-            {rightIcon}
-          </View>
+          <TouchableOpacity onPress={handleTogglePasswordVisibility}>
+            <View
+              pointerEvents="auto"
+              style={[
+                styles.iconContainer,
+                { paddingRight: getPadding().paddingHorizontal / 2 },
+              ]}
+            >
+              {rightIcon}
+            </View>
+          </TouchableOpacity>
         )}
       </View>
     </Pressable>
@@ -361,7 +338,7 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: normalize("width", 196), // Default width, can be overridden by style prop
+    width: normalize("width", 196),
     justifyContent: "center",
   },
   contentContainer: {

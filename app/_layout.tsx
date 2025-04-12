@@ -1,8 +1,10 @@
 // File: app/_layout.tsx
 import React, { useEffect } from "react";
 import { Slot, useRouter, useSegments } from "expo-router";
-import { ActivityIndicator, View, StyleSheet } from "react-native";
+import { ActivityIndicator, View, StyleSheet, StatusBar } from "react-native";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { colors } from "./theme/theme";
 
 const InitialLayout = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -45,6 +47,7 @@ const InitialLayout = () => {
 export default function RootLayout() {
   return (
     <AuthProvider>
+      <StatusBar backgroundColor={colors.primaryBg}  />
       <InitialLayout />
     </AuthProvider>
   );
