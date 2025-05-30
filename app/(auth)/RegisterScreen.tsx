@@ -1,24 +1,16 @@
-import {
-  Image,
-  StyleSheet,
-  Text,
-  View,
-  Pressable,
-  TouchableOpacity,
-} from "react-native";
+import { Image, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
 import { normalize } from "../theme/normalize";
-import { borderRadius, colors } from "../theme/theme";
-import { CustomTextInput } from "../components/ui/Buttons/InputButton";
-import Entypo from "@expo/vector-icons/Entypo";
+import { colors } from "../theme/theme";
+import { CustomInput } from "../components/ui/Buttons/InputButton";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
-import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { GoogleIcon } from "../src/icons/social/GoogleIcon";
 import FacebookIcon from "../src/icons/social/FacebookIcon";
 import AppleIcon from "../src/icons/social/AppleIcon";
+import { PhoneNumberInput } from "../components/ui/PhoneNumberInput/PhoneNumberInput";
 type FormData = {
   phoneNumber: string;
   password: string;
@@ -33,13 +25,6 @@ const RegisterScreen = () => {
     defaultValues: { phoneNumber: "", password: "" },
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-
-  const handleShowPassword = () => {
-    setShowPassword((prev) => !prev);
-    console.log("first");
-  };
-
   const onSubmit = (data: FormData) => {
     console.log("Form Data:", data);
   };
@@ -52,7 +37,6 @@ const RegisterScreen = () => {
     <SafeAreaView style={styles.container}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.content}>
-          {/* Logo and Titles */}
           <View style={styles.logoContainer}>
             <Image
               source={require("@/assets/images/logo/pive.png")}
@@ -65,47 +49,38 @@ const RegisterScreen = () => {
             Davam etmək üçün qeydiyyatı tamamlayaq
           </Text>
 
-          {/* Input Fields managed by react-hook-form */}
           <View style={styles.inputContainer}>
-            {/* Phone Number Input */}
             <Controller
               control={control}
+              name="phoneNumber"
               rules={{
                 required: "Nömrə boş buraxıla bilməz",
                 pattern: {
-                  value: /^[0-9]+$/,
-                  message: "Yalnız rəqəmlərdən ibarət olmalıdır",
+                  value: /^[0-9]{10}$/,
+                  message: "Yalnız 10 rəqəmdən ibarət olmalıdır",
                 },
               }}
               render={({
-                field: { onChange, onBlur, value },
+                field: { onChange, value },
                 fieldState: { error },
               }) => (
-                <View>
-                  <CustomTextInput
-                    style={[
-                      styles.inputField,
-                      error ? styles.inputError : null,
-                    ]}
-                    variant="outlined"
-                    label="Nömrənizi yazın"
-                    topLabel="Mobil"
-                    inputType="numeric"
+                <>
+                  <PhoneNumberInput
                     value={value}
                     onChangeText={onChange}
-                    onBlur={onBlur}
+                    placeholder="Nömrəni yazmaq üçün"
+                    error={!!error}
                   />
                   {error && (
                     <Text style={styles.errorText}>{error.message}</Text>
                   )}
-                </View>
+                </>
               )}
-              name="phoneNumber"
             />
-
             {/* Password Input */}
             <Controller
               control={control}
+              name="password"
               rules={{
                 required: "Şifrə boş buraxıla bilməz",
                 minLength: {
@@ -118,46 +93,19 @@ const RegisterScreen = () => {
                 fieldState: { error },
               }) => (
                 <View>
-                  <CustomTextInput
-                    style={[
-                      styles.inputField,
-                      error ? styles.inputError : null,
-                    ]}
-                    variant="outlined"
-                    label="Şifrə təyin edin"
-                    topLabel="Yeni şifrə"
+                  <CustomInput
+                    label="Yeni şifrə"
                     value={value}
                     onChangeText={onChange}
-                    onBlur={onBlur}
-                    placeholder=""
-                    secureTextEntry={!showPassword}
-                    rightIcon={
-                      <TouchableOpacity
-                        onPress={handleShowPassword}
-                        style={styles.eyeIconContainer}
-                      >
-                        {showPassword ? (
-                          <Entypo
-                            name="eye"
-                            size={normalize("font", 20)}
-                            color={colors.orange500}
-                          />
-                        ) : (
-                          <Entypo
-                            name="eye-with-line"
-                            size={normalize("font", 20)}
-                            color={colors.orange500}
-                          />
-                        )}
-                      </TouchableOpacity>
-                    }
+                    placeholder="Şifrə təyin edək"
+                    isSecure={true}
+                    variant={error ? "error" : "default"}
                   />
                   {error && (
                     <Text style={styles.errorText}>{error.message}</Text>
                   )}
                 </View>
               )}
-              name="password"
             />
           </View>
 
@@ -246,9 +194,8 @@ const styles = StyleSheet.create({
     borderColor: colors.orange300,
   },
   errorText: {
-    color: colors.orange300,
+    color: colors.error,
     fontSize: normalize("font", 12),
-    marginTop: normalize("height", 4),
     alignSelf: "flex-start",
     paddingLeft: normalize("width", 4),
   },
@@ -302,8 +249,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: normalize("width", 10),
-    elevation: 3, // Add shadow for Android
-    shadowColor: "#000", // Add shadow for iOS
+    elevation: 3,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: normalize("height", 2) },
     shadowOpacity: 0.2,
     shadowRadius: normalize("width", 2),
