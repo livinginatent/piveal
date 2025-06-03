@@ -57,7 +57,7 @@ const RegisterScreen = () => {
                 required: "Nömrə boş buraxıla bilməz",
                 pattern: {
                   value: /^[0-9]{10}$/,
-                  message: "Yalnız 10 rəqəmdən ibarət olmalıdır",
+                  message: "Mobil nömrə təyin edək",
                 },
               }}
               render={({
@@ -70,10 +70,8 @@ const RegisterScreen = () => {
                     onChangeText={onChange}
                     placeholder="Nömrəni yazmaq üçün"
                     error={!!error}
+                    errorText={error?.message}
                   />
-                  {error && (
-                    <Text style={styles.errorText}>{error.message}</Text>
-                  )}
                 </>
               )}
             />
@@ -86,6 +84,10 @@ const RegisterScreen = () => {
                 minLength: {
                   value: 6,
                   message: "Şifrə ən az 6 simvol olmalıdır",
+                },
+                pattern: {
+                  value: /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/,
+                  message: "Ən azı bir xüsusi simvol olmalıdır",
                 },
               }}
               render={({
@@ -100,10 +102,8 @@ const RegisterScreen = () => {
                     placeholder="Şifrə təyin edək"
                     isSecure={true}
                     variant={error ? "error" : "default"}
+                    errorText={error?.message}
                   />
-                  {error && (
-                    <Text style={styles.errorText}>{error.message}</Text>
-                  )}
                 </View>
               )}
             />

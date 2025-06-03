@@ -24,6 +24,8 @@ interface PhoneNumberInputProps extends Omit<TextInputProps, "style"> {
   /** Style for the container view */
   style?: StyleProp<ViewStyle>;
   error?: boolean;
+  errorText?: string;
+  label?: string; // <-- new label prop
 }
 
 export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
@@ -32,6 +34,8 @@ export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   placeholder = "Enter phone number",
   style,
   error = false,
+  errorText,
+  label,
   ...props
 }) => {
   // extract prefix and number from incoming value
@@ -82,63 +86,71 @@ export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   );
 
   return (
-    <View
-      style={[
-        styles.container,
-        style,
-        error && {
-          borderColor: colors.error,
-          backgroundColor: colors.errorPink,
-        }, // error border color
-        isFocused && !error && { borderColor: colors.orange400 }, // focused border color
-      ]}
-    >
-      <TouchableOpacity
+    <View style={{ marginBottom: normalize("height", 16) }}>
+      {errorText ? (
+        <Text style={styles.errorText}>{errorText}</Text>
+      ) : isFocused || value ? (
+        <Text style={styles.upperLabel}>{label}</Text>
+      ) : null}
+
+      <View
         style={[
-          styles.prefixContainer,
+          styles.container,
+          style,
           error && {
+            borderColor: colors.error,
             backgroundColor: colors.errorPink,
           },
+          isFocused && !error && { borderColor: colors.orange400 },
         ]}
-        onPress={() => setIsDropdownVisible(true)}
-      >
-        <Text style={styles.prefixText}>{selectedPrefix}</Text>
-        <Text style={styles.dropdownArrow}>▼</Text>
-      </TouchableOpacity>
-
-      <TextInput
-        style={styles.input}
-        value={phoneNumber}
-        onChangeText={handlePhoneNumberChange}
-        placeholder={isFocused ? "" : placeholder}
-        placeholderTextColor={colors.orange500}
-        keyboardType="numeric"
-        maxLength={7}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        {...props}
-      />
-
-      <Modal
-        visible={isDropdownVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setIsDropdownVisible(false)}
       >
         <TouchableOpacity
-          style={styles.modalOverlay}
-          onPress={() => setIsDropdownVisible(false)}
+          style={[
+            styles.prefixContainer,
+            error && {
+              backgroundColor: colors.errorPink,
+            },
+          ]}
+          onPress={() => setIsDropdownVisible(true)}
         >
-          <View style={[styles.dropdownContainer]}>
-            <FlatList
-              data={prefixes}
-              renderItem={renderPrefixItem}
-              keyExtractor={(item) => item.id}
-              style={styles.dropdown}
-            />
-          </View>
+          <Text style={styles.prefixText}>{selectedPrefix}</Text>
+          <Text style={styles.dropdownArrow}>▼</Text>
         </TouchableOpacity>
-      </Modal>
+
+        <TextInput
+          style={styles.input}
+          value={phoneNumber}
+          onChangeText={handlePhoneNumberChange}
+          placeholder={isFocused || errorText ? "" : placeholder}
+          placeholderTextColor={colors.orange500}
+          keyboardType="numeric"
+          maxLength={7}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          {...props}
+        />
+
+        <Modal
+          visible={isDropdownVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsDropdownVisible(false)}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            onPress={() => setIsDropdownVisible(false)}
+          >
+            <View style={[styles.dropdownContainer]}>
+              <FlatList
+                data={prefixes}
+                renderItem={renderPrefixItem}
+                keyExtractor={(item) => item.id}
+                style={styles.dropdown}
+              />
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      </View>
     </View>
   );
 };
@@ -148,7 +160,7 @@ const styles = StyleSheet.create({
     width: "100%",
     minHeight: normalize("height", 65), // Ensure consistent height
     flexDirection: "row",
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: colors.orange500,
     borderRadius: 4,
     backgroundColor: colors.primaryBg,
@@ -212,5 +224,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.orange500,
     textAlign: "center",
+  },
+  errorText: {
+    position: "absolute",
+    top: 4,
+    left: 65,
+    color: colors.error,
+    zIndex: 1,
+    fontSize: normalize("font", 12),
+  },
+  upperLabel: {
+    position: "absolute",
+    top: 4,
+    left: 1,
+    fontSize: normalize("font", 12),
+    color: colors.grey400,
+    zIndex: 1,
   },
 });

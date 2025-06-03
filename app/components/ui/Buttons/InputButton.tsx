@@ -11,22 +11,21 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
-
 type InputVariant = "default" | "active" | "disabled" | "error";
 
-
 interface CustomInputProps {
-  variant?: InputVariant; 
+  variant?: InputVariant;
   label: string;
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
-  keyboardType?: KeyboardTypeOptions; 
-  isSecure?: boolean; 
-  leftIcon?: string; 
-  rightIcon?: React.ReactNode; 
-  onLeftIconPress?: () => void; 
-  onRightIconPress?: () => void; 
+  keyboardType?: KeyboardTypeOptions;
+  isSecure?: boolean;
+  leftIcon?: string;
+  rightIcon?: React.ReactNode;
+  onLeftIconPress?: () => void;
+  onRightIconPress?: () => void;
+  errorText?: string;
 }
 
 export const CustomInput: React.FC<CustomInputProps> = ({
@@ -41,6 +40,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   rightIcon,
   onLeftIconPress,
   onRightIconPress,
+  errorText,
 }) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(!isSecure);
@@ -53,7 +53,6 @@ export const CustomInput: React.FC<CustomInputProps> = ({
   };
 
   const getContainerStyle = (): object => {
-    
     if (variant === "error") {
       return styles.containerError;
     }
@@ -61,13 +60,11 @@ export const CustomInput: React.FC<CustomInputProps> = ({
       return styles.containerDisabled;
     }
 
-    
     if (isFocused || variant === "active") {
-      return styles.containerActive; 
+      return styles.containerActive;
     }
 
-    
-    return styles.containerUnfocused; 
+    return styles.containerUnfocused;
   };
 
   const getTextStyle = (): object => {
@@ -77,7 +74,6 @@ export const CustomInput: React.FC<CustomInputProps> = ({
       case "error":
         return styles.textError;
       default:
-        
         return styles.textDefault;
     }
   };
@@ -86,15 +82,17 @@ export const CustomInput: React.FC<CustomInputProps> = ({
     if (variant === "disabled") {
       return "#888";
     }
-    
+
     return colors.orange500;
   };
 
   return (
     <View style={[styles.inputWrapper, getContainerStyle()]}>
       {/* Upper Label: Show when focused OR when there's a value */}
-      {isFocused || value ? (
-        <Text style={[styles.upperLabel]}>{label}</Text>
+      {variant === "error" ? (
+        <Text style={styles.errorText}>{errorText}</Text>
+      ) : isFocused || value ? (
+        <Text style={styles.upperLabel}>{label}</Text>
       ) : null}
 
       <View style={styles.inputContent}>
@@ -102,29 +100,29 @@ export const CustomInput: React.FC<CustomInputProps> = ({
           <TouchableOpacity
             onPress={onLeftIconPress}
             style={styles.iconContainer}
-            disabled={variant === "disabled"} 
+            disabled={variant === "disabled"}
           >
             <Icon
               name={leftIcon}
-              size={normalize("font", 20)} 
-              color={variant === "disabled" ? "#888" : colors.orange500} 
+              size={normalize("font", 20)}
+              color={variant === "disabled" ? "#888" : colors.orange500}
             />
           </TouchableOpacity>
         )}
         <TextInput
           style={[styles.input, getTextStyle()]}
-          placeholder={isFocused ? "" : placeholder} 
+          placeholder={isFocused || errorText ? "" : placeholder}
           placeholderTextColor={getPlaceholderTextColor()}
           value={value}
           onChangeText={onChangeText}
           onFocus={handleFocus}
           onBlur={handleBlur}
           keyboardType={keyboardType}
-          secureTextEntry={isSecure && !showPassword} 
-          editable={variant !== "disabled"} 
-          autoCapitalize="none" 
+          secureTextEntry={isSecure && !showPassword}
+          editable={variant !== "disabled"}
+          autoCapitalize="none"
         />
-        {isSecure ? ( 
+        {isSecure ? (
           <TouchableOpacity
             onPress={togglePasswordVisibility}
             style={styles.iconContainer}
@@ -133,11 +131,16 @@ export const CustomInput: React.FC<CustomInputProps> = ({
             <Icon
               name={showPassword ? "eye-off-outline" : "eye-outline"}
               size={normalize("font", 20)}
-              color={variant === "disabled" ? "#888" : colors.orange500}
+              color={
+                variant === "disabled"
+                  ? "#888"
+                  : variant === "error"
+                  ? colors.error
+                  : colors.orange500
+              }
             />
           </TouchableOpacity>
         ) : (
-          
           rightIcon && (
             <TouchableOpacity
               onPress={onRightIconPress}
@@ -151,7 +154,7 @@ export const CustomInput: React.FC<CustomInputProps> = ({
                   color={variant === "disabled" ? "#888" : colors.orange500}
                 />
               ) : (
-                rightIcon 
+                rightIcon
               )}
             </TouchableOpacity>
           )
@@ -164,61 +167,69 @@ export const CustomInput: React.FC<CustomInputProps> = ({
 const styles = StyleSheet.create({
   inputWrapper: {
     borderRadius: 4,
-    borderWidth: 2,
+    borderWidth: 1.5,
     paddingHorizontal: 12,
     paddingVertical: 8,
     marginBottom: 16,
-    minHeight: normalize("height", 65), 
+    maxHeight: normalize("height", 68),
+    minHeight: normalize("height", 65),
   },
-  
+
   containerUnfocused: {
-    borderColor: colors.orange500, 
+    borderColor: colors.orange500,
     backgroundColor: colors.primaryBg,
   },
   containerActive: {
-    borderColor: colors.orange400, 
+    borderColor: colors.orange400,
     backgroundColor: colors.primaryBg,
   },
   containerDisabled: {
-    borderColor: "#555", 
+    borderColor: "#555",
     backgroundColor: "#222",
   },
   containerError: {
-    borderColor: colors.error, 
+    borderColor: colors.error,
     backgroundColor: colors.errorPink,
   },
   upperLabel: {
     position: "absolute",
     top: 4,
     left: 12,
-    fontSize: normalize("font", 12), 
-    color: colors.grey400, 
-    zIndex: 1, 
+    fontSize: normalize("font", 12),
+    color: colors.grey400,
+    zIndex: 1,
   },
   inputContent: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: normalize("height", 12), 
+    marginTop: normalize("height", 12),
   },
   input: {
     flex: 1,
     fontWeight: "500",
     paddingVertical: 0,
     paddingHorizontal: 4,
-    margin: 0,
-    color: colors.orange500, 
+    color: colors.orange500,
     fontSize: normalize("font", 18),
   },
   textDefault: {
-    color: colors.orange500, 
+    color: colors.orange500,
   },
   textDisabled: {
-    color: "#888", 
+    color: "#888",
   },
   textError: {
-    color: colors.error, 
+    color: colors.error,
   },
   iconContainer: {
     paddingHorizontal: 5,
+  },
+  errorText: {
+    position: "absolute",
+    top: 4,
+    left: 12,
+    color: colors.error,
+    zIndex: 1,
+    fontSize: normalize("font", 12),
   },
 });
