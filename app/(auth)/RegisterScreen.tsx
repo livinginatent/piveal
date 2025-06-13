@@ -20,6 +20,9 @@ import AppleIcon from "../src/icons/social/AppleIcon";
 import { PhoneNumberInput } from "../components/ui/PhoneNumberInput/PhoneNumberInput";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
+// THIS SCREEN IS RESPONSIBLE FOR USER REGISTRATION. USERS NEED TO PICK A DATE TO CONFIRM THEY ARE 18 OR OLDER. USERS THEN
+// ENTER THEIR PHONE NUMBER AND PASSWORD
+
 type FormData = {
   phoneNumber: string;
   password: string;
@@ -38,7 +41,6 @@ const RegisterScreen = () => {
   const onSubmit = (data: FormData) => {
     let dateOnlyBirthDate: Date | null = null;
     if (birthDate) {
-      
       dateOnlyBirthDate = new Date(
         birthDate.getFullYear(),
         birthDate.getMonth(),
@@ -124,7 +126,9 @@ const RegisterScreen = () => {
             >
               <Text
                 style={
-                  !isEligible ? styles.errorBirthDateText : styles.birthDateText
+                  birthDateError
+                    ? styles.errorBirthDateText
+                    : styles.birthDateText
                 }
               >
                 {birthDate
@@ -200,6 +204,10 @@ const RegisterScreen = () => {
                     minLength: {
                       value: 6,
                       message: "Şifrə ən az 6 simvol olmalıdır",
+                    },
+                    maxLength: {
+                      value: 12,
+                      message: "Şifrə ən çox 12 simvol olmalıdır",
                     },
                     pattern: {
                       value: /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/,
@@ -397,19 +405,19 @@ const styles = StyleSheet.create({
     borderRadius: normalize("width", 4),
     maxHeight: normalize("height", 68),
     minHeight: normalize("height", 65),
-    // Added padding and border for the TouchableOpacity to make it look like an input
+    
     paddingVertical: normalize("height", 12),
     paddingHorizontal: normalize("width", 16),
     borderWidth: 1.5,
     backgroundColor: colors.white,
-    justifyContent: "center", // Center text vertically
+    justifyContent: "center", 
     borderColor: colors.orange500,
   },
 
   birthDateText: {
-    color: colors.orange500,
     fontWeight: 500,
     fontSize: normalize("font", 18),
+    color: colors.orange500,
   },
   errorBirthDateText: {
     color: colors.error,
