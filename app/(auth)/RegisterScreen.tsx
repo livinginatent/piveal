@@ -19,7 +19,7 @@ import FacebookIcon from "../src/icons/social/FacebookIcon";
 import AppleIcon from "../src/icons/social/AppleIcon";
 import { PhoneNumberInput } from "../components/ui/PhoneNumberInput/PhoneNumberInput";
 import DateTimePicker from "@react-native-community/datetimepicker";
-
+import { registerUser } from "../api/authService";
 // THIS SCREEN IS RESPONSIBLE FOR USER REGISTRATION. USERS NEED TO PICK A DATE TO CONFIRM THEY ARE 18 OR OLDER. USERS THEN
 // ENTER THEIR PHONE NUMBER AND PASSWORD
 
@@ -27,6 +27,7 @@ type FormData = {
   phoneNumber: string;
   password: string;
   dob?: Date;
+  username: string;
 };
 
 const RegisterScreen = () => {
@@ -37,27 +38,6 @@ const RegisterScreen = () => {
   } = useForm<FormData>({
     defaultValues: { phoneNumber: "", password: "" },
   });
-
-  const onSubmit = (data: FormData) => {
-    let dateOnlyBirthDate: Date | null = null;
-    if (birthDate) {
-      dateOnlyBirthDate = new Date(
-        birthDate.getFullYear(),
-        birthDate.getMonth(),
-        birthDate.getDate()
-      );
-    }
-    const completeData = {
-      ...data,
-      dob: dateOnlyBirthDate,
-    };
-    console.log("Form Data:", completeData);
-  };
-
-  const onError = (errors: any) => {
-    console.log("Form Errors:", errors);
-  };
-
   const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isEligible, setIsEligible] = useState(false);
@@ -99,6 +79,29 @@ const RegisterScreen = () => {
     if (isEligible) {
       setShowRegistrationForms(true);
       setShowDatePicker(false);
+    }
+  };
+
+  const onSubmit = async (data: FormData) => {
+    if (!birthDate) {
+      setBirthDateError("Doğum tarixinizi seçməlisiniz.");
+      return;
+    }
+    if (!isEligible) {
+      setBirthDateError("Yaşınız 18-dən kiçikdir. Qeydiyyat mümkün deyil.");
+      return;
+    }
+    const dobString = birthDate.toISOString().split("T")[0];
+    const registrationPayload = {
+      phoneNumber: data.phoneNumber,
+      password: data.password,
+      dob: dobString,
+      username: "test",
+    };
+    try {
+      const response = await registerUser(registrationPayload);
+    } catch (error) {
+      console.error("Registration error:", error);
     }
   };
 
@@ -198,6 +201,37 @@ const RegisterScreen = () => {
                 />
                 <Controller
                   control={control}
+                  name="username"
+                  rules={{
+                    required: "Ad boş buraxıla bilməz",
+                    minLength: {
+                      value: 3,
+                      message: "Ad ən az 3 simvol olmalıdır",
+                    },
+                    maxLength: {
+                      value: 12,
+                      message: "Ad ən çox 12 simvol olmalıdır",
+                    },
+                  }}
+                  render={({
+                    field: { onChange, onBlur, value },
+                    fieldState: { error },
+                  }) => (
+                    <View>
+                      <CustomInput
+                        label="İstifadəçi adın"
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder="Səni necə adlandıraq?"
+                        variant={error ? "error" : "default"}
+                        errorText={error?.message}
+                      />
+                    </View>
+                  )}
+                />
+
+                <Controller
+                  control={control}
                   name="password"
                   rules={{
                     required: "Şifrə boş buraxıla bilməz",
@@ -234,7 +268,7 @@ const RegisterScreen = () => {
               </View>
 
               <CustomCTAButton
-                onPress={handleSubmit(onSubmit, onError)}
+                onPress={handleSubmit(onSubmit)}
                 style={[
                   styles.inputField,
                   {
@@ -309,7 +343,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: "100%",
-    gap: normalize("height", 16),
+    gap: normalize("height", 4),
     marginBottom: normalize("height", 24),
   },
   inputField: {
@@ -405,12 +439,12 @@ const styles = StyleSheet.create({
     borderRadius: normalize("width", 4),
     maxHeight: normalize("height", 68),
     minHeight: normalize("height", 65),
-    
+
     paddingVertical: normalize("height", 12),
     paddingHorizontal: normalize("width", 16),
     borderWidth: 1.5,
     backgroundColor: colors.white,
-    justifyContent: "center", 
+    justifyContent: "center",
     borderColor: colors.orange500,
   },
 
