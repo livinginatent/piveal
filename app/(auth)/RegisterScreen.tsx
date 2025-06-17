@@ -20,6 +20,8 @@ import AppleIcon from "../src/icons/social/AppleIcon";
 import { PhoneNumberInput } from "../components/ui/PhoneNumberInput/PhoneNumberInput";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { registerUser } from "../api/authService";
+import { useNavigation, useRouter } from "expo-router";
+import { useAuth } from "../context/AuthContext";
 // THIS SCREEN IS RESPONSIBLE FOR USER REGISTRATION. USERS NEED TO PICK A DATE TO CONFIRM THEY ARE 18 OR OLDER. USERS THEN
 // ENTER THEIR PHONE NUMBER AND PASSWORD
 
@@ -43,7 +45,8 @@ const RegisterScreen = () => {
   const [isEligible, setIsEligible] = useState(false);
   const [birthDateError, setBirthDateError] = useState<string | null>(null);
   const [showRegistrationForms, setShowRegistrationForms] = useState(false);
-
+  const router = useRouter();
+  const { register } = useAuth(); // import this hook
   const checkEligibility = (selectedDate: Date) => {
     const today = new Date();
 
@@ -96,10 +99,14 @@ const RegisterScreen = () => {
       phoneNumber: data.phoneNumber,
       password: data.password,
       dob: dobString,
-      username: "test",
+      username: data.username,
     };
     try {
       const response = await registerUser(registrationPayload);
+      console.log("Registration successful:", response);
+      register(data.phoneNumber, data.username); // call the context register function
+
+      router.push("/(auth)/VerifyOtpScreen");
     } catch (error) {
       console.error("Registration error:", error);
     }

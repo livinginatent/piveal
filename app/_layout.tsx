@@ -3,18 +3,17 @@ import React, { useEffect } from "react";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { ActivityIndicator, View, StyleSheet, StatusBar } from "react-native";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { colors } from "./theme/theme";
 
 const InitialLayout = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, isRegistered, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
     if (loading) return;
 
-    const inAuthGroup = (segments[0] as string) === "(auth)";
+    const inAuthGroup = segments[0] === "(auth)";
 
     console.log(
       `loading: ${loading}, isAuthenticated: ${
@@ -22,16 +21,20 @@ const InitialLayout = () => {
       }, inAuthGroup: ${inAuthGroup}`
     );
 
-    if (!isAuthenticated && !inAuthGroup) {
+    if (!isAuthenticated && !inAuthGroup && !isRegistered) {
+      // If not authenticated or registered, redirect to WelcomeScreen
       console.log("Redirecting to auth welcome");
-      // --- CORRECTED PATH ---
       router.replace("/(auth)/WelcomeScreen");
-    } else if (isAuthenticated && inAuthGroup) {
+    } else if (isRegistered && !isAuthenticated && inAuthGroup) {
+      // If registered but not authenticated, stay on OTP screen
+      console.log("Redirecting to VerifyOtpScreen");
+      router.replace("/(auth)/VerifyOtpScreen");
+    } else if (isAuthenticated && !inAuthGroup) {
+      // If authenticated and not in auth group, redirect to home
       console.log("Redirecting to app tabs home");
-      // --- CORRECTED PATH (assuming filename is home.tsx) ---
       router.replace("/(app)/(tabs)/home");
     }
-  }, [isAuthenticated, segments, loading, router]);
+  }, [isAuthenticated, isRegistered, segments, loading, router]);
 
   if (loading) {
     return (
@@ -47,7 +50,7 @@ const InitialLayout = () => {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <StatusBar backgroundColor={colors.primaryBg}  />
+      <StatusBar backgroundColor={colors.primaryBg} />
       <InitialLayout />
     </AuthProvider>
   );

@@ -21,23 +21,10 @@ export const WelcomeScreen: React.FC = () => {
   };
 
   const handleRegister = () => {
-    console.log("Register pressed");
     router.push("/(auth)/RegisterScreen");
   };
 
-  const handleTestRegister = async () => {
-    try {
-      const response = await registerUser({
-        email: "test@example.com",
-        username: "testuser",
-        password: "test1234",
-        dob: "2000-01-01",
-      });
-      console.log("Register API response:", response);
-    } catch (error: any) {
-      console.error("Register API error:", error);
-    }
-  };
+
 
   return (
     <SafeAreaView style={styles.container}>
