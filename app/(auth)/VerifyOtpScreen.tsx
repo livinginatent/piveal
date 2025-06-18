@@ -1,37 +1,93 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   StatusBar,
   TouchableOpacity,
-  TextInput,
-  Dimensions,
   SafeAreaView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Alert, // Import Alert for displaying messages
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { OtpInput } from "react-native-otp-entry";
+import { normalize } from "../theme/normalize";
+import { colors } from "../theme/theme";
+import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
+import { verifyOtpApi } from "../api/authService"; // Import your API function
+import { useAuth } from "../context/AuthContext"; // Import useAuth to get login function
+import { router } from "expo-router"; // Import router for navigation
+
+const VerifyOtpScreen = () => {
+  const { login } = useAuth(); // Get the login function from AuthContext
+
+  const [storedPhoneNumber, setStoredPhoneNumber] = useState<string | null>(
+    null
+  );
+  const [otpValue, setOtpValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // State for loading indicator
+  const [otpError, setOtpError] = useState<string | null>(null);
 
 
-const OTPScreen = () => {
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const inputRefs = useRef<TextInput[]>([]);
+  useEffect(() => {
+    const loadPhoneNumber = async () => {
+      const phone = await AsyncStorage.getItem("tempPhoneNumber");
+      setStoredPhoneNumber(phone);
+    };
+    loadPhoneNumber();
+  }, []);
 
-  const handleOtpChange = (value: string, index: number) => {
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
-
-    if (value && index < 5) {
-      setActiveIndex(index + 1);
-      inputRefs.current[index + 1]?.focus();
-    }
+  const handleOtpChange = (otp: string) => {
+    // Using onTextChange from OtpInput
+    setOtpValue(otp);
   };
 
-  const handleKeyPress = (key: string, index: number) => {
-    if (key === "Backspace" && !otp[index] && index > 0) {
-      setActiveIndex(index - 1);
-      inputRefs.current[index - 1]?.focus();
+  const onSubmit = async () => {
+    if (!storedPhoneNumber) {
+      Alert.alert(
+        "Xəta",
+        "Telefon nömrəsi tapılmadı. Zəhmət olmasa yenidən cəhd edin."
+      );
+      return;
+    }
+    if (otpValue.length !== 4) {
+      // Assuming 4-digit OTP now
+      Alert.alert("Xəta", "Zəhmət olmasa tam OTP kodunu daxil edin.");
+      return;
+    }
+
+    setIsLoading(true); // Start loading
+
+    try {
+      const payload = {
+        phoneNumber: storedPhoneNumber,
+        otp: otpValue,
+      };
+
+      const response = await verifyOtpApi(payload);
+      console.log("OTP Verification successful:", response);
+
+      await login();
+      await AsyncStorage.removeItem("tempPhoneNumber");
+
+      setOtpError(null); // clear previous error
+      Alert.alert("Uğurlu", "Telefon nömrəsi uğurla təsdiqləndi!");
+      router.replace("/(app)/(tabs)/home");
+    } catch (error: any) {
+      console.error("OTP Verification error:", error);
+      let errorMessage = "OTP doğrulama zamanı xəta baş verdi.";
+      if (
+        error.response &&
+        error.response.data &&
+        (error.response.data.message || error.response.data.error)
+      ) {
+        errorMessage = error.response.data.message || error.response.data.error;
+      }
+      setOtpError(errorMessage); // set inline error
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -39,55 +95,47 @@ const OTPScreen = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#f8f9fa" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="#ff6b35" />
-        </TouchableOpacity>
-      </View>
+      {/* Dismiss keyboard on tap outside */}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.fullScreenContent}>
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.backButton}>
+              <Ionicons name="chevron-back" size={24} color="#ff6b35" />
+            </TouchableOpacity>
+          </View>
 
-      {/* Content */}
-      <View style={styles.content}>
-        <Text style={styles.title}>OTP tesdiqi</Text>
-        <Text style={styles.subtitle}>
-          +994990001122 nömrəsinə göndərdiyimiz təsdiq kodunu daxil edin:
-        </Text>
-
-        {/* OTP Input */}
-        <View style={styles.otpContainer}>
-          {/* Cursor line */}
-          <View style={[styles.cursor, { left: activeIndex * 45 + 15 }]} />
-
-          {otp.map((digit, index) => (
-            <View key={index} style={styles.otpDotContainer}>
-              <View
-                style={[
-                  styles.otpDot,
-                  digit ? styles.otpDotFilled : styles.otpDotEmpty,
-                ]}
-              />
-              <TextInput
-                ref={(ref) => {
-                  if (ref) inputRefs.current[index] = ref;
-                }}
-                style={styles.hiddenInput}
-                value={digit}
-                onChangeText={(value) => handleOtpChange(value, index)}
-                onKeyPress={({ nativeEvent }) =>
-                  handleKeyPress(nativeEvent.key, index)
-                }
-                keyboardType="numeric"
-                maxLength={1}
-                autoFocus={index === 0}
-                onFocus={() => setActiveIndex(index)}
+          {/* Content */}
+          <View style={styles.content}>
+            <Text style={styles.title}>OTP tesdiqi</Text>
+            <Text style={styles.subtitle}>
+              {storedPhoneNumber} nömrəsinə göndərdiyimiz təsdiq kodunu daxil
+              edin:
+            </Text>
+            {/* OTP Input using react-native-otp-entry */}
+            <OtpInput
+              numberOfDigits={4} // Ensure this matches your generateOtp function
+              onTextChange={handleOtpChange} // Use onTextChange to update otpValue
+              onFilled={handleOtpChange} // Also use onFilled to capture the final value when all digits are entered
+              focusColor={colors.orange400}
+              theme={{
+                containerStyle: styles.otpContainer,
+                pinCodeContainerStyle: styles.pinCodeContainer,
+              }}
+            />
+            {otpError && <Text style={styles.otpErrorText}>{otpError}</Text>}
+            <View style={styles.buttonStyle}>
+              <CustomCTAButton
+                label={isLoading ? "Təsdiqlənir..." : "Təsdiqlə"}
+                onPress={onSubmit}
+                disabled={isLoading} // Disable button while loading
               />
             </View>
-          ))}
+          </View>
         </View>
-      </View>
-
-      {/* Keyboard Spacer */}
-      <View style={styles.keyboardSpacer} />
+      </TouchableWithoutFeedback>
+      {/* Keyboard Spacer is no longer typically needed with react-native-otp-entry unless you have other elements below */}
+      {/* <View style={styles.keyboardSpacer} /> */}
     </SafeAreaView>
   );
 };
@@ -95,77 +143,95 @@ const OTPScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+
     backgroundColor: "#f8f9fa",
   },
+
+  fullScreenContent: {
+    flex: 1,
+  },
+
   header: {
     paddingHorizontal: 20,
+
     paddingTop: 10,
+
     paddingBottom: 20,
   },
+
   backButton: {
     width: 40,
+
     height: 40,
+
     justifyContent: "center",
+
     alignItems: "flex-start",
   },
+
   content: {
     flex: 1,
-    paddingHorizontal: 20,
+
+    paddingHorizontal: 12,
   },
+
   title: {
     fontSize: 32,
+
     fontWeight: "700",
+
     color: "#2d3436",
+
     marginBottom: 16,
+
     letterSpacing: -0.5,
   },
+
   subtitle: {
     fontSize: 16,
+
     color: "#636e72",
+
     lineHeight: 24,
+
     marginBottom: 60,
   },
+
   otpContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    position: "relative",
-    paddingVertical: 40,
+    display: "flex",
   },
-  cursor: {
-    position: "absolute",
-    top: 25,
-    width: 2,
-    height: 30,
-    backgroundColor: "#2d3436",
-    zIndex: 1,
+
+  pinCodeContainer: {
+    width: normalize("width", 84),
+    height: normalize("height", 84),
+    borderRadius: 4,
+    borderColor: colors.orange500,
+    borderWidth: 1.7,
   },
-  otpDotContainer: {
-    marginHorizontal: 12,
-    position: "relative",
-  },
-  otpDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-  },
-  otpDotEmpty: {
-    backgroundColor: "#b2bec3",
-  },
-  otpDotFilled: {
-    backgroundColor: "#2d3436",
-  },
-  hiddenInput: {
-    position: "absolute",
-    top: -8,
-    left: -8,
-    width: 32,
-    height: 32,
-    opacity: 0,
-  },
+
   keyboardSpacer: {
-    height: 300, // Approximate keyboard height
+    height: 300,
+  },
+
+  otpValueText: {
+    marginTop: 20,
+
+    fontSize: 18,
+
+    textAlign: "center",
+  },
+
+  buttonStyle: {
+    marginTop: normalize("height", 14),
+
+    alignSelf: "center",
+  },
+  otpErrorText: {
+    color: "#d63031",
+    fontSize: 14,
+    marginTop: 8,
+    textAlign: "center",
   },
 });
 
-export default OTPScreen;
+export default VerifyOtpScreen;

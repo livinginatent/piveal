@@ -47,9 +47,9 @@ export const verifyOtpApi = async (
   return response.data;
 };
 
-// For login (if you allow login by phone, username, or email)
+// For login 
 type LoginPayload = {
-  emailOrUsername: string; // Keeping this flexible as per your controller
+  phoneNumberOrUsername: string; // Keeping this flexible as per your controller
   password: string;
 };
 
