@@ -1,0 +1,6 @@
+{
+  "userNotFound": "Пользователь не найден",
+  "userAlreadyVerified": "Пользователь уже подтвержден",
+  "invalidOtp": "Неверный OTP",
+  "otpExpired": "Ваш OTP истек"
+}

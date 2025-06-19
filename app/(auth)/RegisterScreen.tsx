@@ -169,13 +169,14 @@ const RegisterScreen = () => {
           )}
 
           {/* Conditional rendering of 'Continue' button after eligibility */}
-          {isEligible && !showRegistrationForms && (
+          {!showRegistrationForms && (
             <>
               <CustomCTAButton
                 onPress={handleContinueRegistration}
                 style={styles.continueButton}
                 variant="primary"
                 label="Davam et!"
+                disabled={!isEligible}
               />
             </>
           )}
@@ -368,9 +369,8 @@ const styles = StyleSheet.create({
     color: colors.error,
     fontSize: normalize("font", 12),
     alignSelf: "flex-start",
-    paddingLeft: normalize("width", 4),
-    marginTop: normalize("height", 4),
-    marginBottom: normalize("height", 12),
+    paddingLeft: normalize("width", 2),
+   
   },
   submitButton: {
     width: "100%",
@@ -432,7 +432,6 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: normalize("height", 16),
   },
   continueButton: {
     marginTop: normalize("height", 16),

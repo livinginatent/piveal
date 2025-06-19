@@ -1,0 +1,14 @@
+{
+  "userNotFound": "İstifadəçi tapılmadı",
+  "userAlreadyVerified": "İstifadəçi artıq təsdiqlənib",
+  "invalidOtp": "Yanlış OTP",
+  "otpExpired": "Sizin OTP müddəti bitib",
+  "otpVerificationError": "OTP doğrulama zamanı xəta baş verdi",
+  "otpCodeError": "Zəhmət olmasa tam OTP kodunu daxil edin",
+  "phoneNotFound": "Telefon nömrəsi tapılmadı. Zəhmət olmasa yenidən cəhd edin.",
+  "otpSuccess": "Telefon nömrəsi uğurla təsdiqləndi!",
+  "verifying": "Təsdiqlənir...",
+  "verify": "Təsdiqlə",
+  "otpVerification": "OTP təsdiqi",
+  "enterOtp": "Telefonunuza göndərilən OTP kodunu daxil edin."
+}

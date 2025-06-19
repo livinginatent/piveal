@@ -1,0 +1,14 @@
+{
+  "userNotFound": "User not found",
+  "userAlreadyVerified": "User is already verified",
+  "invalidOtp": "Invalid OTP",
+  "otpExpired": "Your OTP has expired",
+  "otpVerificationError": "Error during OTP verification",
+  "otpCodeError": "Please enter the complete OTP code",
+  "phoneNotFound": "Phone number not found. Please try again.",
+  "otpSuccess": "Phone number successfully verified!",
+  "verifying": "Verifying...",
+  "verify": "Verify",
+  "otpVerification": "OTP Verification",
+  "enterOtp": "Enter the OTP sent to your phone."
+}
