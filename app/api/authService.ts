@@ -2,7 +2,7 @@
 import axiosInstance from "./axiosInstance";
 
 // Updated payload for phone number-based registration
-type RegisterPayload = {
+export type RegisterPayload = {
   phoneNumber: string; // Changed from email
   username: string;
   password: string;
@@ -69,5 +69,22 @@ export const loginApi = async (
   payload: LoginPayload
 ): Promise<LoginResponse> => {
   const response = await axiosInstance.post("/auth/login", payload);
+  return response.data;
+};
+
+// Payload & response for resending OTP
+export type ResendOtpPayload = {
+  phoneNumber: string | null;
+};
+
+export type ResendOtpResponse = {
+  message: string;
+  expiresAt: string;
+};
+
+export const resendOtpApi = async (
+  payload: ResendOtpPayload
+): Promise<ResendOtpResponse> => {
+  const response = await axiosInstance.post("/auth/resend-otp", payload);
   return response.data;
 };

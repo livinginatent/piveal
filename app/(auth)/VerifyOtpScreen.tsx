@@ -16,13 +16,13 @@ import { OtpInput } from "react-native-otp-entry";
 import { normalize } from "../theme/normalize";
 import { colors } from "../theme/theme";
 import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
-import { verifyOtpApi } from "../api/authService";
+import { resendOtpApi, verifyOtpApi } from "../api/authService";
 import { useAuth } from "../context/AuthContext";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 
 const VerifyOtpScreen = () => {
-  const { login } = useAuth();
+  const { verifyOtp } = useAuth();
   const { t } = useTranslation();
   const [storedPhoneNumber, setStoredPhoneNumber] = useState<string | null>(
     null
@@ -30,7 +30,7 @@ const VerifyOtpScreen = () => {
   const [otpValue, setOtpValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
-
+  const otpInputRef = useRef<any>(null); // Add this line
   useEffect(() => {
     const loadPhoneNumber = async () => {
       const phone = await AsyncStorage.getItem("tempPhoneNumber");
@@ -67,7 +67,7 @@ const VerifyOtpScreen = () => {
       const response = await verifyOtpApi(payload);
       console.log("OTP Verification successful:", response);
 
-      login();
+      await verifyOtp(response.accessToken, response.refreshToken);
       await AsyncStorage.removeItem("tempPhoneNumber");
 
       setOtpError(null);
@@ -99,6 +99,23 @@ const VerifyOtpScreen = () => {
     }
   };
 
+  const resendOtp = async () => {
+    try {
+      const payload = {
+        phoneNumber: storedPhoneNumber,
+      };
+      const response = await resendOtpApi(payload);
+      if (otpInputRef.current) {
+        otpInputRef.current.setValue("");
+      }
+      setOtpValue("");
+      setOtpError(null);
+      console.log("OTP Resent successfully:", response);
+    } catch (error: any) {
+      console.log(error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#f8f9fa" />
@@ -122,19 +139,30 @@ const VerifyOtpScreen = () => {
               onTextChange={handleOtpChange}
               onFilled={handleOtpChange}
               focusColor={colors.orange400}
+              ref={otpInputRef}
               theme={{
                 containerStyle: styles.otpContainer,
                 pinCodeContainerStyle: styles.pinCodeContainer,
               }}
             />
             {otpError && <Text style={styles.otpErrorText}>{t(otpError)}</Text>}
-            <View style={styles.buttonStyle}>
-              <CustomCTAButton
-                label={isLoading ? "Təsdiqlənir..." : "Təsdiqlə"}
-                onPress={onSubmit}
-                disabled={isLoading}
-              />
-            </View>
+            {otpError ? (
+              <View style={styles.buttonStyle}>
+                <CustomCTAButton
+                  label={"Yeni OTP göndər"}
+                  onPress={resendOtp}
+                  disabled={isLoading}
+                />
+              </View>
+            ) : (
+              <View style={styles.buttonStyle}>
+                <CustomCTAButton
+                  label={isLoading ? "Təsdiqlənir..." : "Təsdiqlə"}
+                  onPress={onSubmit}
+                  disabled={isLoading}
+                />
+              </View>
+            )}
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -237,4 +265,3 @@ const styles = StyleSheet.create({
 });
 
 export default VerifyOtpScreen;
-

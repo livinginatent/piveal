@@ -1,51 +1,48 @@
 // File: context/AuthContext.tsx
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { loginApi, verifyOtpApi, RegisterPayload } from "../api/authService"; // your API wrappers
 
 type AuthContextType = {
   isAuthenticated: boolean;
   isRegistered: boolean;
-  login: () => void;
-  logout: () => void;
   loading: boolean;
+  login: (identifier: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
   register: (phoneNumber: string, username: string) => void;
-  verifyOtp: () => void;
+  verifyOtp: (phoneNumber: string, otp: string) => Promise<void>;
 };
 
-const AuthContext = createContext<AuthContextType>({
-  isAuthenticated: false,
-  isRegistered: false,
-  login: () => {},
-  logout: () => {},
-  loading: true,
-  register: () => {},
-  verifyOtp: () => {},
-});
+const AuthContext = createContext<AuthContextType>(null!);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isRegistered, setIsRegistered] = useState(false); // User registration state
+  const [isRegistered, setIsRegistered] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const login = async () => {
-    await AsyncStorage.setItem("auth_token", "dummy_token");
+  // centralize token storage
+  const authenticate = async (accessToken: string, refreshToken: string) => {
+    await AsyncStorage.multiSet([
+      ["access_token", accessToken],
+      ["refresh_token", refreshToken],
+    ]);
     setIsAuthenticated(true);
   };
 
-  const logout = async () => {
-    await AsyncStorage.removeItem("auth_token");
-    setIsAuthenticated(false);
-    setIsRegistered(false); // Also clear registration status on logout
-  };
-
-  const checkAuth = async () => {
+  const login = async (phoneNumberOrUsername: string, password: string) => {
     try {
-      const token = await AsyncStorage.getItem("auth_token");
-      if (token) setIsAuthenticated(true);
-    } catch (e) {
-      console.error("Auth check error", e);
-    } finally {
-      setLoading(false);
+      const res = await loginApi({ phoneNumberOrUsername, password });
+      // assume res = { accessToken, refreshToken, user }
+      await authenticate(res.accessToken, res.refreshToken);
+    } catch (err) {
+      // rethrow or handle
+      throw err;
     }
   };
 
@@ -56,11 +53,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // You may want to save some user-related data in AsyncStorage
   };
 
-  const verifyOtp = () => {
-    // After OTP verification, mark the user as authenticated
-    setIsAuthenticated(true);
-    // Optionally store a token or flag to keep them authenticated
-    AsyncStorage.setItem("auth_token", "dummy_token"); // Store token
+  const verifyOtp = async (accessToken: string, refreshToken: string) => {
+    try {
+      // assume res = { accessToken, refreshToken, user }
+      await authenticate(accessToken, refreshToken);
+      setIsRegistered(false); // you’re now fully logged in
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const logout = async () => {
+    await AsyncStorage.multiRemove(["access_token", "refresh_token"]);
+    setIsAuthenticated(false);
+    setIsRegistered(false);
+  };
+
+  // on app start, check for token
+  const checkAuth = async () => {
+    const token = await AsyncStorage.getItem("access_token");
+    if (token) setIsAuthenticated(true);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -72,10 +85,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         isAuthenticated,
         isRegistered,
+        loading,
         login,
         logout,
-        loading,
-        register,
+       register,
         verifyOtp,
       }}
     >
