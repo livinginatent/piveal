@@ -25,7 +25,7 @@ interface CustomInputProps {
   rightIcon?: React.ReactNode;
   onLeftIconPress?: () => void;
   onRightIconPress?: () => void;
-  errorText?: string;
+  errorText?: string | null | undefined;
 }
 
 export const CustomInput: React.FC<CustomInputProps> = ({

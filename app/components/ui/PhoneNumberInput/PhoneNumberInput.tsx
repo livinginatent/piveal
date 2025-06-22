@@ -24,7 +24,7 @@ interface PhoneNumberInputProps extends Omit<TextInputProps, "style"> {
   /** Style for the container view */
   style?: StyleProp<ViewStyle>;
   error?: boolean;
-  errorText?: string;
+  errorText?: string | undefined | null;
   label?: string; // <-- new label prop
 }
 

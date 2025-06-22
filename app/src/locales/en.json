@@ -10,5 +10,7 @@
   "verifying": "Verifying...",
   "verify": "Verify",
   "otpVerification": "OTP Verification",
-  "enterOtp": "Enter the OTP sent to your phone."
+  "enterOtp": "Enter the OTP sent to your phone.",
+  "phoneNumberAlreadyTaken":"Phone number already taken"
+
 }

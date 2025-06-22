@@ -23,6 +23,7 @@ import { registerUser } from "../api/authService";
 import { router } from "expo-router";
 import { useAuth } from "../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
+import { useTranslation } from "react-i18next";
 
 // THIS SCREEN IS RESPONSIBLE FOR USER REGISTRATION. USERS NEED TO PICK A DATE TO CONFIRM THEY ARE 18 OR OLDER. USERS THEN
 // ENTER THEIR PHONE NUMBER AND PASSWORD
@@ -42,12 +43,15 @@ const RegisterScreen = () => {
   } = useForm<FormData>({
     defaultValues: { phoneNumber: "", password: "" },
   });
+  const { t } = useTranslation();
   const [birthDate, setBirthDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isEligible, setIsEligible] = useState(false);
   const [birthDateError, setBirthDateError] = useState<string | null>(null);
   const [showRegistrationForms, setShowRegistrationForms] = useState(false);
-  const { register } = useAuth(); // import this hook
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+    const { register } = useAuth(); // import this hook
   const checkEligibility = (selectedDate: Date) => {
     const today = new Date();
 
@@ -104,14 +108,23 @@ const RegisterScreen = () => {
     };
     try {
       const response = await registerUser(registrationPayload);
-      console.log("Registration successful:", response);
-      register(data.phoneNumber, data.username); // call the context register function;
+      register(data.phoneNumber, data.username);
       await AsyncStorage.setItem("tempPhoneNumber", data.phoneNumber);
-      router.push({
-        pathname: "/(auth)/VerifyOtpScreen",
-      });
-    } catch (error) {
-      console.error("Registration error:", error);
+      router.push({ pathname: "/(auth)/VerifyOtpScreen" });
+    } catch (error: any) {
+      const message =
+        error.response?.data?.message || error.response?.data?.error;
+
+      if (message.includes("Phone number")) {
+        setPhoneError(t("phoneNumberAlreadyTaken"));
+        setUsernameError(null);
+      } else if (message.includes("Username")) {
+        setUsernameError(t("userNameTaken"));
+        setPhoneError(null);
+      } else {
+        setPhoneError(null);
+        setUsernameError(t(message));
+      }
     }
   };
 
@@ -204,8 +217,8 @@ const RegisterScreen = () => {
                         value={value}
                         onChangeText={onChange}
                         placeholder="Nömrəni yazmaq üçün"
-                        error={!!error}
-                        errorText={error?.message}
+                        error={!!error || !!phoneError}
+                        errorText={error?.message || phoneError}
                       />
                     </>
                   )}
@@ -234,8 +247,8 @@ const RegisterScreen = () => {
                         value={value}
                         onChangeText={onChange}
                         placeholder="Səni necə adlandıraq?"
-                        variant={error ? "error" : "default"}
-                        errorText={error?.message}
+                        variant={error || usernameError ? "error" : "default"}
+                        errorText={error?.message || usernameError}
                       />
                     </View>
                   )}
@@ -370,7 +383,6 @@ const styles = StyleSheet.create({
     fontSize: normalize("font", 12),
     alignSelf: "flex-start",
     paddingLeft: normalize("width", 2),
-   
   },
   submitButton: {
     width: "100%",
