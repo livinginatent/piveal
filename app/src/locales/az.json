@@ -12,5 +12,6 @@
   "enterOtp": "Telefonunuza göndərilən OTP kodunu daxil edin.",
   "phoneNumberAlreadyTaken":"Nömrə qeydiyyatdan keçib",
   "userNameTaken":"Gecikmisen, bu ad seçilib",
-  "userNotFound":"İstifadəçi tapılmadı"
+  "userNotFound":"İstifadəçi tapılmadı",
+  "wrongPassword":"Şifrə yanlışdır"
 }

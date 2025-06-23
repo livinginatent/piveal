@@ -9,10 +9,10 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { normalize } from "@/app/theme/normalize";
-import { loginApi, registerUser } from "@/app/api/authService";
+import { loginApi, resendOtpApi } from "@/app/api/authService";
 import { Link, useRouter } from "expo-router";
 import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
-import { colors } from "@/app/theme/theme"; // Import colors
+import { colors } from "@/app/theme/theme";
 import { PhoneNumberInput } from "../components/ui/PhoneNumberInput/PhoneNumberInput";
 import { Controller, useForm } from "react-hook-form";
 import { useState } from "react";
@@ -22,10 +22,13 @@ import AppleIcon from "../src/icons/social/AppleIcon";
 import { CustomInput } from "../components/ui/Buttons/InputButton";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 type FormData = {
   phoneNumber: string;
   password: string;
 };
+
 export const LoginScreen: React.FC = () => {
   const { t } = useTranslation();
 
@@ -39,6 +42,7 @@ export const LoginScreen: React.FC = () => {
   const router = useRouter();
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isAccountVerified, setIsAccountVerified] = useState<boolean>(true); // Track account verification status
   const { login } = useAuth();
 
   const onSubmit = async (data: FormData) => {
@@ -48,24 +52,41 @@ export const LoginScreen: React.FC = () => {
     };
     try {
       const response = await loginApi(loginPayload);
-      await login(response.accessToken, response.refreshToken);
-      router.push({ pathname: "/(app)/(tabs)/home" });
+      if (response.user.isVerified) {
+        await login(response.accessToken, response.refreshToken);
+        router.push({ pathname: "/(app)/(tabs)/home" });
+      } 
     } catch (error: any) {
       const message =
         error.response?.data?.message || error.response?.data?.error;
-      console.log(message);
       if (message === "User not found.") {
         setPhoneError(t("userNotFound"));
         setPasswordError(null);
       } else if (message.includes("Account")) {
         setPhoneError("Hesab təsdiqlənməyib");
+        setIsAccountVerified(false);
+        // Store phone number only if account is not verified
+        await AsyncStorage.setItem("tempPhoneNumber", data.phoneNumber);
       } else if (message.includes("Invalid")) {
-        setPasswordError(t("userNameTaken"));
+        setPasswordError(t("wrongPassword"));
         setPhoneError(null);
       } else {
+        // Handle other errors if necessary
       }
     }
   };
+
+  const handleVerifyOtp = async () => {
+    const phoneNumber = await AsyncStorage.getItem("tempPhoneNumber");
+    await AsyncStorage.setItem("isFromLogin", "true");
+    if (phoneNumber) {
+      // Call resendOtpApi to send OTP
+      const otpPayload = { phoneNumber };
+      await resendOtpApi(otpPayload);
+      router.push({ pathname: "/(auth)/VerifyOtpScreen" });
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
@@ -104,6 +125,9 @@ export const LoginScreen: React.FC = () => {
           <Controller
             control={control}
             name="password"
+            rules={{
+              required: "Şifrə boş buraxıla bilməz",
+            }}
             render={({
               field: { onChange, onBlur, value },
               fieldState: { error },
@@ -122,10 +146,13 @@ export const LoginScreen: React.FC = () => {
             )}
           />
           <CustomCTAButton
-            onPress={handleSubmit(onSubmit)}
+            onPress={
+              isAccountVerified ? handleSubmit(onSubmit) : handleVerifyOtp
+            }
             style={{ width: "100%" }}
-            label="Daxil ol"
+            label={isAccountVerified ? "Daxil ol" : "Verify OTP"}
           />
+
           <View style={styles.registerContainer}>
             <Text style={styles.register}>Hesabın yoxdur?</Text>
             <Link href={"/(auth)/RegisterScreen"}>
@@ -190,17 +217,6 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     marginBottom: normalize("height", 39),
   },
-  loginButton: {
-    width: "100%",
-    marginBottom: normalize("height", 24),
-  },
-  registerButton: {
-    width: "100%",
-    marginBottom: normalize("height", 24),
-  },
-  testButton: {
-    width: "100%",
-  },
   input: {
     width: "100%",
     display: "flex",
@@ -222,15 +238,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: normalize("horizontal", 2),
-  },
-  eyeIconContainer: {
-    padding: normalize("width", 4),
-  },
-  haveAccount: {
-    color: colors.grey400,
-    fontSize: normalize("font", 14),
-    fontWeight: "400",
-    marginTop: normalize("height", 24),
   },
   separatorContainer: {
     flexDirection: "row",

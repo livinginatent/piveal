@@ -72,7 +72,15 @@ const VerifyOtpScreen = () => {
 
       setOtpError(null);
       Alert.alert("Uğurlu", "Telefon nömrəsi uğurla təsdiqləndi!");
-      router.replace("/(app)/(tabs)/home");
+      const isFromLogin = await AsyncStorage.getItem("isFromLogin");
+      if (isFromLogin === "true") {
+        // User was redirected from login screen, return to login
+        await AsyncStorage.removeItem("isFromLogin");
+        router.replace("/(auth)/LoginScreen");
+      } else {
+        // User came from another flow (e.g., registration)
+        router.replace("/(app)/(tabs)/home");
+      }
     } catch (error: any) {
       console.error("OTP Verification error:", error);
       let errorMessage = "OTP doğrulama zamanı xəta baş verdi.";

@@ -62,6 +62,7 @@ type LoginResponse = {
     email?: string; // Optional as per schema
     username: string;
     phoneNumber: string;
+    isVerified:boolean
   };
 };
 
