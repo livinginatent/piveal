@@ -21,11 +21,14 @@ import FacebookIcon from "../src/icons/social/FacebookIcon";
 import AppleIcon from "../src/icons/social/AppleIcon";
 import { CustomInput } from "../components/ui/Buttons/InputButton";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 type FormData = {
   phoneNumber: string;
   password: string;
 };
 export const LoginScreen: React.FC = () => {
+  const { t } = useTranslation();
+
   const {
     control,
     handleSubmit,
@@ -35,22 +38,32 @@ export const LoginScreen: React.FC = () => {
   });
   const router = useRouter();
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const { login } = useAuth();
 
-  const handleLogin = () => {
-    console.log("Login pressed");
-  };
   const onSubmit = async (data: FormData) => {
     const loginPayload = {
       phoneNumber: data.phoneNumber,
       password: data.password,
     };
     try {
-      await login(loginPayload.phoneNumber, loginPayload.password);
+      const response = await loginApi(loginPayload);
+      await login(response.accessToken, response.refreshToken);
       router.push({ pathname: "/(app)/(tabs)/home" });
     } catch (error: any) {
       const message =
         error.response?.data?.message || error.response?.data?.error;
+      console.log(message);
+      if (message === "User not found.") {
+        setPhoneError(t("userNotFound"));
+        setPasswordError(null);
+      } else if (message.includes("Account")) {
+        setPhoneError("Hesab təsdiqlənməyib");
+      } else if (message.includes("Invalid")) {
+        setPasswordError(t("userNameTaken"));
+        setPhoneError(null);
+      } else {
+      }
     }
   };
   return (
@@ -82,7 +95,7 @@ export const LoginScreen: React.FC = () => {
                   value={value}
                   onChangeText={onChange}
                   placeholder="Nömrəni yazmaq üçün"
-                  error={!!error || !!phoneError}
+                  error={!!error || !!phoneError} // Display error if there's an error or custom phone error
                   errorText={error?.message || phoneError}
                 />
               </>
@@ -91,21 +104,6 @@ export const LoginScreen: React.FC = () => {
           <Controller
             control={control}
             name="password"
-            rules={{
-              required: "Şifrə boş buraxıla bilməz",
-              minLength: {
-                value: 6,
-                message: "Şifrə ən az 6 simvol olmalıdır",
-              },
-              maxLength: {
-                value: 12,
-                message: "Şifrə ən çox 12 simvol olmalıdır",
-              },
-              pattern: {
-                value: /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/,
-                message: "Ən azı bir xüsusi simvol olmalıdır",
-              },
-            }}
             render={({
               field: { onChange, onBlur, value },
               fieldState: { error },
@@ -117,8 +115,8 @@ export const LoginScreen: React.FC = () => {
                   onChangeText={onChange}
                   placeholder="Şifrəni daxil et"
                   isSecure={true}
-                  variant={error ? "error" : "default"}
-                  errorText={error?.message}
+                  variant={error || passwordError ? "error" : "default"}
+                  errorText={error?.message || passwordError}
                 />
               </View>
             )}

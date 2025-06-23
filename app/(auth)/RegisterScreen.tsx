@@ -51,7 +51,7 @@ const RegisterScreen = () => {
   const [showRegistrationForms, setShowRegistrationForms] = useState(false);
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
-    const { register } = useAuth(); // import this hook
+  const { register } = useAuth(); // import this hook
   const checkEligibility = (selectedDate: Date) => {
     const today = new Date();
 

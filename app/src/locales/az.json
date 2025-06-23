@@ -1,5 +1,4 @@
 {
-  "userNotFound": "İstifadəçi tapılmadı",
   "userAlreadyVerified": "İstifadəçi artıq təsdiqlənib",
   "invalidOtp": "Yanlış OTP",
   "otpExpired": "Sizin OTP müddəti bitib",
@@ -12,5 +11,6 @@
   "otpVerification": "OTP təsdiqi",
   "enterOtp": "Telefonunuza göndərilən OTP kodunu daxil edin.",
   "phoneNumberAlreadyTaken":"Nömrə qeydiyyatdan keçib",
-  "userNameTaken":"Gecikmisen, bu ad seçilib"
+  "userNameTaken":"Gecikmisen, bu ad seçilib",
+  "userNotFound":"İstifadəçi tapılmadı"
 }

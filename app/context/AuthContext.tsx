@@ -35,12 +35,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsAuthenticated(true);
   };
 
-  const login = async (phoneNumber: string, password: string) => {
+  const login = async (accessToken: string, refreshToken: string) => {
     try {
-      const res = await loginApi({ phoneNumber, password });
-      // assume res = { accessToken, refreshToken, user }
-      console.log(res)
-      await authenticate(res.accessToken, res.refreshToken);
+      await authenticate(accessToken, refreshToken);
     } catch (err) {
       // rethrow or handle
       throw err;
@@ -89,7 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading,
         login,
         logout,
-       register,
+        register,
         verifyOtp,
       }}
     >
