@@ -107,7 +107,7 @@ const RegisterScreen = () => {
       username: data.username,
     };
     try {
-      const response = await registerUser(registrationPayload);
+      await registerUser(registrationPayload);
       register(data.phoneNumber, data.username);
       await AsyncStorage.setItem("tempPhoneNumber", data.phoneNumber);
       router.push({ pathname: "/(auth)/VerifyOtpScreen" });

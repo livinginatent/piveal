@@ -49,7 +49,7 @@ export const verifyOtpApi = async (
 
 // For login 
 type LoginPayload = {
-  phoneNumberOrUsername: string; // Keeping this flexible as per your controller
+  phoneNumber: string; // Keeping this flexible as per your controller
   password: string;
 };
 

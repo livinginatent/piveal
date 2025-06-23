@@ -35,10 +35,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsAuthenticated(true);
   };
 
-  const login = async (phoneNumberOrUsername: string, password: string) => {
+  const login = async (phoneNumber: string, password: string) => {
     try {
-      const res = await loginApi({ phoneNumberOrUsername, password });
+      const res = await loginApi({ phoneNumber, password });
       // assume res = { accessToken, refreshToken, user }
+      console.log(res)
       await authenticate(res.accessToken, res.refreshToken);
     } catch (err) {
       // rethrow or handle

@@ -17,14 +17,12 @@ export const WelcomeScreen: React.FC = () => {
   const router = useRouter();
 
   const handleLogin = () => {
-    console.log("Login pressed");
+    router.push("/(auth)/LoginScreen");
   };
 
   const handleRegister = () => {
     router.push("/(auth)/RegisterScreen");
   };
-
-
 
   return (
     <SafeAreaView style={styles.container}>
