@@ -189,11 +189,11 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontWeight: "500",
-    paddingVertical: 0,
-    paddingHorizontal: 6,
+    textAlign: "left",
     margin: 0,
     color: colors.orange500,
     fontSize: normalize("font", 18),
+    
   },
   modalOverlay: {
     flex: 1,
@@ -231,6 +231,7 @@ const styles = StyleSheet.create({
     left: 65,
     color: colors.error,
     zIndex: 1,
+    lineHeight:13,
     fontSize: normalize("font", 12),
   },
   upperLabel: {

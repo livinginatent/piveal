@@ -114,7 +114,10 @@ export const LoginScreen: React.FC = () => {
               <>
                 <PhoneNumberInput
                   value={value}
-                  onChangeText={onChange}
+                  onChangeText={(text) => {
+                    onChange(text); 
+                    setPhoneError(null); 
+                  }}
                   placeholder="Nömrəni yazmaq üçün"
                   error={!!error || !!phoneError} // Display error if there's an error or custom phone error
                   errorText={error?.message || phoneError}
