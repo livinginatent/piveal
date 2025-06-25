@@ -65,7 +65,7 @@ const RegisterScreen = () => {
     setIsEligible(eligible);
 
     if (!eligible) {
-      setBirthDateError("Yaşınız 18-dən kiçikdir. Qeydiyyat mümkün deyil.");
+      setBirthDateError(t("youngerThan18"));
       setShowRegistrationForms(false);
     } else {
       setBirthDateError(null);
@@ -92,11 +92,11 @@ const RegisterScreen = () => {
 
   const onSubmit = async (data: FormData) => {
     if (!birthDate) {
-      setBirthDateError("Doğum tarixinizi seçməlisiniz.");
+      setBirthDateError(t("mustPickDob"));
       return;
     }
     if (!isEligible) {
-      setBirthDateError("Yaşınız 18-dən kiçikdir. Qeydiyyat mümkün deyil.");
+      setBirthDateError("youngerThan18");
       return;
     }
     const dobString = birthDate.toISOString().split("T")[0];
@@ -139,7 +139,7 @@ const RegisterScreen = () => {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.greeting}>Xoş gəldin!</Text>
+          <Text style={styles.greeting}>{t("welcome")}</Text>
 
           {/* Date Picker Section */}
           {!showRegistrationForms && (
@@ -157,9 +157,7 @@ const RegisterScreen = () => {
                     : styles.birthDateText
                 }
               >
-                {birthDate
-                  ? birthDate.toLocaleDateString()
-                  : "Doğum tarixinizi seçin"}
+                {birthDate ? birthDate.toLocaleDateString() : t("pickDob")}
               </Text>
             </TouchableOpacity>
           )}
@@ -171,6 +169,7 @@ const RegisterScreen = () => {
           {showDatePicker && (
             <View style={styles.datePickerWrapper}>
               <DateTimePicker
+              locale="az-AZ"
                 testID="dateTimePicker"
                 value={birthDate || new Date()}
                 mode="date"
@@ -188,7 +187,7 @@ const RegisterScreen = () => {
                 onPress={handleContinueRegistration}
                 style={styles.continueButton}
                 variant="primary"
-                label="Davam et!"
+                label={t("continue")}
                 disabled={!isEligible}
               />
             </>
@@ -202,10 +201,10 @@ const RegisterScreen = () => {
                   control={control}
                   name="phoneNumber"
                   rules={{
-                    required: "Nömrə boş buraxıla bilməz",
+                    required: t("mustEnterPhoneNumber"),
                     pattern: {
                       value: /^[0-9]{10}$/,
-                      message: "Mobil nömrə təyin edək",
+                      message: t("inputPhoneNumber"),
                     },
                   }}
                   render={({
@@ -216,7 +215,7 @@ const RegisterScreen = () => {
                       <PhoneNumberInput
                         value={value}
                         onChangeText={onChange}
-                        placeholder="Nömrəni yazmaq üçün"
+                        placeholder={t("forNumber")}
                         error={!!error || !!phoneError}
                         errorText={error?.message || phoneError}
                       />
@@ -227,14 +226,14 @@ const RegisterScreen = () => {
                   control={control}
                   name="username"
                   rules={{
-                    required: "Ad boş buraxıla bilməz",
+                    required: t("nameCannotBeEmpty"),
                     minLength: {
                       value: 3,
-                      message: "Ad ən az 3 simvol olmalıdır",
+                      message: t("min3CharsInUserName"),
                     },
                     maxLength: {
                       value: 12,
-                      message: "Ad ən çox 12 simvol olmalıdır",
+                      message: t("userNameMaxLengthMessage"),
                     },
                   }}
                   render={({
@@ -243,10 +242,10 @@ const RegisterScreen = () => {
                   }) => (
                     <View>
                       <CustomInput
-                        label="İstifadəçi adın"
+                        label={t("usernameLabel")}
                         value={value}
                         onChangeText={onChange}
-                        placeholder="Səni necə adlandıraq?"
+                        placeholder={t("usernamePlaceholder")}
                         variant={error || usernameError ? "error" : "default"}
                         errorText={error?.message || usernameError}
                       />
@@ -258,18 +257,18 @@ const RegisterScreen = () => {
                   control={control}
                   name="password"
                   rules={{
-                    required: "Şifrə boş buraxıla bilməz",
+                    required: t("passwordRequired"),
                     minLength: {
                       value: 6,
-                      message: "Şifrə ən az 6 simvol olmalıdır",
+                      message: t("passwordMinLengthMessage"),
                     },
                     maxLength: {
                       value: 12,
-                      message: "Şifrə ən çox 12 simvol olmalıdır",
+                      message: t("passwordMaxLengthMessage"),
                     },
                     pattern: {
                       value: /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/,
-                      message: "Ən azı bir xüsusi simvol olmalıdır",
+                      message: t("passwordSpecialCharMessage"),
                     },
                   }}
                   render={({
@@ -278,10 +277,10 @@ const RegisterScreen = () => {
                   }) => (
                     <View>
                       <CustomInput
-                        label="Yeni şifrə"
+                        label={t("passwordLabel")}
                         value={value}
                         onChangeText={onChange}
-                        placeholder="Şifrə təyin edək"
+                        placeholder={t("passwordPlaceholder")}
                         isSecure={true}
                         variant={error ? "error" : "default"}
                         errorText={error?.message}
@@ -300,15 +299,15 @@ const RegisterScreen = () => {
                   },
                 ]}
                 variant="primary"
-                label="BAŞLAYAQ!"
+                label={t("letsStartButton")}
               />
             </>
           )}
 
-          <Text style={styles.haveAccount}>Hesabın var? Giriş et</Text>
+          {/* <Text style={styles.haveAccount}>{t("letsStartButton")}</Text> */}
           <View style={styles.separatorContainer}>
             <View style={styles.separatorLine} />
-            <Text style={styles.separatorText}>və ya</Text>
+            <Text style={styles.separatorText}>{t("orSeparator")}</Text>
             <View style={styles.separatorLine} />
           </View>
 

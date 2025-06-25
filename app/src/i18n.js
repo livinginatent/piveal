@@ -14,7 +14,7 @@ i18n.use(initReactI18next).init({
     en: { translation: en },
     ru: { translation: ru },
   },
-  lng: "az", // Set default language
+  lng: "en", // Set default language
   fallbackLng: "en", // Set fallback language in case translation is missing
   interpolation: {
     escapeValue: false, // React already escapes values

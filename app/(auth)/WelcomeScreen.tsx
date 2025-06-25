@@ -1,19 +1,14 @@
 import type React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  StatusBar,
-  Image,
-} from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, Image } from "react-native";
 import { normalize } from "@/app/theme/normalize";
 import { registerUser } from "@/app/api/authService";
 import { useRouter } from "expo-router";
 import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
 import { colors } from "@/app/theme/theme"; // Import colors
+import { useTranslation } from "react-i18next";
 
 export const WelcomeScreen: React.FC = () => {
+  const { t } = useTranslation();
   const router = useRouter();
 
   const handleLogin = () => {
@@ -34,15 +29,15 @@ export const WelcomeScreen: React.FC = () => {
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.greeting}>Salam!</Text>
+        <Text style={styles.greeting}>{t("heyThere!")}</Text>
         <CustomCTAButton
-          label="Hesabıma gir"
+          label={t("login")}
           onPress={handleLogin}
           variant="primary"
           style={styles.loginButton}
         />
         <CustomCTAButton
-          label="Mən hələ təzəyəm"
+          label={t("register")}
           variant="outlined"
           onPress={handleRegister}
           style={styles.registerButton}
