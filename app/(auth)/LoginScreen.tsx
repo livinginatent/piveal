@@ -54,8 +54,8 @@ export const LoginScreen: React.FC = () => {
       const response = await loginApi(loginPayload);
       if (response.user.isVerified) {
         await login(response.accessToken, response.refreshToken);
-        router.push({ pathname: "/(app)/(tabs)/home" });
-      } 
+        router.push("/(app)/(tabs)/home");
+      }
     } catch (error: any) {
       const message =
         error.response?.data?.message || error.response?.data?.error;
@@ -83,7 +83,7 @@ export const LoginScreen: React.FC = () => {
       // Call resendOtpApi to send OTP
       const otpPayload = { phoneNumber };
       await resendOtpApi(otpPayload);
-      router.push({ pathname: "/(auth)/VerifyOtpScreen" });
+      router.push("/(auth)/VerifyOtpScreen");
     }
   };
 
@@ -115,8 +115,8 @@ export const LoginScreen: React.FC = () => {
                 <PhoneNumberInput
                   value={value}
                   onChangeText={(text) => {
-                    onChange(text); 
-                    setPhoneError(null); 
+                    onChange(text);
+                    setPhoneError(null);
                   }}
                   placeholder="Nömrəni yazmaq üçün"
                   error={!!error || !!phoneError} // Display error if there's an error or custom phone error

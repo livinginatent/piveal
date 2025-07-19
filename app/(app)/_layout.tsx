@@ -6,19 +6,6 @@ import { ActivityIndicator, View } from "react-native"; // Optional loading/safe
 import { useAuth } from "../context/AuthContext";
 
 export default function AppStackLayout() {
-  const { loading, isAuthenticated } = useAuth();
-
-  // Optional: Add loading indicator or safeguard redirect, though root handles primary logic
-  if (loading) {
-    // You might want a loading indicator specific to the app section
-    // return <ActivityIndicator />;
-  }
-  if (!isAuthenticated) {
-    console.log("App stack layout redirecting to auth because no token found.");
-    // Ensure users can't reach this layout if not logged in
-    return <Redirect href="/(auth)/WelcomeScreen" />;
-  }
-
   // This defines the main stack navigator for the authenticated section
   return (
     <Stack

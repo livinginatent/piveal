@@ -38,5 +38,6 @@
   "passwordPlaceholder": "Set the password",
   "letsStartButton": "LET'S START!",
   "haveAccountPrompt": "Already have an account? Sign in",
-  "orSeparator": "or"
+  "orSeparator": "or",
+  "greetingLabel": "Finish the registration to start gifting beers"
 }

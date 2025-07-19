@@ -8,8 +8,8 @@ export default function Index() {
 
 
   if (isAuthenticated) {
-    return <Redirect href="/(tabs)" />;
+    return <Redirect href="/(app)/(tabs)/home" />;
   }
 
-  return <Redirect href="/auth/user/WelcomeScreen" />;
+  return <Redirect href="/(auth)/WelcomeScreen" />;
 }

@@ -1,4 +1,11 @@
-import { View, Text, Button, Alert, TouchableOpacity,StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  Alert,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { router, useRouter } from "expo-router";
 import { useAuth } from "@/app/context/AuthContext";
 import { colors } from "@/app/theme/theme";
@@ -19,8 +26,6 @@ export default function Home() {
           text: "Logout",
           onPress: async () => {
             await logout();
-            // After logout, _layout.tsx should automatically redirect to WelcomeScreen
-            // But an explicit replace can be good practice to ensure.
             router.replace("/(auth)/WelcomeScreen");
           },
         },

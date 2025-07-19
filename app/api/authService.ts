@@ -6,7 +6,6 @@ export type RegisterPayload = {
   phoneNumber: string; // Changed from email
   username: string;
   password: string;
-  dob: string;
 };
 
 // Updated response type

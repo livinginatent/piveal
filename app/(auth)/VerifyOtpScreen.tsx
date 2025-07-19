@@ -74,11 +74,9 @@ const VerifyOtpScreen = () => {
       Alert.alert("Uğurlu", "Telefon nömrəsi uğurla təsdiqləndi!");
       const isFromLogin = await AsyncStorage.getItem("isFromLogin");
       if (isFromLogin === "true") {
-        // User was redirected from login screen, return to login
         await AsyncStorage.removeItem("isFromLogin");
         router.replace("/(auth)/LoginScreen");
       } else {
-        // User came from another flow (e.g., registration)
         router.replace("/(app)/(tabs)/home");
       }
     } catch (error: any) {

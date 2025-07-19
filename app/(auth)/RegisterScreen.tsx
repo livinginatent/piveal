@@ -18,7 +18,6 @@ import { GoogleIcon } from "../src/icons/social/GoogleIcon";
 import FacebookIcon from "../src/icons/social/FacebookIcon";
 import AppleIcon from "../src/icons/social/AppleIcon";
 import { PhoneNumberInput } from "../components/ui/PhoneNumberInput/PhoneNumberInput";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { registerUser } from "../api/authService";
 import { router } from "expo-router";
 import { useAuth } from "../context/AuthContext";
@@ -31,7 +30,6 @@ import { useTranslation } from "react-i18next";
 type FormData = {
   phoneNumber: string;
   password: string;
-  dob?: Date;
   username: string;
 };
 
@@ -44,73 +42,21 @@ const RegisterScreen = () => {
     defaultValues: { phoneNumber: "", password: "" },
   });
   const { t } = useTranslation();
-  const [birthDate, setBirthDate] = useState<Date | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [isEligible, setIsEligible] = useState(false);
-  const [birthDateError, setBirthDateError] = useState<string | null>(null);
-  const [showRegistrationForms, setShowRegistrationForms] = useState(false);
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const { register } = useAuth(); // import this hook
-  const checkEligibility = (selectedDate: Date) => {
-    const today = new Date();
-
-    const eighteenYearsAgo = new Date(
-      today.getFullYear() - 18,
-      today.getMonth(),
-      today.getDate()
-    );
-
-    const eligible = selectedDate <= eighteenYearsAgo;
-    setIsEligible(eligible);
-
-    if (!eligible) {
-      setBirthDateError(t("youngerThan18"));
-      setShowRegistrationForms(false);
-    } else {
-      setBirthDateError(null);
-    }
-  };
-
-  const onChangeDate = (event: any, selectedDate?: Date) => {
-    if (event.type === "set" || event.type === "dismissed") {
-      setShowDatePicker(false);
-    }
-
-    if (selectedDate) {
-      setBirthDate(selectedDate);
-      checkEligibility(selectedDate);
-    }
-  };
-
-  const handleContinueRegistration = () => {
-    if (isEligible) {
-      setShowRegistrationForms(true);
-      setShowDatePicker(false);
-    }
-  };
 
   const onSubmit = async (data: FormData) => {
-    if (!birthDate) {
-      setBirthDateError(t("mustPickDob"));
-      return;
-    }
-    if (!isEligible) {
-      setBirthDateError("youngerThan18");
-      return;
-    }
-    const dobString = birthDate.toISOString().split("T")[0];
     const registrationPayload = {
       phoneNumber: data.phoneNumber,
       password: data.password,
-      dob: dobString,
       username: data.username,
     };
     try {
       await registerUser(registrationPayload);
       register(data.phoneNumber, data.username);
       await AsyncStorage.setItem("tempPhoneNumber", data.phoneNumber);
-      router.push({ pathname: "/(auth)/VerifyOtpScreen" });
+      router.push("/(auth)/VerifyOtpScreen");
     } catch (error: any) {
       const message =
         error.response?.data?.message || error.response?.data?.error;
@@ -140,171 +86,115 @@ const RegisterScreen = () => {
             />
           </View>
           <Text style={styles.greeting}>{t("welcome")}</Text>
+          <Text style={styles.greetingLabel}>{t("greetingLabel")}</Text>
 
-          {/* Date Picker Section */}
-          {!showRegistrationForms && (
-            <TouchableOpacity
-              onPress={() => setShowDatePicker(true)}
-              style={[
-                styles.dateInputField,
-                birthDateError ? styles.inputError : null,
-              ]}
-            >
-              <Text
-                style={
-                  birthDateError
-                    ? styles.errorBirthDateText
-                    : styles.birthDateText
-                }
-              >
-                {birthDate ? birthDate.toLocaleDateString() : t("pickDob")}
-              </Text>
-            </TouchableOpacity>
-          )}
+          {/* Registration Form Fields */}
+          <View style={styles.inputContainer}>
+            <Controller
+              control={control}
+              name="phoneNumber"
+              rules={{
+                required: t("mustEnterPhoneNumber"),
+                pattern: {
+                  value: /^[0-9]{10}$/,
+                  message: t("inputPhoneNumber"),
+                },
+              }}
+              render={({
+                field: { onChange, value },
+                fieldState: { error },
+              }) => (
+                <>
+                  <PhoneNumberInput
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder={t("forNumber")}
+                    error={!!error || !!phoneError}
+                    errorText={error?.message || phoneError}
+                  />
+                </>
+              )}
+            />
+            <Controller
+              control={control}
+              name="username"
+              rules={{
+                required: t("nameCannotBeEmpty"),
+                minLength: {
+                  value: 3,
+                  message: t("min3CharsInUserName"),
+                },
+                maxLength: {
+                  value: 12,
+                  message: t("userNameMaxLengthMessage"),
+                },
+              }}
+              render={({
+                field: { onChange, onBlur, value },
+                fieldState: { error },
+              }) => (
+                <View>
+                  <CustomInput
+                    label={t("usernameLabel")}
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder={t("usernamePlaceholder")}
+                    variant={error || usernameError ? "error" : "default"}
+                    errorText={error?.message || usernameError}
+                  />
+                </View>
+              )}
+            />
 
-          {birthDateError && (
-            <Text style={styles.errorText}>{birthDateError}</Text>
-          )}
+            <Controller
+              control={control}
+              name="password"
+              rules={{
+                required: t("passwordRequired"),
+                minLength: {
+                  value: 6,
+                  message: t("passwordMinLengthMessage"),
+                },
+                maxLength: {
+                  value: 12,
+                  message: t("passwordMaxLengthMessage"),
+                },
+                pattern: {
+                  value: /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/,
+                  message: t("passwordSpecialCharMessage"),
+                },
+              }}
+              render={({
+                field: { onChange, onBlur, value },
+                fieldState: { error },
+              }) => (
+                <View>
+                  <CustomInput
+                    label={t("passwordLabel")}
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder={t("passwordPlaceholder")}
+                    isSecure={true}
+                    variant={error ? "error" : "default"}
+                    errorText={error?.message}
+                  />
+                </View>
+              )}
+            />
+          </View>
 
-          {showDatePicker && (
-            <View style={styles.datePickerWrapper}>
-              <DateTimePicker
-              locale="az-AZ"
-                testID="dateTimePicker"
-                value={birthDate || new Date()}
-                mode="date"
-                display={"spinner"}
-                maximumDate={new Date()}
-                onChange={onChangeDate}
-              />
-            </View>
-          )}
+          <CustomCTAButton
+            onPress={handleSubmit(onSubmit)}
+            style={[
+              styles.inputField,
+              {
+                borderRadius: normalize("height", 12),
+              },
+            ]}
+            variant="primary"
+            label={t("letsStartButton")}
+          />
 
-          {/* Conditional rendering of 'Continue' button after eligibility */}
-          {!showRegistrationForms && (
-            <>
-              <CustomCTAButton
-                onPress={handleContinueRegistration}
-                style={styles.continueButton}
-                variant="primary"
-                label={t("continue")}
-                disabled={!isEligible}
-              />
-            </>
-          )}
-
-          {/* Conditional rendering of form fields */}
-          {showRegistrationForms && (
-            <>
-              <View style={styles.inputContainer}>
-                <Controller
-                  control={control}
-                  name="phoneNumber"
-                  rules={{
-                    required: t("mustEnterPhoneNumber"),
-                    pattern: {
-                      value: /^[0-9]{10}$/,
-                      message: t("inputPhoneNumber"),
-                    },
-                  }}
-                  render={({
-                    field: { onChange, value },
-                    fieldState: { error },
-                  }) => (
-                    <>
-                      <PhoneNumberInput
-                        value={value}
-                        onChangeText={onChange}
-                        placeholder={t("forNumber")}
-                        error={!!error || !!phoneError}
-                        errorText={error?.message || phoneError}
-                      />
-                    </>
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name="username"
-                  rules={{
-                    required: t("nameCannotBeEmpty"),
-                    minLength: {
-                      value: 3,
-                      message: t("min3CharsInUserName"),
-                    },
-                    maxLength: {
-                      value: 12,
-                      message: t("userNameMaxLengthMessage"),
-                    },
-                  }}
-                  render={({
-                    field: { onChange, onBlur, value },
-                    fieldState: { error },
-                  }) => (
-                    <View>
-                      <CustomInput
-                        label={t("usernameLabel")}
-                        value={value}
-                        onChangeText={onChange}
-                        placeholder={t("usernamePlaceholder")}
-                        variant={error || usernameError ? "error" : "default"}
-                        errorText={error?.message || usernameError}
-                      />
-                    </View>
-                  )}
-                />
-
-                <Controller
-                  control={control}
-                  name="password"
-                  rules={{
-                    required: t("passwordRequired"),
-                    minLength: {
-                      value: 6,
-                      message: t("passwordMinLengthMessage"),
-                    },
-                    maxLength: {
-                      value: 12,
-                      message: t("passwordMaxLengthMessage"),
-                    },
-                    pattern: {
-                      value: /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/,
-                      message: t("passwordSpecialCharMessage"),
-                    },
-                  }}
-                  render={({
-                    field: { onChange, onBlur, value },
-                    fieldState: { error },
-                  }) => (
-                    <View>
-                      <CustomInput
-                        label={t("passwordLabel")}
-                        value={value}
-                        onChangeText={onChange}
-                        placeholder={t("passwordPlaceholder")}
-                        isSecure={true}
-                        variant={error ? "error" : "default"}
-                        errorText={error?.message}
-                      />
-                    </View>
-                  )}
-                />
-              </View>
-
-              <CustomCTAButton
-                onPress={handleSubmit(onSubmit)}
-                style={[
-                  styles.inputField,
-                  {
-                    borderRadius: normalize("height", 12),
-                  },
-                ]}
-                variant="primary"
-                label={t("letsStartButton")}
-              />
-            </>
-          )}
-
-          {/* <Text style={styles.haveAccount}>{t("letsStartButton")}</Text> */}
           <View style={styles.separatorContainer}>
             <View style={styles.separatorLine} />
             <Text style={styles.separatorText}>{t("orSeparator")}</Text>
@@ -356,7 +246,7 @@ const styles = StyleSheet.create({
     color: "black",
     fontSize: normalize("font", 32),
     fontWeight: "bold",
-    marginBottom: normalize("height", 6),
+    marginBottom: normalize("height", 4),
   },
   secondaryTitle: {
     fontSize: normalize("font", 16),
@@ -477,5 +367,11 @@ const styles = StyleSheet.create({
     color: colors.error,
     fontWeight: 500,
     fontSize: normalize("font", 18),
+  },
+  greetingLabel: {
+    fontWeight: 400,
+    fontSize: normalize("font", 16),
+    color:colors.grey400,
+    marginBottom:normalize('vertical',24)
   },
 });

@@ -38,5 +38,6 @@
   "passwordPlaceholder": "Şifrə təyin edək",
   "letsStartButton": "BAŞLAYAQ!",
   "haveAccountPrompt": "Hesabın var? Giriş et",
-  "orSeparator": "və ya"
+  "orSeparator": "və ya",
+  "greetingLabel":"Pivə almaq üçün qeydiyyatı tamamlayaq"
 }

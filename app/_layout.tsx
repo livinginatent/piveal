@@ -14,24 +14,13 @@ const InitialLayout = () => {
     if (loading) return;
 
     const inAuthGroup = segments[0] === "(auth)";
-
-    console.log(
-      `loading: ${loading}, isAuthenticated: ${
-        isAuthenticated ? "present" : "null"
-      }, inAuthGroup: ${inAuthGroup}`
-    );
-
+    // Only handle redirects here, not in other layouts
     if (!isAuthenticated && !inAuthGroup && !isRegistered) {
-      // If not authenticated or registered, redirect to WelcomeScreen
-      console.log("Redirecting to auth welcome");
       router.replace("/(auth)/WelcomeScreen");
     } else if (isRegistered && !isAuthenticated && inAuthGroup) {
-      // If registered but not authenticated, stay on OTP screen
-      console.log("Redirecting to VerifyOtpScreen");
       router.replace("/(auth)/VerifyOtpScreen");
-    } else if (isAuthenticated && !inAuthGroup) {
-      // If authenticated and not in auth group, redirect to home
-      console.log("Redirecting to app tabs home");
+    } else if (isAuthenticated && inAuthGroup) {
+      // If authenticated and in auth group, redirect to home
       router.replace("/(app)/(tabs)/home");
     }
   }, [isAuthenticated, isRegistered, segments, loading, router]);

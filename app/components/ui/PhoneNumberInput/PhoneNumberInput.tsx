@@ -39,8 +39,8 @@ export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   ...props
 }) => {
   // extract prefix and number from incoming value
-  const initialPrefix = value.slice(0, 3) || "050";
-  const initialNumber = value.slice(3) || "";
+  const initialPrefix = value.slice(0, 4) || "050";
+  const initialNumber = value.slice(4) || "";
 
   const [selectedPrefix, setSelectedPrefix] = useState<string>(initialPrefix);
   const [phoneNumber, setPhoneNumber] = useState<string>(initialNumber);
@@ -93,23 +93,11 @@ export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
         <Text style={styles.upperLabel}>{label}</Text>
       ) : null}
 
-      <View
-        style={[
-          styles.container,
-          style,
-          error && {
-            borderColor: colors.error,
-            backgroundColor: colors.errorPink,
-          },
-          isFocused && !error && { borderColor: colors.orange400 },
-        ]}
-      >
+      <View style={[{ flexDirection: "row", gap: 8 }, style]}>
         <TouchableOpacity
           style={[
-            styles.prefixContainer,
-            error && {
-              backgroundColor: colors.errorPink,
-            },
+            styles.prefixStandalone,
+            error && { backgroundColor: colors.errorPink },
           ]}
           onPress={() => setIsDropdownVisible(true)}
         >
@@ -117,40 +105,51 @@ export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
           <Text style={styles.dropdownArrow}>▼</Text>
         </TouchableOpacity>
 
-        <TextInput
-          style={styles.input}
-          value={phoneNumber}
-          onChangeText={handlePhoneNumberChange}
-          placeholder={isFocused || errorText ? "" : placeholder}
-          placeholderTextColor={colors.orange500}
-          keyboardType="numeric"
-          maxLength={7}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          {...props}
-        />
-
-        <Modal
-          visible={isDropdownVisible}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setIsDropdownVisible(false)}
+        <View
+          style={[
+            styles.container,
+            error && {
+              borderColor: colors.error,
+              backgroundColor: colors.errorPink,
+            },
+            isFocused && !error && { borderColor: colors.orange400 },
+          ]}
         >
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            onPress={() => setIsDropdownVisible(false)}
-          >
-            <View style={[styles.dropdownContainer]}>
-              <FlatList
-                data={prefixes}
-                renderItem={renderPrefixItem}
-                keyExtractor={(item) => item.id}
-                style={styles.dropdown}
-              />
-            </View>
-          </TouchableOpacity>
-        </Modal>
+          <TextInput
+            style={styles.input}
+            value={phoneNumber}
+            onChangeText={handlePhoneNumberChange}
+            placeholder={isFocused || errorText ? "" : placeholder}
+            placeholderTextColor={colors.orange500}
+            keyboardType="numeric"
+            maxLength={7}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            {...props}
+          />
+        </View>
       </View>
+
+      <Modal
+        visible={isDropdownVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsDropdownVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          onPress={() => setIsDropdownVisible(false)}
+        >
+          <View style={[styles.dropdownContainer]}>
+            <FlatList
+              data={prefixes}
+              renderItem={renderPrefixItem}
+              keyExtractor={(item) => item.id}
+              style={styles.dropdown}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
@@ -165,16 +164,20 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: colors.primaryBg,
     overflow: "hidden",
+    flexGrow: 1, // Ensure it takes the remaining space
+    flexShrink: 1, // Prevent overflow
   },
-  prefixContainer: {
-    width: 60,
-    height: "100%",
+  prefixStandalone: {
+    height: normalize("height", 65),
+    minWidth: 80,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderRightWidth: 1,
+    marginRight: normalize("horizontal", 8),
     borderColor: colors.orange500,
     backgroundColor: colors.primaryBg,
+    borderRadius: 4,
+    borderWidth: 1.5,
   },
   prefixText: {
     fontSize: normalize("font", 18),
@@ -193,7 +196,7 @@ const styles = StyleSheet.create({
     margin: 0,
     color: colors.orange500,
     fontSize: normalize("font", 18),
-    
+    width: "auto", // Allow input to adjust to available space
   },
   modalOverlay: {
     flex: 1,
@@ -206,11 +209,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     maxHeight: 200,
     width: 100,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+ 
   },
   dropdown: {
     maxHeight: 200,
@@ -231,7 +230,7 @@ const styles = StyleSheet.create({
     left: 65,
     color: colors.error,
     zIndex: 1,
-    lineHeight:13,
+    lineHeight: 13,
     fontSize: normalize("font", 12),
   },
   upperLabel: {
