@@ -25,8 +25,9 @@ import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type FormData = {
-  phoneNumber: string;
+  emailOrUsername: string;
   password: string;
+  email: string;
 };
 
 export const LoginScreen: React.FC = () => {
@@ -37,17 +38,19 @@ export const LoginScreen: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
-    defaultValues: { phoneNumber: "", password: "" },
+    defaultValues: { emailOrUsername: "", password: "" },
   });
   const router = useRouter();
-  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [emailOrUsernameError, setEmailOrUsernameError] = useState<
+    string | null
+  >(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isAccountVerified, setIsAccountVerified] = useState<boolean>(true); // Track account verification status
   const { login } = useAuth();
 
   const onSubmit = async (data: FormData) => {
     const loginPayload = {
-      phoneNumber: data.phoneNumber,
+      emailOrUsername: data.emailOrUsername,
       password: data.password,
     };
     try {
@@ -60,16 +63,18 @@ export const LoginScreen: React.FC = () => {
       const message =
         error.response?.data?.message || error.response?.data?.error;
       if (message === "User not found.") {
-        setPhoneError(t("userNotFound"));
+        setEmailOrUsernameError(t("userNotFound"));
         setPasswordError(null);
       } else if (message.includes("Account")) {
-        setPhoneError("Hesab təsdiqlənməyib");
+
+        setEmailOrUsernameError("Hesab təsdiqlənməyib");
         setIsAccountVerified(false);
         // Store phone number only if account is not verified
-        await AsyncStorage.setItem("tempPhoneNumber", data.phoneNumber);
+        await AsyncStorage.setItem("tempEmail", data.email);
       } else if (message.includes("Invalid")) {
+
         setPasswordError(t("wrongPassword"));
-        setPhoneError(null);
+        setEmailOrUsernameError(null);
       } else {
         // Handle other errors if necessary
       }
@@ -77,11 +82,11 @@ export const LoginScreen: React.FC = () => {
   };
 
   const handleVerifyOtp = async () => {
-    const phoneNumber = await AsyncStorage.getItem("tempPhoneNumber");
+    const email = await AsyncStorage.getItem("tempEmail");
     await AsyncStorage.setItem("isFromLogin", "true");
-    if (phoneNumber) {
+    if (email) {
       // Call resendOtpApi to send OTP
-      const otpPayload = { phoneNumber };
+      const otpPayload = { email };
       await resendOtpApi(otpPayload);
       router.push("/(auth)/VerifyOtpScreen");
     }
@@ -102,25 +107,32 @@ export const LoginScreen: React.FC = () => {
         <View style={styles.input}>
           <Controller
             control={control}
-            name="phoneNumber"
+            name="emailOrUsername" // Update the name to reflect dual purpose
             rules={{
-              required: "Nömrə boş buraxıla bilməz",
-              pattern: {
-                value: /^[0-9]{10}$/,
-                message: "Mobil nömrə təyin edək",
+              required: t("emailOrUsernameRequired"),
+              validate: {
+                validFormat: (value) => {
+                  // Email pattern
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  // Username pattern (3-20 characters, letters, numbers, underscore, hyphen)
+                  const usernameRegex = /^[a-zA-Z0-9_-]{3,20}$/;
+
+                  if (emailRegex.test(value) || usernameRegex.test(value)) {
+                    return true;
+                  }
+                  return t("invalidEmailOrUsername");
+                },
               },
             }}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <>
-                <PhoneNumberInput
+                <CustomInput
+                  label="Email/İstifadəçi adı"
                   value={value}
-                  onChangeText={(text) => {
-                    onChange(text);
-                    setPhoneError(null);
-                  }}
-                  placeholder="Nömrəni yazmaq üçün"
-                  error={!!error || !!phoneError} // Display error if there's an error or custom phone error
-                  errorText={error?.message || phoneError}
+                  onChangeText={onChange}
+                  placeholder="Email/istifadəçi adınızı daxil edin"
+                  variant={error || emailOrUsernameError ? "error" : "default"}
+                  errorText={error?.message || emailOrUsernameError}
                 />
               </>
             )}
@@ -137,7 +149,7 @@ export const LoginScreen: React.FC = () => {
             }) => (
               <View>
                 <CustomInput
-                  label="Yeni şifrə"
+                  label="Şifrəniz"
                   value={value}
                   onChangeText={onChange}
                   placeholder="Şifrəni daxil et"
@@ -195,14 +207,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: normalize("width", 20),
-    paddingTop: normalize("height", 40),
   },
   logoContainer: {
-    width: "100%",
     height: normalize("height", 160),
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: normalize("height", 48),
+    marginBottom: normalize("height", 10),
   },
   logo: {
     width: normalize("width", 120),
@@ -241,6 +251,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: normalize("horizontal", 2),
+    marginTop: normalize("vertical", 24),
   },
   separatorContainer: {
     flexDirection: "row",

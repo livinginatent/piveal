@@ -1,9 +1,8 @@
 // src/api/auth.api.ts
 import axiosInstance from "./axiosInstance";
 
-// Updated payload for phone number-based registration
 export type RegisterPayload = {
-  phoneNumber: string; // Changed from email
+  email: string; // Changed from email
   username: string;
   password: string;
 };
@@ -13,7 +12,7 @@ type RegisterResponse = {
   message: string;
   user: {
     id: string;
-    phoneNumber: string; // Changed from email
+    email: string; // Changed from email
     username: string;
   };
 };
@@ -29,7 +28,7 @@ export const registerUser = async (
 // You can add other authentication related API calls here
 // For example, for OTP verification:
 type VerifyOtpPayload = {
-  phoneNumber: string;
+  email: string;
   otp: string;
 };
 
@@ -48,7 +47,7 @@ export const verifyOtpApi = async (
 
 // For login 
 type LoginPayload = {
-  phoneNumber: string; // Keeping this flexible as per your controller
+  emailOrUsername: string; // Keeping this flexible as per your controller
   password: string;
 };
 
@@ -58,9 +57,8 @@ type LoginResponse = {
   refreshToken: string;
   user: {
     id: string;
-    email?: string; // Optional as per schema
     username: string;
-    phoneNumber: string;
+    email: string;
     isVerified:boolean
   };
 };
@@ -74,7 +72,7 @@ export const loginApi = async (
 
 // Payload & response for resending OTP
 export type ResendOtpPayload = {
-  phoneNumber: string | null;
+  email: string | null;
 };
 
 export type ResendOtpResponse = {

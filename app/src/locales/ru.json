@@ -38,5 +38,16 @@
   "passwordPlaceholder": "Установите пароль",
   "letsStartButton": "НАЧНЕМ!",
   "haveAccountPrompt": "Есть аккаунт? Войти",
-  "orSeparator": "или"
+  "orSeparator": "или",
+  "termsText": "Регистрируясь, вы соглашаетесь с нашими {{terms}} и принимаете нашу {{privacy}}, и подтверждаете, что вам больше 18 лет.",
+  "termsLink": "Условиями и положениями",
+  "privacyLink": "Политику конфиденциальности",
+  "otpTitle": "Подтверждение OTP",
+  "otpSubtitle": "Введите код подтверждения, отправленный на {email}",
+  "otpError": "Неверный OTP",
+  "resendOtp": "Отправить OTP снова",
+  "verifyOtp": "Подтвердить OTP",
+  "otpSent": "OTP успешно отправлен",
+  "alreadyHaveAccount": "Уже есть аккаунт? {{login}}",
+  "loginLink": "Войти"
 }

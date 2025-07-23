@@ -17,60 +17,64 @@ import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
 import { GoogleIcon } from "../src/icons/social/GoogleIcon";
 import FacebookIcon from "../src/icons/social/FacebookIcon";
 import AppleIcon from "../src/icons/social/AppleIcon";
-import { PhoneNumberInput } from "../components/ui/PhoneNumberInput/PhoneNumberInput";
 import { registerUser } from "../api/authService";
 import { router } from "expo-router";
 import { useAuth } from "../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import { useTranslation } from "react-i18next";
+import { renderTermsText } from "../components/TermsAndConditions/Terms";
+import { renderLoginText } from "../components/HaveAccount/HaveAccount";
 
 // THIS SCREEN IS RESPONSIBLE FOR USER REGISTRATION. USERS NEED TO PICK A DATE TO CONFIRM THEY ARE 18 OR OLDER. USERS THEN
 // ENTER THEIR PHONE NUMBER AND PASSWORD
 
 type FormData = {
-  phoneNumber: string;
+  email: string;
   password: string;
   username: string;
 };
-
 const RegisterScreen = () => {
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
-    defaultValues: { phoneNumber: "", password: "" },
+    defaultValues: { email: "", password: "" },
   });
   const { t } = useTranslation();
   const [usernameError, setUsernameError] = useState<string | null>(null);
-  const [phoneError, setPhoneError] = useState<string | null>(null);
-  const { register } = useAuth(); // import this hook
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [isUsernameStep, setIsUsernameStep] = useState(false); // New state for controlling the flow
 
   const onSubmit = async (data: FormData) => {
-    const registrationPayload = {
-      phoneNumber: data.phoneNumber,
-      password: data.password,
-      username: data.username,
-    };
-    try {
-      await registerUser(registrationPayload);
-      register(data.phoneNumber, data.username);
-      await AsyncStorage.setItem("tempPhoneNumber", data.phoneNumber);
-      router.push("/(auth)/VerifyOtpScreen");
-    } catch (error: any) {
-      const message =
-        error.response?.data?.message || error.response?.data?.error;
+    if (isUsernameStep) {
+      const registrationPayload = {
+        email: data.email,
+        password: data.password,
+        username: data.username, // Add username from the input
+      };
+      try {
+        await registerUser(registrationPayload);
+        await AsyncStorage.setItem("tempEmail", data.email);
+        router.push("/(auth)/VerifyOtpScreen");
+      } catch (error: any) {
+        const message =
+          error.response?.data?.message || error.response?.data?.error;
 
-      if (message.includes("Phone number")) {
-        setPhoneError(t("phoneNumberAlreadyTaken"));
-        setUsernameError(null);
-      } else if (message.includes("Username")) {
-        setUsernameError(t("userNameTaken"));
-        setPhoneError(null);
-      } else {
-        setPhoneError(null);
-        setUsernameError(t(message));
+        if (message.includes("Email")) {
+          setEmailError(t("emailTaken"));
+          setUsernameError(null);
+        } else if (message.includes("Username")) {
+          setUsernameError(t("userNameTaken"));
+          setEmailError(null);
+        } else {
+          setEmailError(null);
+          setUsernameError(t(message));
+        }
       }
+    } else {
+      // Move to the username step
+      setIsUsernameStep(true);
     }
   };
 
@@ -92,55 +96,26 @@ const RegisterScreen = () => {
           <View style={styles.inputContainer}>
             <Controller
               control={control}
-              name="phoneNumber"
+              name="email"
               rules={{
-                required: t("mustEnterPhoneNumber"),
+                required: t("mustEnterEmail"),
                 pattern: {
-                  value: /^[0-9]{10}$/,
-                  message: t("inputPhoneNumber"),
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: t("inputEmail"),
                 },
               }}
               render={({
                 field: { onChange, value },
                 fieldState: { error },
               }) => (
-                <>
-                  <PhoneNumberInput
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder={t("forNumber")}
-                    error={!!error || !!phoneError}
-                    errorText={error?.message || phoneError}
-                  />
-                </>
-              )}
-            />
-            <Controller
-              control={control}
-              name="username"
-              rules={{
-                required: t("nameCannotBeEmpty"),
-                minLength: {
-                  value: 3,
-                  message: t("min3CharsInUserName"),
-                },
-                maxLength: {
-                  value: 12,
-                  message: t("userNameMaxLengthMessage"),
-                },
-              }}
-              render={({
-                field: { onChange, onBlur, value },
-                fieldState: { error },
-              }) => (
                 <View>
                   <CustomInput
-                    label={t("usernameLabel")}
+                    label={t("emailLabel")}
                     value={value}
                     onChangeText={onChange}
-                    placeholder={t("usernamePlaceholder")}
-                    variant={error || usernameError ? "error" : "default"}
-                    errorText={error?.message || usernameError}
+                    placeholder={t("emailPlaceholder")}
+                    variant={error || emailError ? "error" : "default"}
+                    errorText={error?.message || emailError}
                   />
                 </View>
               )}
@@ -183,6 +158,42 @@ const RegisterScreen = () => {
             />
           </View>
 
+          {/* Conditionally Render Username Input */}
+          {isUsernameStep && (
+            <View style={styles.inputContainer}>
+              <Controller
+                control={control}
+                name="username"
+                rules={{
+                  required: t("nameCannotBeEmpty"),
+                  minLength: {
+                    value: 3,
+                    message: t("min3CharsInUserName"),
+                  },
+                  maxLength: {
+                    value: 12,
+                    message: t("userNameMaxLengthMessage"),
+                  },
+                }}
+                render={({
+                  field: { onChange, onBlur, value },
+                  fieldState: { error },
+                }) => (
+                  <View>
+                    <CustomInput
+                      label={t("usernameLabel")}
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder={t("usernamePlaceholder")}
+                      variant={error || usernameError ? "error" : "default"}
+                      errorText={error?.message || usernameError}
+                    />
+                  </View>
+                )}
+              />
+            </View>
+          )}
+
           <CustomCTAButton
             onPress={handleSubmit(onSubmit)}
             style={[
@@ -192,8 +203,13 @@ const RegisterScreen = () => {
               },
             ]}
             variant="primary"
-            label={t("letsStartButton")}
+            label={t(isUsernameStep ? "registerButton" : "letsStartButton")}
           />
+
+          {/* <TouchableOpacity onPress={() => router.push("/(auth)/LoginScreen")}>
+            <Text style={styles.haveAccount}>{t("alreadyHaveAnAccount")}</Text>
+          </TouchableOpacity> */}
+          {renderLoginText()}
 
           <View style={styles.separatorContainer}>
             <View style={styles.separatorLine} />
@@ -212,6 +228,7 @@ const RegisterScreen = () => {
               <AppleIcon />
             </TouchableOpacity>
           </View>
+          {renderTermsText()}
         </View>
       </TouchableWithoutFeedback>
     </SafeAreaView>
@@ -229,14 +246,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingHorizontal: normalize("width", 20),
-    paddingTop: normalize("height", 40),
-    paddingBottom: normalize("height", 20),
   },
   logoContainer: {
     height: normalize("height", 160),
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: normalize("height", 32),
+    marginBottom: normalize("height", 10),
   },
   logo: {
     width: normalize("width", 120),
@@ -257,7 +272,6 @@ const styles = StyleSheet.create({
   inputContainer: {
     width: "100%",
     gap: normalize("height", 4),
-    marginBottom: normalize("height", 24),
   },
   inputField: {
     width: "100%",
@@ -299,8 +313,9 @@ const styles = StyleSheet.create({
   separatorContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: normalize("height", 20),
     width: "80%",
+    marginVertical: normalize("vertical", 24),
+    marginBottom: normalize("vertical", 24),
   },
   separatorLine: {
     flex: 1,
@@ -314,20 +329,18 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: "row",
+    gap: normalize("vertical", 24),
   },
   button: {
     backgroundColor: "#ffffff",
     borderRadius: normalize("width", 50),
+    borderWidth: 1,
+    borderColor: "#EBE7F2",
     width: normalize("width", 50),
     height: normalize("height", 50),
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: normalize("width", 10),
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: normalize("height", 2) },
-    shadowOpacity: 0.2,
-    shadowRadius: normalize("width", 2),
   },
   datePickerWrapper: {
     width: "100%",
@@ -371,7 +384,26 @@ const styles = StyleSheet.create({
   greetingLabel: {
     fontWeight: 400,
     fontSize: normalize("font", 16),
-    color:colors.grey400,
-    marginBottom:normalize('vertical',24)
+    color: colors.grey400,
+    marginBottom: normalize("vertical", 24),
+  },
+  termsText: {
+    fontWeight: 400,
+    fontSize: normalize("font", 12),
+    color: colors.grey400,
+    textAlign: "center",
+    marginTop: 24,
+  },
+  alreadyHave: {
+    fontWeight: 700,
+    fontSize: normalize("font", 12),
+    color: colors.grey400,
+    textAlign: "center",
+    marginTop: 24,
+  },
+  linkText: {
+    fontWeight: "bold",
+    textDecorationLine: "underline",
+    color: colors.grey400,
   },
 });

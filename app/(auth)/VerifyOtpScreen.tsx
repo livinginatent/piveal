@@ -24,17 +24,16 @@ import { useTranslation } from "react-i18next";
 const VerifyOtpScreen = () => {
   const { verifyOtp } = useAuth();
   const { t } = useTranslation();
-  const [storedPhoneNumber, setStoredPhoneNumber] = useState<string | null>(
-    null
-  );
+  const [storedEmail, setstoredEmail] = useState<string | null>(null);
   const [otpValue, setOtpValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
-  const otpInputRef = useRef<any>(null); // Add this line
+  const otpInputRef = useRef<any>(null);
+
   useEffect(() => {
     const loadPhoneNumber = async () => {
-      const phone = await AsyncStorage.getItem("tempPhoneNumber");
-      setStoredPhoneNumber(phone);
+      const phone = await AsyncStorage.getItem("tempEmail");
+      setstoredEmail(phone);
     };
     loadPhoneNumber();
   }, []);
@@ -44,15 +43,12 @@ const VerifyOtpScreen = () => {
   };
 
   const onSubmit = async () => {
-    if (!storedPhoneNumber) {
-      Alert.alert(
-        "Xəta",
-        "Telefon nömrəsi tapılmadı. Zəhmət olmasa yenidən cəhd edin."
-      );
+    if (!storedEmail) {
+      Alert.alert(t("error"), t("phoneNumberNotFound"));
       return;
     }
     if (otpValue.length !== 4) {
-      Alert.alert("Xəta", "Zəhmət olmasa tam OTP kodunu daxil edin.");
+      Alert.alert(t("error"), t("otpIncomplete"));
       return;
     }
 
@@ -60,7 +56,7 @@ const VerifyOtpScreen = () => {
 
     try {
       const payload = {
-        phoneNumber: storedPhoneNumber,
+        email: storedEmail,
         otp: otpValue,
       };
 
@@ -68,10 +64,10 @@ const VerifyOtpScreen = () => {
       console.log("OTP Verification successful:", response);
 
       await verifyOtp(response.accessToken, response.refreshToken);
-      await AsyncStorage.removeItem("tempPhoneNumber");
+      await AsyncStorage.removeItem("tempEmail");
 
       setOtpError(null);
-      Alert.alert("Uğurlu", "Telefon nömrəsi uğurla təsdiqləndi!");
+      Alert.alert(t("success"), t("otpSuccess"));
       const isFromLogin = await AsyncStorage.getItem("isFromLogin");
       if (isFromLogin === "true") {
         await AsyncStorage.removeItem("isFromLogin");
@@ -81,7 +77,7 @@ const VerifyOtpScreen = () => {
       }
     } catch (error: any) {
       console.error("OTP Verification error:", error);
-      let errorMessage = "OTP doğrulama zamanı xəta baş verdi.";
+      let errorMessage = t("otpVerificationError");
       if (
         error.response &&
         error.response.data &&
@@ -108,7 +104,7 @@ const VerifyOtpScreen = () => {
   const resendOtp = async () => {
     try {
       const payload = {
-        phoneNumber: storedPhoneNumber,
+        email: storedEmail,
       };
       const response = await resendOtpApi(payload);
       if (otpInputRef.current) {
@@ -135,10 +131,9 @@ const VerifyOtpScreen = () => {
           </View>
 
           <View style={styles.content}>
-            <Text style={styles.title}>OTP tesdiqi</Text>
+            <Text style={styles.title}>{t("otpTitle")}</Text>
             <Text style={styles.subtitle}>
-              {storedPhoneNumber} nömrəsinə göndərdiyimiz təsdiq kodunu daxil
-              edin:
+              {t("otpSubtitle", { email: storedEmail })}
             </Text>
             <OtpInput
               numberOfDigits={4}
@@ -155,7 +150,7 @@ const VerifyOtpScreen = () => {
             {otpError ? (
               <View style={styles.buttonStyle}>
                 <CustomCTAButton
-                  label={"Yeni OTP göndər"}
+                  label={t("resendOtp")}
                   onPress={resendOtp}
                   disabled={isLoading}
                 />
@@ -163,7 +158,7 @@ const VerifyOtpScreen = () => {
             ) : (
               <View style={styles.buttonStyle}>
                 <CustomCTAButton
-                  label={isLoading ? "Təsdiqlənir..." : "Təsdiqlə"}
+                  label={isLoading ? t("verifying") : t("verifyOtp")}
                   onPress={onSubmit}
                   disabled={isLoading}
                 />
@@ -179,64 +174,42 @@ const VerifyOtpScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     backgroundColor: "#f8f9fa",
   },
-
   fullScreenContent: {
     flex: 1,
   },
-
   header: {
     paddingHorizontal: 20,
-
     paddingTop: 10,
-
     paddingBottom: 20,
   },
-
   backButton: {
     width: 40,
-
     height: 40,
-
     justifyContent: "center",
-
     alignItems: "flex-start",
   },
-
   content: {
     flex: 1,
-
     paddingHorizontal: 12,
   },
-
   title: {
     fontSize: 32,
-
     fontWeight: "700",
-
     color: "#2d3436",
-
     marginBottom: 16,
-
     letterSpacing: -0.5,
   },
-
   subtitle: {
     fontSize: 16,
-
     color: "#636e72",
-
     lineHeight: 24,
-
     marginBottom: 60,
   },
-
   otpContainer: {
     display: "flex",
   },
-
   pinCodeContainer: {
     width: normalize("width", 84),
     height: normalize("height", 84),
@@ -244,29 +217,15 @@ const styles = StyleSheet.create({
     borderColor: colors.orange500,
     borderWidth: 1.7,
   },
-
-  keyboardSpacer: {
-    height: 300,
-  },
-
-  otpValueText: {
-    marginTop: 20,
-
-    fontSize: 18,
-
-    textAlign: "center",
-  },
-
-  buttonStyle: {
-    marginTop: normalize("height", 14),
-
-    alignSelf: "center",
-  },
   otpErrorText: {
     color: "#d63031",
     fontSize: 14,
     marginTop: 8,
     textAlign: "center",
+  },
+  buttonStyle: {
+    marginTop: normalize("height", 14),
+    alignSelf: "center",
   },
 });
 

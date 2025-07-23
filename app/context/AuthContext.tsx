@@ -15,8 +15,8 @@ type AuthContextType = {
   loading: boolean;
   login: (identifier: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (phoneNumber: string, username: string) => void;
-  verifyOtp: (phoneNumber: string, otp: string) => Promise<void>;
+  register: (email: string, username: string) => void;
+  verifyOtp: (email: string, otp: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>(null!);
@@ -44,8 +44,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const register = (phoneNumber: string, username: string) => {
-    console.log(`Registering user: ${phoneNumber}, ${username}`);
+  const register = (email: string, username: string) => {
+    console.log(`Registering user: ${email}, ${username}`);
     // Here, after the registration form, you can store user data or a token
     setIsRegistered(true); // Mark user as registered but not authenticated yet
     // You may want to save some user-related data in AsyncStorage

@@ -143,22 +143,24 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
     >
       {({ pressed }) => (
         <View style={styles.contentContainer}>
-          {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
-          <Text
-            style={[
-              styles.label,
-              {
-                color: getTextColor(pressed),
-                fontSize: getFontSize(),
-                lineHeight: getLineHeight(),
-                textAlign: "center",
-              },
-              labelStyle,
-            ]}
-            numberOfLines={1}
-          >
-            {label}
-          </Text>
+          {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
+          <View style={styles.textContainer}>
+            <Text
+              style={[
+                styles.label,
+                {
+                  color: getTextColor(pressed),
+                  fontSize: getFontSize(),
+                  lineHeight: getLineHeight(),
+                  textAlign: "center",
+                },
+                labelStyle,
+              ]}
+              numberOfLines={1}
+            >
+              {label}
+            </Text>
+          </View>
           {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
         </View>
       )}
@@ -175,9 +177,20 @@ const styles = StyleSheet.create({
   contentContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-
     flex: 1,
+    width: "100%",
+  },
+  leftIconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: normalize("width", 8),
+    position: "absolute",
+    left: 0,
+  },
+  textContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   iconContainer: {
     alignItems: "center",
@@ -186,9 +199,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontWeight: "500",
-
     paddingVertical: normalize("height", 2),
-
     paddingBottom: normalize("height", 2),
   },
 });
