@@ -25,17 +25,25 @@ const VerifyOtpScreen = () => {
   const { verifyOtp } = useAuth();
   const { t } = useTranslation();
   const [storedEmail, setstoredEmail] = useState<string | null>(null);
+  const [storedUsername, setstoredUsername] = useState<string | null>(null);
+  const [identifier, setIdentifier] = useState<string | null>(null); // This will store either email or username
   const [otpValue, setOtpValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
   const otpInputRef = useRef<any>(null);
 
   useEffect(() => {
-    const loadPhoneNumber = async () => {
-      const phone = await AsyncStorage.getItem("tempEmail");
-      setstoredEmail(phone);
+    const loadUserInfo = async () => {
+      const email = await AsyncStorage.getItem("tempEmail");
+      const username = await AsyncStorage.getItem("tempUsername");
+
+      setstoredEmail(email);
+      setstoredUsername(username);
+
+      // Set identifier to whichever is available (email takes priority)
+      setIdentifier(email || username);
     };
-    loadPhoneNumber();
+    loadUserInfo();
   }, []);
 
   const handleOtpChange = (otp: string) => {
@@ -43,8 +51,8 @@ const VerifyOtpScreen = () => {
   };
 
   const onSubmit = async () => {
-    if (!storedEmail) {
-      Alert.alert(t("error"), t("phoneNumberNotFound"));
+    if (!identifier) {
+      Alert.alert(t("error"), t("identifierNotFound")); // Updated error message
       return;
     }
     if (otpValue.length !== 4) {
@@ -56,27 +64,35 @@ const VerifyOtpScreen = () => {
 
     try {
       const payload = {
-        email: storedEmail,
+        emailOrUsername: identifier, // Use identifier instead of email
         otp: otpValue,
       };
 
-      const response = await verifyOtpApi(payload);
-      console.log("OTP Verification successful:", response);
-
-      await verifyOtp(response.accessToken, response.refreshToken);
+      // Clean up both possible temp storage items
       await AsyncStorage.removeItem("tempEmail");
+      await AsyncStorage.removeItem("tempUsername");
 
       setOtpError(null);
       Alert.alert(t("success"), t("otpSuccess"));
+
       const isFromLogin = await AsyncStorage.getItem("isFromLogin");
+
       if (isFromLogin === "true") {
+        // User came from LoginScreen, so navigate back to LoginScreen
+        const response = await verifyOtpApi(payload);
+        console.log("OTP Verification successful:", response);
         await AsyncStorage.removeItem("isFromLogin");
         router.replace("/(auth)/LoginScreen");
       } else {
+        const response = await verifyOtpApi(payload);
+        console.log("OTP Verification successful:", response);
+
+        await verifyOtp(response.accessToken, response.refreshToken);
+        // User came from RegisterScreen, log them in and navigate to the home screen
         router.replace("/(app)/(tabs)/home");
       }
     } catch (error: any) {
-      console.error("OTP Verification error:", error);
+      console.error("OTP Verification error:", error.message);
       let errorMessage = t("otpVerificationError");
       if (
         error.response &&
@@ -102,9 +118,14 @@ const VerifyOtpScreen = () => {
   };
 
   const resendOtp = async () => {
+    if (!identifier) {
+      Alert.alert(t("error"), t("identifierNotFound"));
+      return;
+    }
+
     try {
       const payload = {
-        email: storedEmail,
+        emailOrUsername: identifier, // Use identifier instead of email
       };
       const response = await resendOtpApi(payload);
       if (otpInputRef.current) {
@@ -113,9 +134,16 @@ const VerifyOtpScreen = () => {
       setOtpValue("");
       setOtpError(null);
       console.log("OTP Resent successfully:", response);
+      Alert.alert(t("success"), t("otpResent")); // Add success message
     } catch (error: any) {
       console.log(error);
+      Alert.alert(t("error"), t("resendOtpError")); // Add error handling
     }
+  };
+
+  // Get display text for subtitle (prefer email over username for display)
+  const getDisplayIdentifier = () => {
+    return storedEmail || storedUsername || identifier;
   };
 
   return (
@@ -133,7 +161,7 @@ const VerifyOtpScreen = () => {
           <View style={styles.content}>
             <Text style={styles.title}>{t("otpTitle")}</Text>
             <Text style={styles.subtitle}>
-              {t("otpSubtitle", { email: storedEmail })}
+              {t("otpSubtitle", { email: getDisplayIdentifier() })}
             </Text>
             <OtpInput
               numberOfDigits={4}

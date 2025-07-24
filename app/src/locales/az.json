@@ -54,5 +54,9 @@
   "verifyOtp": "Təsdiqlə",
   "otpSent": "OTP uğurla göndərildi",
   "alreadyHaveAccount": "Hesabınız var? {{login}}",
-  "loginLink": "Daxil olun"
+  "loginLink": "Daxil olun",
+  "emailOrUsername": "Email və ya istifadəçi adı",
+  "enterEmailOrUsername": "Email və ya istifadəçi adı",
+  "emailOrUsernameRequired": "Email/istifadəçi adı daxil edin",
+  "invalidEmailOrUsername": "Email/istifadəçi adı yanlışdır"
 }

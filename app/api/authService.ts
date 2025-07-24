@@ -28,8 +28,9 @@ export const registerUser = async (
 // You can add other authentication related API calls here
 // For example, for OTP verification:
 type VerifyOtpPayload = {
-  email: string;
+  email?: string;
   otp: string;
+  emailOrUsername?:string | null
 };
 
 type VerifyOtpResponse = {
@@ -72,7 +73,8 @@ export const loginApi = async (
 
 // Payload & response for resending OTP
 export type ResendOtpPayload = {
-  email: string | null;
+  email?: string | null;
+  emailOrUsername?:string | null
 };
 
 export type ResendOtpResponse = {

@@ -46,6 +46,8 @@ export const LoginScreen: React.FC = () => {
   >(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isAccountVerified, setIsAccountVerified] = useState<boolean>(true); // Track account verification status
+  const [emailOrUsername, setEmailOrUsername] = useState<string | null>(null);
+
   const { login } = useAuth();
 
   const onSubmit = async (data: FormData) => {
@@ -66,13 +68,11 @@ export const LoginScreen: React.FC = () => {
         setEmailOrUsernameError(t("userNotFound"));
         setPasswordError(null);
       } else if (message.includes("Account")) {
-
-        setEmailOrUsernameError("Hesab təsdiqlənməyib");
+        setEmailOrUsernameError(t("notVerified"));
         setIsAccountVerified(false);
         // Store phone number only if account is not verified
         await AsyncStorage.setItem("tempEmail", data.email);
       } else if (message.includes("Invalid")) {
-
         setPasswordError(t("wrongPassword"));
         setEmailOrUsernameError(null);
       } else {
@@ -82,11 +82,15 @@ export const LoginScreen: React.FC = () => {
   };
 
   const handleVerifyOtp = async () => {
-    const email = await AsyncStorage.getItem("tempEmail");
-    await AsyncStorage.setItem("isFromLogin", "true");
-    if (email) {
+    if (emailOrUsername) {
+      if (emailOrUsername.includes("@")) {
+        await AsyncStorage.setItem("tempEmail", emailOrUsername);
+      } else {
+        await AsyncStorage.setItem("tempUsername", emailOrUsername);
+      }
+      await AsyncStorage.setItem("isFromLogin", "true");
       // Call resendOtpApi to send OTP
-      const otpPayload = { email };
+      const otpPayload = { emailOrUsername };
       await resendOtpApi(otpPayload);
       router.push("/(auth)/VerifyOtpScreen");
     }
@@ -127,10 +131,18 @@ export const LoginScreen: React.FC = () => {
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <>
                 <CustomInput
-                  label="Email/İstifadəçi adı"
+                  label={t("emailOrUsername")}
                   value={value}
-                  onChangeText={onChange}
-                  placeholder="Email/istifadəçi adınızı daxil edin"
+                  onChangeText={(text) => {
+                    onChange(text);
+                    setEmailOrUsername(text);
+                    if (text === "") {
+                      setIsAccountVerified(true);
+                      setEmailOrUsernameError(null);
+                      setPasswordError(null);
+                    }
+                  }}
+                  placeholder={t("enterEmailOrUsername")}
                   variant={error || emailOrUsernameError ? "error" : "default"}
                   errorText={error?.message || emailOrUsernameError}
                 />
@@ -141,7 +153,7 @@ export const LoginScreen: React.FC = () => {
             control={control}
             name="password"
             rules={{
-              required: "Şifrə boş buraxıla bilməz",
+              required: t("passwordRequired"),
             }}
             render={({
               field: { onChange, onBlur, value },
@@ -149,10 +161,10 @@ export const LoginScreen: React.FC = () => {
             }) => (
               <View>
                 <CustomInput
-                  label="Şifrəniz"
+                  label={t("passwordLabel")}
                   value={value}
                   onChangeText={onChange}
-                  placeholder="Şifrəni daxil et"
+                  placeholder={t("passwordPlaceholderLogin")}
                   isSecure={true}
                   variant={error || passwordError ? "error" : "default"}
                   errorText={error?.message || passwordError}
@@ -165,7 +177,7 @@ export const LoginScreen: React.FC = () => {
               isAccountVerified ? handleSubmit(onSubmit) : handleVerifyOtp
             }
             style={{ width: "100%" }}
-            label={isAccountVerified ? "Daxil ol" : "Verify OTP"}
+            label={isAccountVerified ? t("login") : t("verifyOtp")}
           />
 
           <View style={styles.registerContainer}>
@@ -275,16 +287,13 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#ffffff",
     borderRadius: normalize("width", 50),
+    borderWidth: 1,
+    borderColor: "#EBE7F2",
     width: normalize("width", 50),
     height: normalize("height", 50),
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: normalize("width", 10),
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: normalize("height", 2) },
-    shadowOpacity: 0.2,
-    shadowRadius: normalize("width", 2),
   },
 });
 
