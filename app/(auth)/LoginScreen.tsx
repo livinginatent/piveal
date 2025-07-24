@@ -4,7 +4,7 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  StatusBar,
+
   Image,
   TouchableOpacity,
 } from "react-native";
@@ -13,7 +13,6 @@ import { loginApi, resendOtpApi } from "@/app/api/authService";
 import { Link, useRouter } from "expo-router";
 import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
 import { colors } from "@/app/theme/theme";
-import { PhoneNumberInput } from "../components/ui/PhoneNumberInput/PhoneNumberInput";
 import { Controller, useForm } from "react-hook-form";
 import { useState } from "react";
 import { GoogleIcon } from "../src/icons/social/GoogleIcon";

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useRef, useEffect } from "react";
 import {
   View,
@@ -50,97 +51,139 @@ const VerifyOtpScreen = () => {
     setOtpValue(otp);
   };
 
-  const onSubmit = async () => {
-    if (!identifier) {
-      Alert.alert(t("error"), t("identifierNotFound")); // Updated error message
-      return;
-    }
-    if (otpValue.length !== 4) {
-      Alert.alert(t("error"), t("otpIncomplete"));
-      return;
-    }
+const onSubmit = async () => {
+  if (!identifier) {
+    Alert.alert(t("error"), t("identifierNotFound"));
+    return;
+  }
+  if (otpValue.length !== 4) {
+    Alert.alert(t("error"), t("otpIncomplete"));
+    return;
+  }
 
-    setIsLoading(true);
+  setIsLoading(true);
 
-    try {
-      const payload = {
-        emailOrUsername: identifier, // Use identifier instead of email
-        otp: otpValue,
-      };
+  try {
+    const payload = {
+      emailOrUsername: identifier,
+      otp: otpValue,
+    };
 
-      // Clean up both possible temp storage items
+    const isFromLogin = await AsyncStorage.getItem("isFromLogin");
+
+    if (isFromLogin === "true") {
+      await verifyOtpApi(payload);
+      await AsyncStorage.removeItem("isFromLogin");
       await AsyncStorage.removeItem("tempEmail");
       await AsyncStorage.removeItem("tempUsername");
+      router.replace("/(auth)/LoginScreen");
 
       setOtpError(null);
       Alert.alert(t("success"), t("otpSuccess"));
+    } else {
+      const response = await verifyOtpApi(payload);
 
-      const isFromLogin = await AsyncStorage.getItem("isFromLogin");
-
-      if (isFromLogin === "true") {
-        // User came from LoginScreen, so navigate back to LoginScreen
-        const response = await verifyOtpApi(payload);
-        console.log("OTP Verification successful:", response);
-        await AsyncStorage.removeItem("isFromLogin");
-        router.replace("/(auth)/LoginScreen");
-      } else {
-        const response = await verifyOtpApi(payload);
-        console.log("OTP Verification successful:", response);
-
-        await verifyOtp(response.accessToken, response.refreshToken);
-        // User came from RegisterScreen, log them in and navigate to the home screen
-        router.replace("/(app)/(tabs)/home");
-      }
-    } catch (error: any) {
-      console.error("OTP Verification error:", error.message);
-      let errorMessage = t("otpVerificationError");
-      if (
-        error.response &&
-        error.response.data &&
-        (error.response.data.message || error.response.data.error)
-      ) {
-        errorMessage = error.response.data.message || error.response.data.error;
-      }
-      if (errorMessage === "User not found") {
-        setOtpError(t("userNotFound"));
-      } else if (errorMessage === "User is already verified") {
-        setOtpError(t("userAlreadyVerified"));
-      } else if (errorMessage === "Invalid OTP") {
-        setOtpError(t("invalidOtp"));
-      } else if (errorMessage === "Your OTP has expired") {
-        setOtpError(t("otpExpired"));
-      } else {
-        setOtpError(errorMessage);
-      }
-    } finally {
-      setIsLoading(false);
+      await verifyOtp(response.accessToken, response.refreshToken);
+      await AsyncStorage.removeItem("tempEmail");
+      await AsyncStorage.removeItem("tempUsername");
+      router.replace("/(app)/(tabs)/home");
     }
-  };
+  } catch (error: any) {
+    console.error("OTP Verification error:", error.message);
+    let errorMessage = t("otpVerificationError");
 
-  const resendOtp = async () => {
-    if (!identifier) {
-      Alert.alert(t("error"), t("identifierNotFound"));
-      return;
+    if (error.response && error.response.data && error.response.data.message) {
+      errorMessage = error.response.data.message;
+    } else if (
+      error.response &&
+      error.response.data &&
+      error.response.data.error
+    ) {
+      errorMessage = error.response.data.error;
     }
 
-    try {
-      const payload = {
-        emailOrUsername: identifier, // Use identifier instead of email
-      };
-      const response = await resendOtpApi(payload);
-      if (otpInputRef.current) {
-        otpInputRef.current.setValue("");
-      }
-      setOtpValue("");
-      setOtpError(null);
-      console.log("OTP Resent successfully:", response);
-      Alert.alert(t("success"), t("otpResent")); // Add success message
-    } catch (error: any) {
-      console.log(error);
-      Alert.alert(t("error"), t("resendOtpError")); // Add error handling
+    // Handle specific error cases
+    if (errorMessage === "User not found") {
+      setOtpError(t("userNotFound"));
+    } else if (errorMessage === "User is already verified") {
+      setOtpError(t("userAlreadyVerified"));
+    } else if (errorMessage === "Invalid OTP") {
+      setOtpError(t("invalidOtp"));
+    } else if (errorMessage === "Your OTP has expired") {
+      setOtpError(t("otpExpired"));
+    } else if (errorMessage === "Email already verified") {
+      setOtpError(t("emailAlreadyVerified"));
+    } else if (
+      errorMessage.includes("Please wait") &&
+      errorMessage.includes("minute(s) before requesting another OTP")
+    ) {
+      // Handle rate limiting cooldown error
+      setOtpError(errorMessage); // Display the exact message from backend
+    } else if (errorMessage.includes("OTP resend limit reached")) {
+      // Handle hourly limit error
+      setOtpError(errorMessage); // Display the exact message from backend
+    } else {
+      // For any other error, display as is
+      setOtpError(errorMessage);
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
+// Updated resendOtp function with better error handling
+const resendOtp = async () => {
+  if (!identifier) {
+    Alert.alert(t("error"), t("identifierNotFound"));
+    return;
+  }
+
+  try {
+    const payload = {
+      emailOrUsername: identifier,
+    };
+    const response = await resendOtpApi(payload);
+
+    if (otpInputRef.current) {
+      otpInputRef.current.setValue("");
+    }
+    setOtpValue("");
+    setOtpError(null);
+
+    console.log("OTP Resent successfully:", response);
+    Alert.alert(t("success"), t("otpResent"));
+  } catch (error: any) {
+    console.log("Resend OTP error:", error);
+
+    let errorMessage = t("resendOtpError");
+
+    if (error.response && error.response.data && error.response.data.message) {
+      errorMessage = error.response.data.message;
+    } else if (
+      error.response &&
+      error.response.data &&
+      error.response.data.error
+    ) {
+      errorMessage = error.response.data.error;
+    }
+
+    // Handle specific rate limiting errors for resend
+    if (
+      errorMessage.includes("Please wait") &&
+      errorMessage.includes("minute(s) before requesting another OTP")
+    ) {
+      Alert.alert(t("error"), errorMessage);
+    } else if (errorMessage.includes("OTP resend limit reached")) {
+      Alert.alert(t("error"), errorMessage);
+    } else if (errorMessage === "Email already verified") {
+      Alert.alert(t("error"), t("emailAlreadyVerified"));
+    } else if (errorMessage === "User not found") {
+      Alert.alert(t("error"), t("userNotFound"));
+    } else {
+      Alert.alert(t("error"), errorMessage);
+    }
+  }
+};
   // Get display text for subtitle (prefer email over username for display)
   const getDisplayIdentifier = () => {
     return storedEmail || storedUsername || identifier;
