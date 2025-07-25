@@ -25,6 +25,7 @@ interface CustomCTAButtonProps {
   style?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
   disabled?: boolean;
+  centerContent?: boolean; // New prop to control layout behavior
 }
 
 const COLORS = {
@@ -44,6 +45,7 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
   style,
   labelStyle,
   disabled = false,
+  centerContent = false, // Default to original behavior
 }) => {
   const getBackgroundColor = (pressed: boolean): string => {
     if (disabled) {
@@ -100,7 +102,6 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
     if (size === "large") {
       return {
         paddingHorizontal: normalize("width", 16),
-
         paddingVertical: normalize("height", 8),
       };
     } else if (size === "medium") {
@@ -143,25 +144,55 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
     >
       {({ pressed }) => (
         <View style={styles.contentContainer}>
-          {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
-          <View style={styles.textContainer}>
-            <Text
-              style={[
-                styles.label,
-                {
-                  color: getTextColor(pressed),
-                  fontSize: getFontSize(),
-                  lineHeight: getLineHeight(),
-                  textAlign: "center",
-                },
-                labelStyle,
-              ]}
-              numberOfLines={1}
-            >
-              {label}
-            </Text>
-          </View>
-          {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
+          {centerContent ? (
+            // Centered layout: icon and text grouped together in center
+            <View style={styles.centeredGroup}>
+              {leftIcon && (
+                <View style={styles.leftIconContainer}>{leftIcon}</View>
+              )}
+              <Text
+                style={[
+                  styles.label,
+                  {
+                    color: getTextColor(pressed),
+                    fontSize: getFontSize(),
+                    lineHeight: getLineHeight(),
+                  },
+                  labelStyle,
+                ]}
+                numberOfLines={1}
+              >
+                {label}
+              </Text>
+            </View>
+          ) : (
+            // Original layout: left icon on edge, centered text
+            <>
+              {leftIcon && (
+                <View style={styles.leftIconContainerAbsolute}>{leftIcon}</View>
+              )}
+              <View style={styles.textContainer}>
+                <Text
+                  style={[
+                    styles.label,
+                    {
+                      color: getTextColor(pressed),
+                      fontSize: getFontSize(),
+                      lineHeight: getLineHeight(),
+                      textAlign: "center",
+                    },
+                    labelStyle,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {label}
+                </Text>
+              </View>
+            </>
+          )}
+          {rightIcon && (
+            <View style={styles.rightIconContainer}>{rightIcon}</View>
+          )}
         </View>
       )}
     </Pressable>
@@ -180,7 +211,20 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
   },
+  // For centered content layout
+  centeredGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
   leftIconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: normalize("width", 8),
+  },
+  // For original layout with absolute positioning
+  leftIconContainerAbsolute: {
     alignItems: "center",
     justifyContent: "center",
     marginRight: normalize("width", 8),
@@ -192,10 +236,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  iconContainer: {
+  rightIconContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginHorizontal: normalize("width", 8),
+    marginLeft: normalize("width", 8),
   },
   label: {
     fontWeight: "500",

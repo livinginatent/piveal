@@ -58,5 +58,6 @@
   "emailOrUsername": "Email və ya istifadəçi adı",
   "enterEmailOrUsername": "Email və ya istifadəçi adı",
   "emailOrUsernameRequired": "Email/istifadəçi adı daxil edin",
-  "invalidEmailOrUsername": "Email/istifadəçi adı yanlışdır"
+  "invalidEmailOrUsername": "Email/istifadəçi adı yanlışdır",
+  "headerHi":"Salam"
 }

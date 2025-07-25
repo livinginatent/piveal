@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type React from "react";
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
-
   Image,
   TouchableOpacity,
 } from "react-native";
@@ -22,7 +23,8 @@ import { CustomInput } from "../components/ui/Buttons/InputButton";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+/* import { useUserStore } from "../store/userStore";
+ */
 type FormData = {
   emailOrUsername: string;
   password: string;
@@ -31,12 +33,8 @@ type FormData = {
 
 export const LoginScreen: React.FC = () => {
   const { t } = useTranslation();
-
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
+/*   const { setUser } = useUserStore.getState();
+ */  const { control, handleSubmit } = useForm<FormData>({
     defaultValues: { emailOrUsername: "", password: "" },
   });
   const router = useRouter();
@@ -58,6 +56,11 @@ export const LoginScreen: React.FC = () => {
       const response = await loginApi(loginPayload);
       if (response.user.isVerified) {
         await login(response.accessToken, response.refreshToken);
+        await AsyncStorage.setItem("user", JSON.stringify(response.user));
+     /*    setUser({
+          username: response.user.username,
+          email: response.user.email,
+        }); */
         router.push("/(app)/(tabs)/home");
       }
     } catch (error: any) {
@@ -154,10 +157,7 @@ export const LoginScreen: React.FC = () => {
             rules={{
               required: t("passwordRequired"),
             }}
-            render={({
-              field: { onChange, onBlur, value },
-              fieldState: { error },
-            }) => (
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
               <View>
                 <CustomInput
                   label={t("passwordLabel")}

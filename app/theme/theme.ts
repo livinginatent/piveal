@@ -14,6 +14,7 @@ export const colors = {
   orange500: "#FF7851",
   orange400: "#FFA084",
   orange300: "#FFC8B8",
+  orangeText: "#F46A25",
   grey025: "#F2F2F2",
   grey050: "#D9D9D9",
   grey1002: "#BFBFBF",
@@ -25,7 +26,7 @@ export const colors = {
   grey700: "#333333",
   grey800: "#262626",
   error: "#F6363E",
-  errorPink:"#fae2ec",
+  errorPink: "#fae2ec",
 
   teal: {
     teal500: "#17A2B8",

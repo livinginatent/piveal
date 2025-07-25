@@ -7,7 +7,6 @@ import React, {
   ReactNode,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { loginApi, verifyOtpApi, RegisterPayload } from "../api/authService"; // your API wrappers
 
 type AuthContextType = {
   isAuthenticated: boolean;

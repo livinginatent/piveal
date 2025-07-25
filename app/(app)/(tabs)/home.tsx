@@ -1,18 +1,27 @@
 import {
   View,
   Text,
-  Button,
   Alert,
   TouchableOpacity,
   StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
 } from "react-native";
-import { router, useRouter } from "expo-router";
+import { router } from "expo-router";
 import { useAuth } from "@/app/context/AuthContext";
+import Header from "@/app/components/ui/Header/Header";
+import MainSend from "@/app/components/ui/SendBeer/MainSend";
 import { colors } from "@/app/theme/theme";
+
+// Mockup of your theme colors.
+// You can continue to import this from "@/app/theme/theme".
+
 
 export default function Home() {
   const { logout } = useAuth();
 
+  // The logout handler remains available for the dev button.
   const handleDevLogout = async () => {
     Alert.alert(
       "Dev Logout",
@@ -33,50 +42,97 @@ export default function Home() {
       { cancelable: true }
     );
   };
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome Home!</Text>
-      <Text style={styles.subtitle}>You are now logged in.</Text>
+    // SafeAreaView ensures your content avoids system UI like notches and the home indicator.
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        {/* ====================================================================== */}
+        {/* HEADER: This section can be consistent across all your screens.         */}
+        {/* For a more advanced setup, consider creating a reusable Header component.*/}
+        {/* ====================================================================== */}
+        {/* <View style={styles.header}>
+          <Text style={styles.headerTitle}>Home</Text>
+        </View> */}
+        <Header />
 
-      {/* DEV LOGOUT BUTTON (Only for development) */}
-      {__DEV__ && ( // __DEV__ ensures this only appears in development builds
-        <TouchableOpacity
-          style={styles.devLogoutButton}
-          onPress={handleDevLogout}
-        >
-          <Text style={styles.devLogoutButtonText}>DEV LOGOUT</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+        {/* ====================================================================== */}
+        {/* MAIN CONTENT: This ScrollView is where your page-specific content goes.*/}
+        {/* ====================================================================== */}
+        <ScrollView contentContainerStyle={styles.contentContainer}>
+          {/* --- START: PAGE-SPECIFIC CONTENT --- */}
+
+          <MainSend />
+          {/* --- END: PAGE-SPECIFIC CONTENT --- */}
+        </ScrollView>
+
+        {/* ====================================================================== */}
+        {/* DEV LOGOUT BUTTON: This remains for development builds.                */}
+        {/* ====================================================================== */}
+        {/* {__DEV__ && (
+          <TouchableOpacity
+            style={styles.devLogoutButton}
+            onPress={handleDevLogout}
+          >
+            <Text style={styles.devLogoutButtonText}>DEV LOGOUT</Text>
+          </TouchableOpacity>
+        )} */}
+      </View>
+    </SafeAreaView>
   );
 }
 
+// ======================================================================
+// STYLES: These styles define the foundational layout for your screens.
+// ======================================================================
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.primaryBg,
+    backgroundColor: colors.primaryBg, // Set a background color for the safe area
   },
-  title: {
+  container: {
+    
+    position: "relative", // Required for the absolute positioning of the logout button
+  },
+  // Header Styles
+  header: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: colors.black,
+  },
+  // Main Content Styles
+  contentContainer: {
+    flexGrow: 1, // Allows the content to grow and enables scrolling
+    justifyContent: "center", // Center content vertically for demonstration
+    alignItems: "center", // Center content horizontally for demonstration
+  },
+  pageTitle: {
     fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 10,
+    textAlign: "center",
     color: colors.black,
+    marginBottom: 8,
   },
-  subtitle: {
+  pageSubtitle: {
     fontSize: 18,
-    color: colors.black,
+    textAlign: "center",
+    color: colors.gray,
   },
+  // Dev Logout Button Styles
   devLogoutButton: {
     position: "absolute",
-    top: 50, // Adjust position as needed
-    right: 20, // Adjust position as needed
-    backgroundColor: "red", // Make it stand out in dev
+    top: 60, // Adjusted to be clearly visible below the status bar
+    right: 20,
+    backgroundColor: "rgba(255, 59, 48, 0.8)", // A standard iOS-like red with some transparency
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 5,
+    borderRadius: 8,
+    zIndex: 9999, // Ensures it floats above all other content
   },
   devLogoutButtonText: {
     color: "white",

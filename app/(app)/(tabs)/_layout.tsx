@@ -28,7 +28,7 @@ export default function TabLayout() {
         // --- Styling and Behavior ---
         tabBarActiveTintColor: "dodgerblue", // Color for active tab
         tabBarInactiveTintColor: "gray", // Color for inactive tabs
-        headerShown: true, // Show a header bar on screens within the tabs
+        headerShown: false, // Show a header bar on screens within the tabs
         // Set to false if you want custom headers per screen
         // or no headers within tabs.
       })}
