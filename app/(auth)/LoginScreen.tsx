@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type React from "react";
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
-
   Image,
   TouchableOpacity,
 } from "react-native";
@@ -32,11 +33,7 @@ type FormData = {
 export const LoginScreen: React.FC = () => {
   const { t } = useTranslation();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
+  const { control, handleSubmit } = useForm<FormData>({
     defaultValues: { emailOrUsername: "", password: "" },
   });
   const router = useRouter();
@@ -54,8 +51,11 @@ export const LoginScreen: React.FC = () => {
       emailOrUsername: data.emailOrUsername,
       password: data.password,
     };
+
     try {
       const response = await loginApi(loginPayload);
+      console.log("hello");
+
       if (response.user.isVerified) {
         await login(response.accessToken, response.refreshToken);
         router.push("/(app)/(tabs)/home");
@@ -154,10 +154,7 @@ export const LoginScreen: React.FC = () => {
             rules={{
               required: t("passwordRequired"),
             }}
-            render={({
-              field: { onChange, onBlur, value },
-              fieldState: { error },
-            }) => (
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
               <View>
                 <CustomInput
                   label={t("passwordLabel")}
