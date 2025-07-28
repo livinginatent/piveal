@@ -3,14 +3,14 @@ import React from 'react'
 
 type Props = {}
 
-const index = (props: Props) => {
+const SearchScreen = (props: Props) => {
   return (
     <View>
-      <Text>index</Text>
+      <Text>Search</Text>
     </View>
   )
 }
 
-export default index
+export default SearchScreen
 
 const styles = StyleSheet.create({})

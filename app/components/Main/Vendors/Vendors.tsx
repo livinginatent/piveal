@@ -1,14 +1,24 @@
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 import React from "react";
 import VendorsHeader from "./VendorsHeader";
-
+import { VendorCard } from "./VendorCard";
 
 type Props = {};
 
 const Vendors = (props: Props) => {
   return (
     <View style={styles.container}>
-      <VendorsHeader/>
+      <VendorsHeader />
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        style={styles.scrollView}
+      >
+        <VendorCard />
+        <VendorCard />
+        <VendorCard />
+      </ScrollView>
     </View>
   );
 };
@@ -18,5 +28,11 @@ export default Vendors;
 const styles = StyleSheet.create({
   container: {
     width: "100%",
+  },
+  scrollView: {
+    flexGrow: 0, // Prevents the ScrollView from taking up extra space
+  },
+  scrollContent: {
+    gap: 12, // 12-point gap between cards
   },
 });

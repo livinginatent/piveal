@@ -9,27 +9,12 @@ import Notification from "@/app/src/icons/main/Notification";
 
 type User = {
   username: string;
-  email: string;
-  isVerified: boolean;
+  email?: string;
+  isVerified?: boolean;
 };
 
-const Header = () => {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const loggedUser = await AsyncStorage.getItem("user");
-        if (loggedUser) {
-          setUser(JSON.parse(loggedUser)); // Parse string to object
-        }
-      } catch (error) {
-        console.error("Error retrieving user data:", error);
-      }
-    };
-
-    getUser(); // Call the function on component mount
-  }, []);
+const Header = ({username}:User) => {
+  
 
   return (
     <View style={styles.headerContainer}>
@@ -38,7 +23,7 @@ const Header = () => {
         <Text style={styles.headerText}>
           {t("headerHi")},{" "}
           <Text style={styles.orangeText}>
-            {user ? user.username : "guest"}
+            {username}
           </Text>
           !
         </Text>

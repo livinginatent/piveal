@@ -16,13 +16,33 @@ import { colors } from "@/app/theme/theme";
 import Soon from "@/app/components/Main/Soon/Soon";
 import FriendCard from "@/app/components/Main/Soon/FriendCard";
 import Vendors from "@/app/components/Main/Vendors/Vendors";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Mockup of your theme colors.
-// You can continue to import this from "@/app/theme/theme".
-
+type User = {
+  username: string;
+  email: string;
+  isVerified: boolean;
+};
 export default function Home() {
   const { logout } = useAuth();
+  const [user, setUser] = useState<User | null>(null);
 
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const loggedUser = await AsyncStorage.getItem("user");
+        if (loggedUser) {
+          console.log(loggedUser)
+          setUser(JSON.parse(loggedUser)); // Parse string to object
+        }
+      } catch (error) {
+        console.error("Error retrieving user data:", error);
+      }
+    };
+
+    getUser(); // Call the function on component mount
+  }, []);
   // The logout handler remains available for the dev button.
   const handleDevLogout = async () => {
     Alert.alert(
@@ -55,7 +75,7 @@ export default function Home() {
         {/* <View style={styles.header}>
           <Text style={styles.headerTitle}>Home</Text>
         </View> */}
-        <Header />
+        <Header username={user ? user.username : "guest"} />
 
         {/* ====================================================================== */}
         {/* MAIN CONTENT: This ScrollView is where your page-specific content goes.*/}
@@ -65,21 +85,21 @@ export default function Home() {
 
           <MainSend />
           {/* --- END: PAGE-SPECIFIC CONTENT --- */}
-          <Soon />
-          <Vendors/>
+          <Soon username={user ? user.username : "guest"} />
+          <Vendors />
         </ScrollView>
 
         {/* ====================================================================== */}
         {/* DEV LOGOUT BUTTON: This remains for development builds.                */}
         {/* ====================================================================== */}
-        {/* {__DEV__ && (
+        {__DEV__ && (
           <TouchableOpacity
             style={styles.devLogoutButton}
             onPress={handleDevLogout}
           >
             <Text style={styles.devLogoutButtonText}>DEV LOGOUT</Text>
           </TouchableOpacity>
-        )} */}
+        )}
       </View>
     </SafeAreaView>
   );

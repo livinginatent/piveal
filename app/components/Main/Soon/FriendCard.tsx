@@ -3,26 +3,27 @@ import React from "react";
 import { normalize } from "@/app/theme/normalize";
 import { colors } from "@/app/theme/theme";
 import Avatar from "../../ui/Avatar/Avatar";
-import { CustomCTAButton } from "../../ui/Buttons/CTAButton";
 import Champagne from "@/app/src/icons/beer/Champagne";
 import { t } from "i18next";
 import { SendButton } from "../../ui/Buttons/SendButton";
 import { Marquee } from "@animatereactnative/marquee";
-type Props = {};
+type User = {
+  username: string;
+  email?: string;
+  isVerified?: boolean;
+};
 
-const FriendCard = (props: Props) => {
+const FriendCard = ({ username }: User) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.leftContainer}>
           <Avatar size={40} uri={"https://avatar.iran.liara.run/public/38"} />
           <View style={styles.leftInfo}>
-            <Text style={styles.name}>Günay</Text>
-            {/* <Text style={styles.leftInfo}>
-              Tomorrow • Loves Iced Tea • Loves UX/UI • Loves Cats • Plays Chess
-            </Text> */}
-            <Marquee spacing={20} speed={1}>
-              <Text  style={styles.otherInfo}>
+            <Text style={styles.name}>{username}</Text>
+
+            <Marquee spacing={20} speed={0.7}>
+              <Text style={styles.otherInfo}>
                 Tomorrow • Loves Iced Tea • Loves UX/UI • Loves Cats • Plays
                 Chess
               </Text>
@@ -86,7 +87,6 @@ const styles = StyleSheet.create({
     gap: normalize("vertical", 2),
     maxWidth: normalize("width", 160), // LIMIT WIDTH HERE
     overflow: "hidden",
-    
   },
   name: {
     fontSize: normalize("font", 14),

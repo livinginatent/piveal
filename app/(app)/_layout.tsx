@@ -1,9 +1,8 @@
 // File: app/(app)/_layout.tsx
 
 import React from "react";
-import { Stack, Redirect } from "expo-router";
-import { ActivityIndicator, View } from "react-native"; // Optional loading/safeguard
-import { useAuth } from "../context/AuthContext";
+import { Stack } from "expo-router";
+
 
 export default function AppStackLayout() {
   // This defines the main stack navigator for the authenticated section
