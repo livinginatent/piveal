@@ -11,12 +11,13 @@ import {
 import { router } from "expo-router";
 import { useAuth } from "@/app/context/AuthContext";
 import Header from "@/app/components/ui/Header/Header";
-import MainSend from "@/app/components/ui/SendBeer/MainSend";
+import MainSend from "@/app/components/Main/SendBeer/MainSend";
 import { colors } from "@/app/theme/theme";
+import Soon from "@/app/components/Main/Soon/Soon";
+import FriendCard from "@/app/components/Main/Soon/FriendCard";
 
 // Mockup of your theme colors.
 // You can continue to import this from "@/app/theme/theme".
-
 
 export default function Home() {
   const { logout } = useAuth();
@@ -63,6 +64,7 @@ export default function Home() {
 
           <MainSend />
           {/* --- END: PAGE-SPECIFIC CONTENT --- */}
+          <Soon />
         </ScrollView>
 
         {/* ====================================================================== */}
@@ -90,7 +92,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryBg, // Set a background color for the safe area
   },
   container: {
-    
     position: "relative", // Required for the absolute positioning of the logout button
   },
   // Header Styles
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
   pageSubtitle: {
     fontSize: 18,
     textAlign: "center",
-    color: colors.gray,
+    color: colors.grey400,
   },
   // Dev Logout Button Styles
   devLogoutButton: {

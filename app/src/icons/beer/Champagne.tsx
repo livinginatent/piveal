@@ -11,21 +11,21 @@ const Champagne = (props) => (
   >
     <Path
       d="M9.5 22.5H14"
-      stroke="#F46A25"
+      stroke={props.color}
       strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M9.65956 1.5H13.8408C13.8408 1.5 18.7158 16.5 11.7502 16.5C4.78456 16.5 9.65956 1.5 9.65956 1.5Z"
-      stroke="#F46A25"
+      stroke={props.color}
       strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M11.75 16.5V22.5"
-      stroke="#F46A25"
+      stroke={props.color}
       strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -44,7 +44,7 @@ const Champagne = (props) => (
     />
     <Path
       d="M8.39355 6.75H15.1061"
-      stroke="#F46A25"
+      stroke={props.color}
       strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
-import { CustomCTAButton } from "../Buttons/CTAButton";
+import { CustomCTAButton } from "../../ui/Buttons/CTAButton";
 import { normalize } from "@/app/theme/normalize";
 import ChampagneRound from "@/app/src/icons/beer/ChampagneRound";
 import { colors } from "@/app/theme/theme";
@@ -30,7 +30,7 @@ export default function MainSend() {
               label="Gönder"
               variant="primary"
               size="large"
-              leftIcon={<Champagne />}
+              leftIcon={<Champagne color={colors.orangeText} />}
               onPress={handleSendPress}
               style={styles.sendButton}
               centerContent={true}

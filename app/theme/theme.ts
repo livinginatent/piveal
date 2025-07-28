@@ -25,6 +25,7 @@ export const colors = {
   grey600: "#424242",
   grey700: "#333333",
   grey800: "#262626",
+  textPrimary:"#252526",
   error: "#F6363E",
   errorPink: "#fae2ec",
 
