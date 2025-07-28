@@ -49,5 +49,6 @@
   "verifyOtp": "Подтвердить OTP",
   "otpSent": "OTP успешно отправлен",
   "alreadyHaveAccount": "Уже есть аккаунт? {{login}}",
-  "loginLink": "Войти"
+  "loginLink": "Войти",
+  "headerHi": "Salam"
 }

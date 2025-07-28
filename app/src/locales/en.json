@@ -61,8 +61,8 @@
   "mustEnterEmail": "Email cannot be empty",
   "emailOrUsername": "Email or username",
   "enterEmailOrUsername": "Your email or username",
-  "emailOrUsernameRequired":"Enter email or username",
-  "invalidEmailOrUsername":"Invalid email or username",
-  "notVerified":"User is not verified"
-  
+  "emailOrUsernameRequired": "Enter email or username",
+  "invalidEmailOrUsername": "Invalid email or username",
+  "notVerified": "User is not verified",
+  "headerHi": "Hi"
 }

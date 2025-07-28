@@ -23,7 +23,8 @@ import { CustomInput } from "../components/ui/Buttons/InputButton";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+/* import { useUserStore } from "../store/userStore";
+ */
 type FormData = {
   emailOrUsername: string;
   password: string;
@@ -58,6 +59,11 @@ export const LoginScreen: React.FC = () => {
 
       if (response.user.isVerified) {
         await login(response.accessToken, response.refreshToken);
+        await AsyncStorage.setItem("user", JSON.stringify(response.user));
+     /*    setUser({
+          username: response.user.username,
+          email: response.user.email,
+        }); */
         router.push("/(app)/(tabs)/home");
       }
     } catch (error: any) {

@@ -12,8 +12,8 @@ import {
 } from "react-native";
 
 type CTAButtonVariant = "primary" | "outlined" | "text";
-
 type CTAButtonSize = "large" | "medium" | "small";
+type CTAButtonAlign = "center" | "left" | "grouped"; // New type for alignment options
 
 interface CustomCTAButtonProps {
   label: string;
@@ -25,6 +25,8 @@ interface CustomCTAButtonProps {
   style?: StyleProp<ViewStyle>;
   labelStyle?: StyleProp<TextStyle>;
   disabled?: boolean;
+  centerContent?: boolean; // Keep for backward compatibility
+  alignContent?: CTAButtonAlign; // New prop for alignment control
 }
 
 const COLORS = {
@@ -44,7 +46,17 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
   style,
   labelStyle,
   disabled = false,
+  centerContent = false, // Keep for backward compatibility
+  alignContent, // New prop
 }) => {
+  // Determine the actual alignment to use
+  const getAlignment = (): CTAButtonAlign => {
+    if (alignContent) return alignContent;
+    return centerContent ? "grouped" : "center";
+  };
+
+  const alignment = getAlignment();
+
   const getBackgroundColor = (pressed: boolean): string => {
     if (disabled) {
       return variant === "primary" ? COLORS.disabled : "transparent";
@@ -62,7 +74,6 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
     if (variant === "primary") {
       return COLORS.white;
     }
-
     return pressed ? COLORS.secondary : COLORS.primary;
   };
 
@@ -100,7 +111,6 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
     if (size === "large") {
       return {
         paddingHorizontal: normalize("width", 16),
-
         paddingVertical: normalize("height", 8),
       };
     } else if (size === "medium") {
@@ -125,6 +135,54 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
 
   const getBorderRadius = (): number => normalize("height", 12);
 
+  const renderContent = (pressed: boolean) => {
+    const textElement = (
+      <Text
+        style={[
+          styles.label,
+          {
+            color: getTextColor(pressed),
+            fontSize: getFontSize(),
+            lineHeight: getLineHeight(),
+            textAlign: alignment === "center" ? "center" : "left",
+          },
+          labelStyle,
+        ]}
+        numberOfLines={1}
+      >
+        {label}
+      </Text>
+    );
+
+    if (alignment === "grouped") {
+      // Grouped layout: icon and text grouped together in center
+      return (
+        <View style={styles.centeredGroup}>
+          {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
+          {textElement}
+        </View>
+      );
+    } else if (alignment === "left") {
+      // Left-aligned layout: icon on left, text starts right after icon
+      return (
+        <>
+          {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
+          <View style={styles.leftAlignedTextContainer}>{textElement}</View>
+        </>
+      );
+    } else {
+      // Center layout: left icon on edge, centered text (original behavior)
+      return (
+        <>
+          {leftIcon && (
+            <View style={styles.leftIconContainerAbsolute}>{leftIcon}</View>
+          )}
+          <View style={styles.textContainer}>{textElement}</View>
+        </>
+      );
+    }
+  };
+
   return (
     <Pressable
       onPress={onPress}
@@ -143,25 +201,10 @@ export const CustomCTAButton: React.FC<CustomCTAButtonProps> = ({
     >
       {({ pressed }) => (
         <View style={styles.contentContainer}>
-          {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
-          <View style={styles.textContainer}>
-            <Text
-              style={[
-                styles.label,
-                {
-                  color: getTextColor(pressed),
-                  fontSize: getFontSize(),
-                  lineHeight: getLineHeight(),
-                  textAlign: "center",
-                },
-                labelStyle,
-              ]}
-              numberOfLines={1}
-            >
-              {label}
-            </Text>
-          </View>
-          {rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>}
+          {renderContent(pressed)}
+          {rightIcon && (
+            <View style={styles.rightIconContainer}>{rightIcon}</View>
+          )}
         </View>
       )}
     </Pressable>
@@ -180,7 +223,20 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
   },
+  // For grouped content layout (centerContent=true or alignContent="grouped")
+  centeredGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
   leftIconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: normalize("width", 8),
+  },
+  // For original layout with absolute positioning (alignContent="center")
+  leftIconContainerAbsolute: {
     alignItems: "center",
     justifyContent: "center",
     marginRight: normalize("width", 8),
@@ -192,10 +248,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  iconContainer: {
+  // For left-aligned layout (alignContent="left")
+  leftAlignedTextContainer: {
+    flex: 1,
+    alignItems: "flex-start",
+    justifyContent: "center",
+  },
+  rightIconContainer: {
     alignItems: "center",
     justifyContent: "center",
-    marginHorizontal: normalize("width", 8),
+    marginLeft: normalize("width", 8),
   },
   label: {
     fontWeight: "500",

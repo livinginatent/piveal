@@ -22,8 +22,8 @@ import { router } from "expo-router";
 import { useAuth } from "../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import { useTranslation } from "react-i18next";
-import { renderTermsText } from "../components/TermsAndConditions/Terms";
-import { renderLoginText } from "../components/HaveAccount/HaveAccount";
+import { renderTermsText } from "../components/Auth/TermsAndConditions/Terms";
+import { renderLoginText } from "../components/Auth/HaveAccount/HaveAccount";
 
 // THIS SCREEN IS RESPONSIBLE FOR USER REGISTRATION. USERS NEED TO PICK A DATE TO CONFIRM THEY ARE 18 OR OLDER. USERS THEN
 // ENTER THEIR PHONE NUMBER AND PASSWORD
