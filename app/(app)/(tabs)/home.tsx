@@ -15,6 +15,7 @@ import MainSend from "@/app/components/Main/SendBeer/MainSend";
 import { colors } from "@/app/theme/theme";
 import Soon from "@/app/components/Main/Soon/Soon";
 import FriendCard from "@/app/components/Main/Soon/FriendCard";
+import Vendors from "@/app/components/Main/Vendors/Vendors";
 
 // Mockup of your theme colors.
 // You can continue to import this from "@/app/theme/theme".
@@ -65,6 +66,7 @@ export default function Home() {
           <MainSend />
           {/* --- END: PAGE-SPECIFIC CONTENT --- */}
           <Soon />
+          <Vendors/>
         </ScrollView>
 
         {/* ====================================================================== */}

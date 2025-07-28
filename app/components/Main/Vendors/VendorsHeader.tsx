@@ -3,26 +3,26 @@ import React from "react";
 import { t } from "i18next";
 import { normalize } from "@/app/theme/normalize";
 import { colors } from "@/app/theme/theme";
-import Calendar from "@/app/src/icons/main/Calendar";
+import Location from "@/app/src/icons/main/Location";
 
-const SoonHeader = () => {
+const VendorsHeader = () => {
   return (
     <View style={styles.headerContainer}>
       {/* Left Side: Text and Icon */}
       <View style={styles.leftContainer}>
-        <Calendar />
-        <Text style={styles.headerText}>{t("soon")} </Text>
+        <Location />
+        <Text style={styles.headerText}>{t("places")} </Text>
       </View>
 
       {/* Right Side: Icon */}
       <View style={styles.rightContainer}>
-        <Text style={styles.text}>{t("showAll")}</Text>
+        <Text style={styles.text}>{t("explore")}</Text>
       </View>
     </View>
   );
 };
 
-export default SoonHeader;
+export default VendorsHeader;
 
 const styles = StyleSheet.create({
   headerContainer: {

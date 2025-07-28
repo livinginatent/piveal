@@ -4,6 +4,7 @@ import { normalize } from "@/app/theme/normalize";
 import ChampagneRound from "@/app/src/icons/beer/ChampagneRound";
 import { colors } from "@/app/theme/theme";
 import Champagne from "@/app/src/icons/beer/Champagne";
+import { t } from "i18next";
 
 export default function MainSend() {
   const handleSendPress = () => {
@@ -19,15 +20,15 @@ export default function MainSend() {
         <View style={styles.card}>
           <ChampagneRound />
 
-          <Text style={styles.cardTitle}>İçki Gönder</Text>
+          <Text style={styles.cardTitle}>{t("sendGift")}</Text>
 
           <Text style={styles.cardSubtitle}>
-            Özel birine favorit içkisi ile sürpriz et
+            {t("someoneSpecial")}
           </Text>
 
           <View style={styles.buttonContainer}>
             <CustomCTAButton
-              label="Gönder"
+              label={t("send")}
               variant="primary"
               size="large"
               leftIcon={<Champagne color={colors.orangeText} />}

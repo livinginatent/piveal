@@ -59,5 +59,12 @@
   "enterEmailOrUsername": "Email və ya istifadəçi adı",
   "emailOrUsernameRequired": "Email/istifadəçi adı daxil edin",
   "invalidEmailOrUsername": "Email/istifadəçi adı yanlışdır",
-  "headerHi":"Salam"
+  "headerHi": "Salam",
+  "sendGift": "Hədiyyə göndər",
+  "someoneSpecial": "Özəl birinə sevimli içkisi ilə sürpriz et",
+  "send": "Göndər",
+  "soon": "Tezliklə",
+  "showAll": "Hamısını göstər",
+  "places": "Məkanlar",
+  "explore": "Kəşf et"
 }

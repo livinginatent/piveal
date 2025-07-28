@@ -64,5 +64,12 @@
   "emailOrUsernameRequired": "Enter email or username",
   "invalidEmailOrUsername": "Invalid email or username",
   "notVerified": "User is not verified",
-  "headerHi": "Hi"
+  "headerHi": "Hi",
+  "sendGift": "Send a gift",
+  "someoneSpecial": "Surprise your special one with their favorite drink",
+  "send":"Send",
+  "soon":"Soon",
+  "showAll":"Show all",
+  "places":"Places",
+  "explore":"Explore"
 }

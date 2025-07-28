@@ -3,16 +3,18 @@
 import React from "react";
 import { Tabs } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons"; // Example icon library
-
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 export default function TabLayout() {
   // Sets up the bottom tab navigator
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+
     <Tabs
       screenOptions={({ route }) => ({
         // --- Icon Logic ---
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap; // Type checking for icon names
-
+          
           if (route.name === "home") {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "profile") {
@@ -22,7 +24,7 @@ export default function TabLayout() {
           } else {
             iconName = "alert-circle"; // Default fallback
           }
-
+          
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         // --- Styling and Behavior ---
@@ -32,7 +34,7 @@ export default function TabLayout() {
         // Set to false if you want custom headers per screen
         // or no headers within tabs.
       })}
-    >
+      >
       {/* Define each tab screen */}
       <Tabs.Screen
         name="home" // Corresponds to home.tsx
@@ -40,19 +42,20 @@ export default function TabLayout() {
           title: "Home", // Header title for the Home screen
           // tabBarLabel: 'Feed', // Optional: Custom label for the tab
         }}
-      />
+        />
       <Tabs.Screen
         name="profile" // Corresponds to profile.tsx
         options={{
           title: "My Profile",
         }}
-      />
+        />
       <Tabs.Screen
         name="settings" // Corresponds to settings.tsx
         options={{
           title: "Settings",
         }}
-      />
+        />
     </Tabs>
+        </GestureHandlerRootView>
   );
 }
