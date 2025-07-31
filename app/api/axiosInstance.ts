@@ -1,7 +1,7 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const API_BASE_URL = "http://10.0.2.2:5000/api"; // replace with ENV in prod
+const API_BASE_URL = "https://piveal-backend.onrender.com"; // replace with ENV in prod
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

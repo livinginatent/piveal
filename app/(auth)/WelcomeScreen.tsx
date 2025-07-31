@@ -1,7 +1,6 @@
 import type React from "react";
 import { View, Text, StyleSheet, SafeAreaView, Image } from "react-native";
 import { normalize } from "@/app/theme/normalize";
-import { registerUser } from "@/app/api/authService";
 import { useRouter } from "expo-router";
 import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
 import { colors } from "@/app/theme/theme"; // Import colors

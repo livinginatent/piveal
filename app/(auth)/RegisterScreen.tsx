@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Image,
   StyleSheet,
@@ -51,11 +52,14 @@ const RegisterScreen = () => {
       const registrationPayload = {
         email: data.email,
         password: data.password,
-        username: data.username, // Add username from the input
+        username: data.username,
+        role: "user", // Add username from the input
       };
       try {
-        await registerUser(registrationPayload);
+        const response = await registerUser(registrationPayload);
         await AsyncStorage.setItem("tempEmail", data.email);
+        await AsyncStorage.setItem("user", JSON.stringify(response.user));
+
         router.push("/(auth)/VerifyOtpScreen");
       } catch (error: any) {
         const message =

@@ -5,6 +5,7 @@ export type RegisterPayload = {
   email: string; // Changed from email
   username: string;
   password: string;
+  role: string;
 };
 
 // Updated response type
@@ -30,7 +31,7 @@ export const registerUser = async (
 type VerifyOtpPayload = {
   email?: string;
   otp: string;
-  emailOrUsername?:string | null
+  emailOrUsername?: string | null;
 };
 
 type VerifyOtpResponse = {
@@ -46,7 +47,7 @@ export const verifyOtpApi = async (
   return response.data;
 };
 
-// For login 
+// For login
 type LoginPayload = {
   emailOrUsername: string; // Keeping this flexible as per your controller
   password: string;
@@ -60,7 +61,7 @@ type LoginResponse = {
     id: string;
     username: string;
     email: string;
-    isVerified:boolean
+    isVerified: boolean;
   };
 };
 
@@ -74,7 +75,7 @@ export const loginApi = async (
 // Payload & response for resending OTP
 export type ResendOtpPayload = {
   email?: string | null;
-  emailOrUsername?:string | null
+  emailOrUsername?: string | null;
 };
 
 export type ResendOtpResponse = {

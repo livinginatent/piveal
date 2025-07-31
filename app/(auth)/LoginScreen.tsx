@@ -55,7 +55,6 @@ export const LoginScreen: React.FC = () => {
 
     try {
       const response = await loginApi(loginPayload);
-      console.log("hello");
 
       if (response.user.isVerified) {
         await login(response.accessToken, response.refreshToken);
