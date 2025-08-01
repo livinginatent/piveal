@@ -67,9 +67,11 @@
   "headerHi": "Hi",
   "sendGift": "Send a gift",
   "someoneSpecial": "Surprise your special one with their favorite drink",
-  "send":"Send",
-  "soon":"Soon",
-  "showAll":"Show all",
-  "places":"Places",
-  "explore":"Explore"
+  "send": "Send",
+  "soon": "Soon",
+  "showAll": "Show all",
+  "places": "Places",
+  "explore": "Explore",
+  "youMayKnow": "People you may know",
+  "connect":"Connect"
 }

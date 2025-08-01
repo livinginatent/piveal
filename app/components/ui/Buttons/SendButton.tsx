@@ -21,14 +21,18 @@ interface IconButtonProps {
   style?: object;
   textStyle?: object;
   iconStyle?: object;
+  borderColor?: string;
+  borderWidth?: number;
 }
 
 export const SendButton: React.FC<IconButtonProps> = ({
-  title = "Send",
+  title = "",
   onPress,
   icon = null,
   iconPosition = "left",
   backgroundColor = "#F46A25",
+  borderColor = "#F46A25",
+  borderWidth = 1,
   textColor = "#FFFFFF",
   lineHeight = 20,
   width = normalize("width", 91),
@@ -45,7 +49,7 @@ export const SendButton: React.FC<IconButtonProps> = ({
   ...props
 }) => {
   const renderContent = () => {
-    const textElement = (
+    const textElement = title ? (
       <Text
         style={[
           styles.text,
@@ -60,11 +64,15 @@ export const SendButton: React.FC<IconButtonProps> = ({
       >
         {title}
       </Text>
-    );
+    ) : null;
 
     const iconElement = icon ? (
       <View style={[styles.iconContainer, iconStyle]}>{icon}</View>
     ) : null;
+
+    if (!title && icon) {
+      return <View style={styles.centerIcon}>{iconElement}</View>;
+    }
 
     if (iconPosition === "right") {
       return (
@@ -94,6 +102,8 @@ export const SendButton: React.FC<IconButtonProps> = ({
           borderRadius,
           padding,
           gap,
+          borderColor: borderColor ? borderColor : null,
+          borderWidth: borderWidth ? borderWidth : null,
         },
         style,
       ]}
@@ -119,6 +129,11 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   iconContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  centerIcon: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },

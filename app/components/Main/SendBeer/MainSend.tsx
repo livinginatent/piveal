@@ -22,9 +22,7 @@ export default function MainSend() {
 
           <Text style={styles.cardTitle}>{t("sendGift")}</Text>
 
-          <Text style={styles.cardSubtitle}>
-            {t("someoneSpecial")}
-          </Text>
+          <Text style={styles.cardSubtitle}>{t("someoneSpecial")}</Text>
 
           <View style={styles.buttonContainer}>
             <CustomCTAButton
@@ -52,12 +50,12 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "transparent",
     width: "100%",
-    paddingHorizontal: normalize("horizontal", 7),
+    paddingHorizontal: normalize("horizontal", 16),
     marginTop: normalize("vertical", 16),
   },
 
   greeting: {
-    fontSize: 18,
+    fontSize: normalize('font',18),
     fontWeight: "400",
     color: "#333333",
   },
@@ -69,8 +67,8 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.orangeText,
     borderRadius: 16,
-    paddingVertical: 24,
-    paddingHorizontal: 16,
+    paddingVertical: normalize("vertical", 24),
+    paddingHorizontal: normalize("horizontal", 16),
     alignItems: "center",
     minHeight: normalize("height", 252),
     justifyContent: "space-between",
@@ -83,7 +81,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   cardSubtitle: {
-    fontSize: normalize("font", 20),
+    fontSize: normalize("font", 18),
     fontWeight: "600",
     color: "#ffffff",
     textAlign: "center",

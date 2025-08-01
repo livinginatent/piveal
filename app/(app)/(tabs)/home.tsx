@@ -6,7 +6,6 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  StatusBar,
 } from "react-native";
 import { router } from "expo-router";
 import { useAuth } from "@/app/context/AuthContext";
@@ -14,16 +13,21 @@ import Header from "@/app/components/ui/Header/Header";
 import MainSend from "@/app/components/Main/SendBeer/MainSend";
 import { colors } from "@/app/theme/theme";
 import Soon from "@/app/components/Main/Soon/Soon";
-import FriendCard from "@/app/components/Main/Soon/FriendCard";
 import Vendors from "@/app/components/Main/Vendors/Vendors";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import PeopleYouMayKnow from "@/app/components/Main/PeopleYou/PeopleYouMayKow";
+import { CustomCTAButton } from "@/app/components/ui/Buttons/CTAButton";
+import { normalize } from "@/app/theme/normalize";
+import Champagne from "@/app/src/icons/beer/Champagne";
+import { t } from "i18next";
 
 type User = {
   username: string;
   email: string;
   isVerified: boolean;
 };
+
 export default function Home() {
   const { logout } = useAuth();
   const [user, setUser] = useState<User | null>(null);
@@ -33,7 +37,7 @@ export default function Home() {
       try {
         const loggedUser = await AsyncStorage.getItem("user");
         if (loggedUser) {
-          console.log(loggedUser)
+          console.log(loggedUser);
           setUser(JSON.parse(loggedUser)); // Parse string to object
         }
       } catch (error) {
@@ -43,6 +47,7 @@ export default function Home() {
 
     getUser(); // Call the function on component mount
   }, []);
+
   // The logout handler remains available for the dev button.
   const handleDevLogout = async () => {
     Alert.alert(
@@ -64,34 +69,41 @@ export default function Home() {
       { cancelable: true }
     );
   };
+
+  const handleFixedButtonPress = () => {
+    // Add your button action here
+    console.log("Fixed button pressed!");
+  };
+
   return (
-    // SafeAreaView ensures your content avoids system UI like notches and the home indicator.
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* ====================================================================== */}
-        {/* HEADER: This section can be consistent across all your screens.         */}
-        {/* For a more advanced setup, consider creating a reusable Header component.*/}
-        {/* ====================================================================== */}
-        {/* <View style={styles.header}>
-          <Text style={styles.headerTitle}>Home</Text>
-        </View> */}
         <Header username={user ? user.username : "guest"} />
 
-        {/* ====================================================================== */}
-        {/* MAIN CONTENT: This ScrollView is where your page-specific content goes.*/}
-        {/* ====================================================================== */}
-        <ScrollView contentContainerStyle={styles.contentContainer}>
-          {/* --- START: PAGE-SPECIFIC CONTENT --- */}
-
+        <ScrollView
+          contentContainerStyle={styles.contentContainer}
+          style={styles.scrollView}
+        >
           <MainSend />
-          {/* --- END: PAGE-SPECIFIC CONTENT --- */}
           <Soon username={user ? user.username : "guest"} />
           <Vendors />
+          <PeopleYouMayKnow />
         </ScrollView>
 
-        {/* ====================================================================== */}
-        {/* DEV LOGOUT BUTTON: This remains for development builds.                */}
-        {/* ====================================================================== */}
+        {/* Fixed Button Above Tab Bar */}
+        <View style={styles.fixedButtonContainer}>
+          <CustomCTAButton
+            label={t("sendGift")}
+            variant="primary"
+            size="large"
+            leftIcon={<Champagne color="white" />}
+            style={{ width: normalize("width", 184), borderRadius: 16 }}
+            onPress={handleFixedButtonPress}
+            alignContent="grouped"
+          />
+        </View>
+
+        {/* Dev Logout Button */}
         {__DEV__ && (
           <TouchableOpacity
             style={styles.devLogoutButton}
@@ -105,16 +117,33 @@ export default function Home() {
   );
 }
 
-// ======================================================================
-// STYLES: These styles define the foundational layout for your screens.
-// ======================================================================
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.primaryBg, // Set a background color for the safe area
+    backgroundColor: colors.primaryBg,
   },
   container: {
-    position: "relative", // Required for the absolute positioning of the logout button
+    position: "relative",
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingBottom: 100, // Add padding to prevent content from being hidden behind fixed button
+  },
+  // Fixed Button Container Styles
+  fixedButtonContainer: {
+    position: "absolute",
+    bottom: normalize("vertical", 24), // Adjust this value based on your tab bar height
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    paddingHorizontal: 20,
+    zIndex: 1000,
   },
   // Header Styles
   header: {
@@ -127,12 +156,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: colors.black,
-  },
-  // Main Content Styles
-  contentContainer: {
-    flexGrow: 1, // Allows the content to grow and enables scrolling
-    justifyContent: "center", // Center content vertically for demonstration
-    alignItems: "center", // Center content horizontally for demonstration
   },
   pageTitle: {
     fontSize: 28,
@@ -149,13 +172,13 @@ const styles = StyleSheet.create({
   // Dev Logout Button Styles
   devLogoutButton: {
     position: "absolute",
-    top: 60, // Adjusted to be clearly visible below the status bar
+    top: 60,
     right: 20,
-    backgroundColor: "rgba(255, 59, 48, 0.8)", // A standard iOS-like red with some transparency
+    backgroundColor: "rgba(255, 59, 48, 0.8)",
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
-    zIndex: 9999, // Ensures it floats above all other content
+    zIndex: 9999,
   },
   devLogoutButtonText: {
     color: "white",

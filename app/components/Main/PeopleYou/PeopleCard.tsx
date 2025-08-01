@@ -7,37 +7,54 @@ import Champagne from "@/app/src/icons/beer/Champagne";
 import { t } from "i18next";
 import { SendButton } from "../../ui/Buttons/SendButton";
 import { Marquee } from "@animatereactnative/marquee";
+import Connect from "@/app/src/icons/main/Connect";
+import { CustomCTAButton } from "../../ui/Buttons/CTAButton";
 type User = {
   username: string;
   email?: string;
   isVerified?: boolean;
 };
 
-const FriendCard = ({ username }: User) => {
+const PeopleCard = () => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.leftContainer}>
           <Avatar size={40} uri={"https://avatar.iran.liara.run/public/38"} />
           <View style={styles.leftInfo}>
-            <Text style={styles.name}>{username}</Text>
+            <Text style={styles.name}>Günay</Text>
 
-            <Marquee  spacing={20} speed={0.6}>
-              <Text style={styles.otherInfo}>
-                Tomorrow • Loves Iced Tea • Loves UX/UI • Loves Cats • Plays
-                Chess
-              </Text>
+            <Marquee spacing={20} speed={0.7}>
+              <Text style={styles.otherInfo}>99 connects</Text>
             </Marquee>
           </View>
         </View>
         <View style={styles.rightContainer}>
           <SendButton
-            title={t("send")}
+            title={""}
+            width={normalize("width", 32)}
+            height={normalize("height", 32)}
             icon={
               <Champagne
                 width={normalize("width", 20)}
                 height={normalize("height", 20)}
                 color="white"
+              />
+            }
+            onPress={() => null}
+          />
+          <SendButton
+            title={""}
+            backgroundColor="transparent"
+            textColor={colors.orangeText}
+            borderColor={colors.orangeText}
+            width={normalize("width", 32)}
+            height={normalize("height", 32)}
+            icon={
+              <Connect
+                width={normalize("width", 20)}
+                height={normalize("height", 20)}
+                color={colors.orangeText}
               />
             }
             onPress={() => null}
@@ -48,15 +65,13 @@ const FriendCard = ({ username }: User) => {
   );
 };
 
-export default FriendCard;
+export default PeopleCard;
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: normalize("horizontal", 16),
-    marginTop: normalize("vertical", 12),
   },
   content: {
     flexDirection: "row",
@@ -65,7 +80,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.orangeText,
     borderRadius: 24,
-    width: "100%",
   },
   leftContainer: {
     flexDirection: "row",

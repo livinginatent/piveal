@@ -3,27 +3,8 @@ import { normalize } from "@/app/theme/normalize";
 import { colors } from "@/app/theme/theme";
 import React from "react";
 import { View, Text, StyleSheet, ImageBackground } from "react-native";
-import Svg, { Path } from "react-native-svg";
 
-// MapPin Icon Component
-const MapPin = ({ width = 24, height = 24, color = "#673AB7" }) => (
-  <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
-      stroke={color}
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"
-      stroke={color}
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
+
 
 // Star Icon Component
 
@@ -43,7 +24,7 @@ export const VendorCard = () => {
           >
             {/* GPS Status Icon */}
             <View style={styles.gpsIcon}>
-              <MapPin width={24} height={24} color="#673AB7" />
+              
             </View>
 
             {/* Going Home Badge */}
@@ -85,7 +66,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: normalize("horizontal", 16),
 
-    marginTop: normalize("vertical", 16),
+    
   },
   card: {
     width: normalize("width", 212),
