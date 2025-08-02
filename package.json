@@ -21,6 +21,7 @@
     "@react-native-community/datetimepicker": "8.2.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
+    "@react-native-community/cli": "latest",
     "async-storage": "^0.1.0",
     "axios": "^1.8.2",
     "expo": "~52.0.47",
