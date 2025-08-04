@@ -73,5 +73,10 @@
   "places": "Places",
   "explore": "Explore",
   "youMayKnow": "People you may know",
-  "connect":"Connect"
+  "connect": "Connect",
+  "youAreBack": "You are back!",
+  "loginToGift": "Log in to gift drinks",
+  "noAccount": "Don't have an account? {{register}}",
+  "registerLink": "Let's create one!",
+  "didntReceiveCode":"Didn't receive OTP"
 }

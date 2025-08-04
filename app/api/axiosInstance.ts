@@ -1,5 +1,5 @@
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 const API_BASE_URL = "https://piveal-backend.onrender.com"; // replace with ENV in prod
 
@@ -14,7 +14,7 @@ const axiosInstance = axios.create({
 // Request interceptor: attach token if available
 axiosInstance.interceptors.request.use(
   async (config) => {
-    const token = await AsyncStorage.getItem("auth_token");
+    const token = await SecureStore.getItemAsync("auth_token");
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }

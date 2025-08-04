@@ -48,7 +48,7 @@
   "emailTaken": "Email istifadə olunub",
   "registerButton": "Davam et",
   "otpTitle": "OTP təsdiqi",
-  "otpSubtitle": "{email} adresinə göndərdiyimiz təsdiq kodunu daxil edin",
+  "otpSubtitle": "{{email}} adresinə göndərdiyimiz təsdiq kodunu daxil edin",
   "otpError": "Yanlış OTP",
   "resendOtp": "Yeni OTP göndər",
   "verifyOtp": "Təsdiqlə",
@@ -68,5 +68,10 @@
   "places": "Məkanlar",
   "explore": "Kəşf et",
   "youMayKnow":"Tanıya biləcəklərin",
-  "connect":"Tanış ol"
+  "connect":"Tanış ol",
+  "didntReceiveCode":"OTP gəlmədi",
+  "youAreBack":"Sən qayıtdın",
+  "loginToGift":"Pivə almaq üçün daxil ol",
+  "noAccount":"Hesabın yoxdur? {{register}}",
+  "registerLink":"Yaradaq!"
 }

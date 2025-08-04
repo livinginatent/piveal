@@ -6,7 +6,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 type AuthContextType = {
   isAuthenticated: boolean;
@@ -27,10 +27,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // centralize token storage
   const authenticate = async (accessToken: string, refreshToken: string) => {
-    await AsyncStorage.multiSet([
-      ["access_token", accessToken],
-      ["refresh_token", refreshToken],
-    ]);
+await Promise.all([
+  SecureStore.setItemAsync("access_token", accessToken),
+  SecureStore.setItemAsync("refresh_token", refreshToken),
+]);
     setIsAuthenticated(true);
   };
 
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // on app start, check for token
   const checkAuth = async () => {
-    const token = await AsyncStorage.getItem("access_token");
+    const token = await SecureStore.getItemAsync("access_token");
     if (token) setIsAuthenticated(true);
     setLoading(false);
   };

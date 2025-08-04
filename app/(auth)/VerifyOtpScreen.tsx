@@ -21,6 +21,7 @@ import { resendOtpApi, verifyOtpApi } from "../api/authService";
 import { useAuth } from "../context/AuthContext";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
+import * as SecureStore from "expo-secure-store";
 
 const VerifyOtpScreen = () => {
   const { verifyOtp } = useAuth();
@@ -37,8 +38,8 @@ const VerifyOtpScreen = () => {
 
   useEffect(() => {
     const loadUserInfo = async () => {
-      const email = await AsyncStorage.getItem("tempEmail");
-      const username = await AsyncStorage.getItem("tempUsername");
+      const email = await SecureStore.getItemAsync("tempEmail");
+      const username = await SecureStore.getItemAsync("tempUsername");
 
       setstoredEmail(email);
       setstoredUsername(username);
@@ -170,7 +171,7 @@ const VerifyOtpScreen = () => {
         otp: otpValue,
       };
 
-      const isFromLogin = await AsyncStorage.getItem("isFromLogin");
+      const isFromLogin = await SecureStore.getItemAsync("isFromLogin");
 
       if (isFromLogin === "true") {
         await verifyOtpApi(payload);
@@ -374,7 +375,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   resendTextContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
     marginTop: normalize("height", 20),

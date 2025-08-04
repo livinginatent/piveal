@@ -57,8 +57,8 @@ const RegisterScreen = () => {
       };
       try {
         const response = await registerUser(registrationPayload);
-        await AsyncStorage.setItem("tempEmail", data.email);
-        await AsyncStorage.setItem("user", JSON.stringify(response.user));
+        await SecureStore.setItemAsync("tempEmail", data.email);
+        await SecureStore.setItemAsync("user", JSON.stringify(response.user));
 
         router.push("/(auth)/VerifyOtpScreen");
       } catch (error: any) {
@@ -213,7 +213,7 @@ const RegisterScreen = () => {
           {/* <TouchableOpacity onPress={() => router.push("/(auth)/LoginScreen")}>
             <Text style={styles.haveAccount}>{t("alreadyHaveAnAccount")}</Text>
           </TouchableOpacity> */}
-          {renderLoginText()}
+          {renderLoginText({ screen: "register" })}
 
           <View style={styles.separatorContainer}>
             <View style={styles.separatorLine} />

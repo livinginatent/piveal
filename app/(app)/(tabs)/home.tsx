@@ -15,12 +15,13 @@ import { colors } from "@/app/theme/theme";
 import Soon from "@/app/components/Main/Soon/Soon";
 import Vendors from "@/app/components/Main/Vendors/Vendors";
 import { useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import PeopleYouMayKnow from "@/app/components/Main/PeopleYou/PeopleYouMayKow";
 import { CustomCTAButton } from "@/app/components/ui/Buttons/CTAButton";
 import { normalize } from "@/app/theme/normalize";
 import Champagne from "@/app/src/icons/beer/Champagne";
 import { t } from "i18next";
+import * as SecureStore from "expo-secure-store";
+
 
 type User = {
   username: string;
@@ -35,7 +36,7 @@ export default function Home() {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const loggedUser = await AsyncStorage.getItem("user");
+        const loggedUser = await SecureStore.getItemAsync("user");
         if (loggedUser) {
           console.log(loggedUser);
           setUser(JSON.parse(loggedUser)); // Parse string to object

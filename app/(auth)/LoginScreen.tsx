@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { normalize } from "@/app/theme/normalize";
 import { loginApi, resendOtpApi } from "@/app/api/authService";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
 import { colors } from "@/app/theme/theme";
 import { Controller, useForm } from "react-hook-form";
@@ -22,7 +22,8 @@ import AppleIcon from "../src/icons/social/AppleIcon";
 import { CustomInput } from "../components/ui/Buttons/InputButton";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
+import { renderLoginText } from "../components/Auth/HaveAccount/HaveAccount";
 /* import { useUserStore } from "../store/userStore";
  */
 type FormData = {
@@ -57,13 +58,15 @@ export const LoginScreen: React.FC = () => {
       const response = await loginApi(loginPayload);
 
       if (response.user.isVerified) {
-        await login(response.accessToken, response.refreshToken);
-        await AsyncStorage.setItem("user", JSON.stringify(response.user));
-     /*    setUser({
+        const jsonAccessToken = JSON.stringify(response.accessToken);
+        await login(jsonAccessToken, response.refreshToken);
+        console.log("test");
+        router.push("/(app)/(tabs)/home");
+        await SecureStore.setItemAsync("user", JSON.stringify(response.user));
+        /*    setUser({
           username: response.user.username,
           email: response.user.email,
         }); */
-        router.push("/(app)/(tabs)/home");
       }
     } catch (error: any) {
       const message =
@@ -74,8 +77,8 @@ export const LoginScreen: React.FC = () => {
       } else if (message.includes("Account")) {
         setEmailOrUsernameError(t("notVerified"));
         setIsAccountVerified(false);
-        // Store phone number only if account is not verified
-        await AsyncStorage.setItem("tempEmail", data.email);
+        // Store email securely only if account is not verified
+        await SecureStore.setItemAsync("tempEmail", data.email);
       } else if (message.includes("Invalid")) {
         setPasswordError(t("wrongPassword"));
         setEmailOrUsernameError(null);
@@ -88,11 +91,11 @@ export const LoginScreen: React.FC = () => {
   const handleVerifyOtp = async () => {
     if (emailOrUsername) {
       if (emailOrUsername.includes("@")) {
-        await AsyncStorage.setItem("tempEmail", emailOrUsername);
+        await SecureStore.setItemAsync("tempEmail", emailOrUsername);
       } else {
-        await AsyncStorage.setItem("tempUsername", emailOrUsername);
+        await SecureStore.setItemAsync("tempUsername", emailOrUsername);
       }
-      await AsyncStorage.setItem("isFromLogin", "true");
+      await SecureStore.setItemAsync("isFromLogin", "true");
       // Call resendOtpApi to send OTP
       const otpPayload = { emailOrUsername };
       await resendOtpApi(otpPayload);
@@ -110,8 +113,8 @@ export const LoginScreen: React.FC = () => {
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.greeting}>Sən qayıtdın!</Text>
-        <Text style={styles.welcomeText}>Pivə almaq üçün daxil ol</Text>
+        <Text style={styles.greeting}>{t("youAreBack")}</Text>
+        <Text style={styles.welcomeText}>{t("loginToGift")}</Text>
         <View style={styles.input}>
           <Controller
             control={control}
@@ -182,16 +185,13 @@ export const LoginScreen: React.FC = () => {
           />
 
           <View style={styles.registerContainer}>
-            <Text style={styles.register}>Hesabın yoxdur?</Text>
-            <Link href={"/(auth)/RegisterScreen"}>
-              <Text style={styles.registerCTA}>Yaradaq!</Text>
-            </Link>
+            {renderLoginText({ screen: "login" })}
           </View>
         </View>
 
         <View style={styles.separatorContainer}>
           <View style={styles.separatorLine} />
-          <Text style={styles.separatorText}>və ya</Text>
+          <Text style={styles.separatorText}>{t("orSeparator")}</Text>
           <View style={styles.separatorLine} />
         </View>
 
