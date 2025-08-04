@@ -20,8 +20,7 @@ import FacebookIcon from "../src/icons/social/FacebookIcon";
 import AppleIcon from "../src/icons/social/AppleIcon";
 import { registerUser } from "../api/authService";
 import { router } from "expo-router";
-import { useAuth } from "../context/AuthContext";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
+import * as SecureStore from "expo-secure-store";
 import { useTranslation } from "react-i18next";
 import { renderTermsText } from "../components/Auth/TermsAndConditions/Terms";
 import { renderLoginText } from "../components/Auth/HaveAccount/HaveAccount";
