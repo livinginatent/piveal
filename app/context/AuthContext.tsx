@@ -27,10 +27,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // centralize token storage
   const authenticate = async (accessToken: string, refreshToken: string) => {
-await Promise.all([
-  SecureStore.setItemAsync("access_token", accessToken),
-  SecureStore.setItemAsync("refresh_token", refreshToken),
-]);
+    await Promise.all([
+      SecureStore.setItemAsync("access_token", accessToken),
+      SecureStore.setItemAsync("refresh_token", refreshToken),
+    ]);
     setIsAuthenticated(true);
   };
 
@@ -61,7 +61,10 @@ await Promise.all([
   };
 
   const logout = async () => {
-    await AsyncStorage.multiRemove(["access_token", "refresh_token"]);
+    await Promise.all([
+      SecureStore.deleteItemAsync("access_token"),
+      SecureStore.deleteItemAsync("refresh_token"),
+    ]);
     setIsAuthenticated(false);
     setIsRegistered(false);
   };

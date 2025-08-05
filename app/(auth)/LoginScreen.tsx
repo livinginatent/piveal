@@ -176,6 +176,12 @@ export const LoginScreen: React.FC = () => {
               </View>
             )}
           />
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/ForgotPasswordScreen")}
+            style={styles.forgotContainer}
+          >
+            <Text style={styles.forgotText}>{t("forgotPassword")}</Text>
+          </TouchableOpacity>
           <CustomCTAButton
             onPress={
               isAccountVerified ? handleSubmit(onSubmit) : handleVerifyOtp
@@ -264,7 +270,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: normalize("horizontal", 2),
-    marginTop: normalize("vertical", 24),
+    
   },
   separatorContainer: {
     flexDirection: "row",
@@ -295,6 +301,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: normalize("width", 10),
+  },
+  forgotContainer: {
+    paddingBottom: normalize("vertical", 16),
+    paddingTop: normalize("vertical", 8),
+  },
+  forgotText: {
+    color: colors.grey400,
+    textAlign: "center",
+
+    fontSize: normalize("font", 14),
+    fontStyle: "normal",
+    fontWeight: 700,
+    lineHeight: 20,
   },
 });
 

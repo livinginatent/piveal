@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "700",
-    color: "#2d3436",
+    color: colors.textPrimaryBlack,
     marginBottom: 16,
     letterSpacing: -0.5,
   },
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: "#d63031",
-    fontSize: 14,
+    fontSize: normalize("font", 14),
     marginTop: 8,
     textAlign: "center",
     lineHeight: 20,
@@ -381,11 +381,11 @@ const styles = StyleSheet.create({
     marginTop: normalize("height", 20),
   },
   resendText: {
-    fontSize: 14,
+    fontSize: normalize("font", 14),
     color: "#636e72",
   },
   resendLink: {
-    fontSize: 14,
+    fontSize: normalize("font", 14),
     color: colors.orange500,
     fontWeight: "600",
   },

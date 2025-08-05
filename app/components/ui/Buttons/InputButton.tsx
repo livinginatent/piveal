@@ -168,9 +168,9 @@ const styles = StyleSheet.create({
   inputWrapper: {
     borderRadius: 4,
     borderWidth: 1.5,
-    paddingHorizontal: 12,
+    paddingHorizontal: normalize("horizontal", 12),
     paddingVertical: 8,
-    marginBottom: 16,
+    marginBottom: normalize("vertical", 16),
     maxHeight: normalize("height", 68),
     minHeight: normalize("height", 65),
   },

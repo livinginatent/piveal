@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     height: normalize("height", 120),
   },
   greeting: {
-    color: "black",
+    color: colors.textPrimaryBlack,
     fontSize: normalize("font", 36),
     fontWeight: "bold",
     marginBottom: normalize("height", 64),

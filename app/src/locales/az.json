@@ -67,11 +67,15 @@
   "showAll": "Hamısını göstər",
   "places": "Məkanlar",
   "explore": "Kəşf et",
-  "youMayKnow":"Tanıya biləcəklərin",
-  "connect":"Tanış ol",
-  "didntReceiveCode":"OTP gəlmədi",
-  "youAreBack":"Sən qayıtdın",
-  "loginToGift":"Pivə almaq üçün daxil ol",
-  "noAccount":"Hesabın yoxdur? {{register}}",
-  "registerLink":"Yaradaq!"
+  "youMayKnow": "Tanıya biləcəklərin",
+  "connect": "Tanış ol",
+  "didntReceiveCode": "OTP gəlmədi",
+  "youAreBack": "Sən qayıtdın",
+  "loginToGift": "Pivə almaq üçün daxil ol",
+  "noAccount": "Hesabın yoxdur? {{register}}",
+  "registerLink": "Yaradaq!",
+  "passwordPlaceholderLogin": "Şifrə",
+  "forgotPassword": "Şifrəni unutdun?",
+  "enterForgotEmail":"Yeniləmək üçün istifadəçi adı və ya email yaz",
+  "sendOtp":"OTP göndər"
 }

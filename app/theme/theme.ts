@@ -4,7 +4,7 @@ export const colors = {
   secondary: "#5B9BD5", // Light blue
   tertiary: "#A9A9A9", // Gray
   white: "#FFFFFF",
-  black: "#000000",
+  black: "#1e1e1e",
   primaryBg: "#FAF5FF",
   transparent: "transparent",
   orange900: "#6A2613",
@@ -25,9 +25,10 @@ export const colors = {
   grey600: "#424242",
   grey700: "#333333",
   grey800: "#262626",
-  textPrimary:"#252526",
+  textPrimary: "#252526",
   error: "#F6363E",
   errorPink: "#fae2ec",
+  textPrimaryBlack: "1e1e1e",
 
   teal: {
     teal500: "#17A2B8",
