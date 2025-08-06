@@ -24,7 +24,7 @@ export const initiatePasswordResetApi = async (
 // Payload for verifying password reset OTP
 export type VerifyPasswordOtpPayload = {
   identifier: string; // email or username
-  otp: number;
+  otp: string;
 };
 
 type VerifyPasswordOtpResponse = {
@@ -55,7 +55,10 @@ type ResetPasswordResponse = {
 export const resetPasswordApi = async (
   payload: ResetPasswordPayload
 ): Promise<ResetPasswordResponse> => {
-  const response = await axiosInstance.post("/password/reset-password", payload);
+  const response = await axiosInstance.post(
+    "/password/reset-password",
+    payload
+  );
   return response.data;
 };
 
@@ -73,6 +76,9 @@ type ChangePasswordResponse = {
 export const changePasswordApi = async (
   payload: ChangePasswordPayload
 ): Promise<ChangePasswordResponse> => {
-  const response = await axiosInstance.post("/password/change-password", payload);
+  const response = await axiosInstance.post(
+    "/password/change-password",
+    payload
+  );
   return response.data;
 };

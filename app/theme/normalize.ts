@@ -12,7 +12,7 @@ const layoutHeight = 874;
 const widthScaleFactor = deviceWidth / layoutWidth;
 const heightScaleFactor = deviceHeight / layoutHeight;
 
-let maxFont = PixelRatio.getFontScale();
+const maxFont = PixelRatio.getFontScale();
 
 const fontScales = [
   { limit: 1.28, value: 0 },
@@ -24,7 +24,7 @@ const fontScales = [
   { limit: Infinity, value: 8.8 },
 ];
 
-let fontScaleValue = (
+const fontScaleValue = (
   fontScales.find((scale) => maxFont <= scale.limit) || { value: 0 }
 ).value;
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
@@ -53,7 +54,6 @@ const ForgotPasswordScreen = () => {
   const {
     control,
     handleSubmit,
-    getValues,
     formState: { errors },
     watch,
   } = useForm<FormData>({
@@ -107,19 +107,20 @@ const ForgotPasswordScreen = () => {
     }
     setIsLoading(true);
     setOtpError(null);
-    const identifier = await SecureStore.getItemAsync("tempIdentifier");
+    const identifier = JSON.parse(
+      (await SecureStore.getItemAsync("tempIdentifier")) || "null"
+    );
     if (!identifier) {
       setOtpError(t("otpIdentifierMissing"));
       setIsLoading(false);
       return;
     }
     try {
-      console.log(typeof otpValue);
-      await verifyPasswordOtpApi({ identifier, otp: Number(otpValue) });
+      await verifyPasswordOtpApi({ identifier, otp: otpValue });
       setCurrentStep("reset");
     } catch (error: any) {
       const message =
-        error.response?.data?.message || t("otpVerificationError");
+        error.response?.data?.message; /* || t("otpVerificationError") */
       setOtpError(message);
     } finally {
       setIsLoading(false);
@@ -129,7 +130,9 @@ const ForgotPasswordScreen = () => {
   // Step 3: Reset Password
   const handleResetPassword = async (data: FormData) => {
     setIsLoading(true);
-    const identifier = await SecureStore.getItemAsync("tempIdentifier");
+    const identifier = JSON.parse(
+      (await SecureStore.getItemAsync("tempIdentifier")) || "null"
+    );
     if (!identifier) {
       setEmailOrUsernameError(t("otpIdentifierMissing"));
       setIsLoading(false);
@@ -232,7 +235,7 @@ const ForgotPasswordScreen = () => {
               label={t("verifyOtp")}
             />
             <View style={styles.resendTextContainer}>
-              <Text style={styles.resendText}>{t("didntReceiveOtp")}</Text>
+              <Text style={styles.resendText}>{t("didntReceiveCode")}</Text>
               <TouchableOpacity
                 onPress={handleResendOtp}
                 disabled={resendCooldown > 0 || isLoading}
@@ -244,7 +247,7 @@ const ForgotPasswordScreen = () => {
                   ]}
                 >
                   {resendCooldown > 0
-                    ? `${t("resendIn")} ${resendCooldown}s`
+                    ? `${resendCooldown}s ${t("resendIn")} `
                     : t("resendNow")}
                 </Text>
               </TouchableOpacity>

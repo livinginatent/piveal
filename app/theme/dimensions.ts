@@ -11,7 +11,7 @@ const activeOpacityIndex = 0.3;
 const standardHitSlopSize = 12;
 const smallHitSlopSize = 8;
 
-export {
+export default {
   activeOpacityIndex,
   standardHitSlopSize,
   smallHitSlopSize,

@@ -17,7 +17,7 @@ interface CustomInputProps {
   variant?: InputVariant;
   label: string;
   placeholder: string;
-  value: string;
+  value: string | undefined;
   onChangeText: (text: string) => void;
   keyboardType?: KeyboardTypeOptions;
   isSecure?: boolean;

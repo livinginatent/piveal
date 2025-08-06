@@ -69,13 +69,19 @@
   "explore": "Kəşf et",
   "youMayKnow": "Tanıya biləcəklərin",
   "connect": "Tanış ol",
-  "didntReceiveCode": "OTP gəlmədi",
+  "didntReceiveCode": "OTP gəlmədi?",
   "youAreBack": "Sən qayıtdın",
   "loginToGift": "Pivə almaq üçün daxil ol",
   "noAccount": "Hesabın yoxdur? {{register}}",
   "registerLink": "Yaradaq!",
   "passwordPlaceholderLogin": "Şifrə",
   "forgotPassword": "Şifrəni unutdun?",
-  "enterForgotEmail":"Yeniləmək üçün istifadəçi adı və ya email yaz",
-  "sendOtp":"OTP göndər"
+  "enterForgotEmail": "Yeniləmək üçün istifadəçi adı və ya email yaz",
+  "sendOtp": "OTP göndər",
+  "resendIn": "sonra yenidən göndər",
+  "confirmPasswordPlaceholder": "Şifrənizi təkrar edin",
+  "login2": "Daxil ol",
+  "resetPassword": "Şifrəni dəyiş",
+  "newPassword": "Yeni şifrə",
+  "confirmPasswordLabel": "Şifrəni təkrarlayın"
 }
