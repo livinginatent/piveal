@@ -1,10 +1,12 @@
 import type React from "react";
 import { View, Text, StyleSheet, SafeAreaView, Image } from "react-native";
-import { normalize } from "@/app/theme/normalize";
+
 import { useRouter } from "expo-router";
-import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
-import { colors } from "@/app/theme/theme"; // Import colors
+
 import { useTranslation } from "react-i18next";
+import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
+import { colors } from "@/src/theme/theme";
+import { normalize } from "@/src/theme/normalize";
 
 export const WelcomeScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -22,11 +24,12 @@ export const WelcomeScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Image
-            source={require("@/assets/images/logo/pive.png")}
+         {/*  <Image
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            source={require("@/src/assets/images/pive.png")}
             style={styles.logo}
             resizeMode="contain"
-          />
+          /> */}
         </View>
         <Text style={styles.greeting}>{t("heyThere!")}</Text>
         <CustomCTAButton

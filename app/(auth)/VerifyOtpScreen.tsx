@@ -14,14 +14,14 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { OtpInput } from "react-native-otp-entry";
-import { normalize } from "../theme/normalize";
-import { colors } from "../theme/theme";
-import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
 import { resendOtpApi, verifyOtpApi } from "../api/authService";
-import { useAuth } from "../context/AuthContext";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import * as SecureStore from "expo-secure-store";
+import { useAuth } from "@/src/context/AuthContext";
+import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
+import { colors } from "@/src/theme/theme";
+import { normalize } from "@/src/theme/normalize";
 
 const VerifyOtpScreen = () => {
   const { verifyOtp } = useAuth();

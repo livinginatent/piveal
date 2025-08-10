@@ -1,9 +1,13 @@
 // File: app/_layout.tsx
+import "react-native-gesture-handler";
+import "@/src/i18n";
 import React, { useEffect } from "react";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { ActivityIndicator, View, StyleSheet, StatusBar } from "react-native";
-import { AuthProvider, useAuth } from "./context/AuthContext";
-import { colors } from "./theme/theme";
+
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { AuthProvider, useAuth } from "@/src/context/AuthContext";
+import { colors } from "@/src/theme/theme";
 
 const InitialLayout = () => {
   const { isAuthenticated, isRegistered, loading } = useAuth();
@@ -38,10 +42,12 @@ const InitialLayout = () => {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <StatusBar backgroundColor={colors.primaryBg} />
-      <InitialLayout />
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <StatusBar backgroundColor={colors.primaryBg} />
+        <InitialLayout />
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }
 

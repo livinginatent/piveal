@@ -8,20 +8,21 @@ import {
   ScrollView,
 } from "react-native";
 import { router } from "expo-router";
-import { useAuth } from "@/app/context/AuthContext";
-import Header from "@/app/components/ui/Header/Header";
-import MainSend from "@/app/components/Main/SendBeer/MainSend";
-import { colors } from "@/app/theme/theme";
-import Soon from "@/app/components/Main/Soon/Soon";
-import Vendors from "@/app/components/Main/Vendors/Vendors";
+
 import { useEffect, useState } from "react";
-import PeopleYouMayKnow from "@/app/components/Main/PeopleYou/PeopleYouMayKow";
-import { CustomCTAButton } from "@/app/components/ui/Buttons/CTAButton";
-import { normalize } from "@/app/theme/normalize";
-import Champagne from "@/app/src/icons/beer/Champagne";
+
+import Champagne from "@/src/icons/beer/Champagne";
 import { t } from "i18next";
 import * as SecureStore from "expo-secure-store";
-
+import { useAuth } from "@/src/context/AuthContext";
+import { Header } from "react-native/Libraries/NewAppScreen";
+import MainSend from "@/src/components/Main/SendBeer/MainSend";
+import Soon from "@/src/components/Main/Soon/Soon";
+import Vendors from "@/src/components/Main/Vendors/Vendors";
+import PeopleYouMayKnow from "@/src/components/Main/PeopleYou/PeopleYouMayKow";
+import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
+import { normalize } from "@/src/theme/normalize";
+import { colors } from "@/src/theme/theme";
 
 type User = {
   username: string;

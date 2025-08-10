@@ -1,13 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // File: app/(app)/(tabs)/_layout.tsx
 import React from "react";
 import { Tabs } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Calendar from "@/app/src/icons/main/Calendar";
-import Champagne from "@/app/src/icons/beer/Champagne";
-import { colors } from "@/app/theme/theme";
-import Magnifying from "@/app/src/icons/main/Magnifying";
-import User from "@/app/src/icons/main/User";
-import { normalize } from "@/app/theme/normalize";
+import Champagne from "@/src/icons/beer/Champagne";
+import Magnifying from "@/src/icons/main/Magnifying";
+import { normalize } from "@/src/theme/normalize";
+import { colors } from "@/src/theme/theme";
+import User from "@/src/icons/main/User";
+
 
 // You can create similar SVG components for other icons
 // For now, using Calendar as example for all tabs

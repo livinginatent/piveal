@@ -9,21 +9,25 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { normalize } from "@/app/theme/normalize";
+
 import { loginApi, resendOtpApi } from "@/app/api/authService";
 import { useRouter } from "expo-router";
-import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
-import { colors } from "@/app/theme/theme";
+
 import { Controller, useForm } from "react-hook-form";
 import { useState } from "react";
-import { GoogleIcon } from "../src/icons/social/GoogleIcon";
-import FacebookIcon from "../src/icons/social/FacebookIcon";
-import AppleIcon from "../src/icons/social/AppleIcon";
-import { CustomInput } from "../components/ui/Buttons/InputButton";
-import { useAuth } from "../context/AuthContext";
+
 import { useTranslation } from "react-i18next";
 import * as SecureStore from "expo-secure-store";
-import { renderLoginText } from "../components/Auth/HaveAccount/HaveAccount";
+import { useAuth } from "@/src/context/AuthContext";
+import { CustomInput } from "@/src/components/ui/Buttons/InputButton";
+import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
+import { renderLoginText } from "@/src/components/Auth/HaveAccount/HaveAccount";
+import { GoogleIcon } from "@/src/icons/social/GoogleIcon";
+import FacebookIcon from "@/src/icons/social/FacebookIcon";
+import AppleIcon from "@/src/icons/social/AppleIcon";
+import { colors } from "@/src/theme/theme";
+import { normalize } from "@/src/theme/normalize";
+
 /* import { useUserStore } from "../store/userStore";
  */
 type FormData = {
@@ -107,11 +111,11 @@ export const LoginScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Image
+      {/*     <Image
             source={require("@/assets/images/logo/pive.png")}
             style={styles.logo}
             resizeMode="contain"
-          />
+          /> */}
         </View>
         <Text style={styles.greeting}>{t("youAreBack")}</Text>
         <Text style={styles.welcomeText}>{t("loginToGift")}</Text>

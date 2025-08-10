@@ -10,18 +10,12 @@ import {
   View,
 } from "react-native";
 import React, { useRef, useState, useEffect } from "react";
-import { normalize } from "../theme/normalize";
-import { colors } from "../theme/theme";
+
 import { Ionicons } from "@expo/vector-icons";
 import { t } from "i18next";
 import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
-import { CustomInput } from "../components/ui/Buttons/InputButton";
-import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
-import { renderLoginText } from "../components/Auth/HaveAccount/HaveAccount";
-import { GoogleIcon } from "../src/icons/social/GoogleIcon";
-import FacebookIcon from "../src/icons/social/FacebookIcon";
-import AppleIcon from "../src/icons/social/AppleIcon";
+
 import { OtpInput } from "react-native-otp-entry";
 import {
   initiatePasswordResetApi,
@@ -29,6 +23,14 @@ import {
   resetPasswordApi,
 } from "@/app/api/passwordService";
 import * as SecureStore from "expo-secure-store";
+import { CustomInput } from "@/src/components/ui/Buttons/InputButton";
+import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
+import { normalize } from "@/src/theme/normalize";
+import { colors } from "@/src/theme/theme";
+import { renderLoginText } from "@/src/components/Auth/HaveAccount/HaveAccount";
+import { GoogleIcon } from "@/src/icons/social/GoogleIcon";
+import FacebookIcon from "@/src/icons/social/FacebookIcon";
+import AppleIcon from "@/src/icons/social/AppleIcon";
 
 type FormData = {
   emailOrUsername: string;

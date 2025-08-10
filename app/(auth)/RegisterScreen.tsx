@@ -5,25 +5,27 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Platform,
+
 } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
-import { normalize } from "../theme/normalize";
-import { colors } from "../theme/theme";
-import { CustomInput } from "../components/ui/Buttons/InputButton";
+
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
-import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
-import { GoogleIcon } from "../src/icons/social/GoogleIcon";
-import FacebookIcon from "../src/icons/social/FacebookIcon";
-import AppleIcon from "../src/icons/social/AppleIcon";
+
 import { registerUser } from "../api/authService";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useTranslation } from "react-i18next";
-import { renderTermsText } from "../components/Auth/TermsAndConditions/Terms";
-import { renderLoginText } from "../components/Auth/HaveAccount/HaveAccount";
+import { CustomInput } from "@/src/components/ui/Buttons/InputButton";
+import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
+import { normalize } from "@/src/theme/normalize";
+import { renderLoginText } from "@/src/components/Auth/HaveAccount/HaveAccount";
+import { GoogleIcon } from "@/src/icons/social/GoogleIcon";
+import FacebookIcon from "@/src/icons/social/FacebookIcon";
+import AppleIcon from "@/src/icons/social/AppleIcon";
+import { renderTermsText } from "@/src/components/Auth/TermsAndConditions/Terms";
+import { colors } from "@/src/theme/theme";
 
 // THIS SCREEN IS RESPONSIBLE FOR USER REGISTRATION. USERS NEED TO PICK A DATE TO CONFIRM THEY ARE 18 OR OLDER. USERS THEN
 // ENTER THEIR PHONE NUMBER AND PASSWORD
@@ -37,7 +39,7 @@ const RegisterScreen = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+  
   } = useForm<FormData>({
     defaultValues: { email: "", password: "" },
   });
@@ -86,11 +88,12 @@ const RegisterScreen = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.content}>
           <View style={styles.logoContainer}>
-            <Image
-              source={require("@/assets/images/logo/pive.png")}
+            {/* <Image
+              // eslint-disable-next-line @typescript-eslint/no-require-imports
+              source={require("@/src/assets/images/pive.png")}
               style={styles.logo}
               resizeMode="contain"
-            />
+            /> */}
           </View>
           <Text style={styles.greeting}>{t("welcome")}</Text>
           <Text style={styles.greetingLabel}>{t("greetingLabel")}</Text>
@@ -143,7 +146,7 @@ const RegisterScreen = () => {
                 },
               }}
               render={({
-                field: { onChange, onBlur, value },
+                field: { onChange, value },
                 fieldState: { error },
               }) => (
                 <View>
@@ -179,7 +182,7 @@ const RegisterScreen = () => {
                   },
                 }}
                 render={({
-                  field: { onChange, onBlur, value },
+                  field: { onChange, value },
                   fieldState: { error },
                 }) => (
                   <View>
