@@ -82,3 +82,21 @@ export const changePasswordApi = async (
   );
   return response.data;
 };
+// Payload for resending password OTP
+export type ResendPasswordOtpPayload = {
+  identifier: string;
+};
+
+type ResendPasswordOtpResponse = {
+  message: string;
+};
+
+export const resendPasswordResetOtpApi = async (
+  payload: ResendPasswordOtpPayload
+): Promise<ResendPasswordOtpResponse> => {
+  const response = await axiosInstance.post(
+    "/password/resend-password-otp",
+    payload
+  );
+  return response.data;
+};

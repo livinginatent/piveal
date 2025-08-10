@@ -1,6 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/*
+Refactor highlights:
+- Sync with backend constraints: OTP length, 2‑minute resend cooldown, >=8 char password.
+- Single source of truth constants; no mixed 60s/120s.
+- Store identifier plainly in SecureStore (no JSON stringify/parse mismatch).
+- Use `resendPasswordResetOtpApi` endpoint; consume `nextResendAvailableAt` and `remainingResends` from server.
+- Robust error mapping and per‑step error state.
+- Disable actions during cooldown; friendly mm:ss timer.
+- Clear OTP and errors on step transitions; consistent button loading states.
+*/
+
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useRef, useState } from "react";
 import {
   SafeAreaView,
   StatusBar,
@@ -9,28 +20,36 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useRef, useState, useEffect } from "react";
-
 import { Ionicons } from "@expo/vector-icons";
-import { t } from "i18next";
-import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "expo-router";
-
+import { Controller, useForm } from "react-hook-form";
 import { OtpInput } from "react-native-otp-entry";
-import {
-  initiatePasswordResetApi,
-  verifyPasswordOtpApi,
-  resetPasswordApi,
-} from "@/app/api/passwordService";
 import * as SecureStore from "expo-secure-store";
+
+import { t } from "i18next";
 import { CustomInput } from "@/src/components/ui/Buttons/InputButton";
 import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
-import { normalize } from "@/src/theme/normalize";
-import { colors } from "@/src/theme/theme";
 import { renderLoginText } from "@/src/components/Auth/HaveAccount/HaveAccount";
 import { GoogleIcon } from "@/src/icons/social/GoogleIcon";
 import FacebookIcon from "@/src/icons/social/FacebookIcon";
 import AppleIcon from "@/src/icons/social/AppleIcon";
+import { normalize } from "@/src/theme/normalize";
+import { colors } from "@/src/theme/theme";
+
+import {
+  initiatePasswordResetApi,
+  verifyPasswordOtpApi,
+  resetPasswordApi,
+  resendPasswordResetOtpApi,
+} from "@/src/api/passwordService";
+
+// ===== Backend-aligned constants (keep in sync with server) =====
+const OTP_LENGTH = 4; // server generateOtp() length
+const RESEND_COOLDOWN_MINUTES = 2; // server constant
+const RESEND_COOLDOWN_SECONDS = RESEND_COOLDOWN_MINUTES * 60; // 120s
+const PASSWORD_MIN_LENGTH = 8; // server validation
+
+// ===== Types =====
 
 type FormData = {
   emailOrUsername: string;
@@ -40,16 +59,52 @@ type FormData = {
 
 type PasswordResetStep = "initiate" | "verify" | "reset";
 
-const ForgotPasswordScreen = () => {
+type InitiateResponse = {
+  expiresAt?: string | Date;
+  remainingResends?: number;
+  nextResendAvailableAt?: string | Date;
+};
+
+type ResendResponse = InitiateResponse;
+
+// ===== Helpers =====
+const toMs = (d: Date | string | number) => new Date(d).getTime();
+const secondsUntil = (future?: Date | string) => {
+  if (!future) return 0;
+  const now = Date.now();
+  const diff = Math.max(0, Math.ceil((toMs(future) - now) / 1000));
+  return diff;
+};
+
+const formatMMSS = (totalSeconds: number) => {
+  const m = Math.floor(totalSeconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const s = (totalSeconds % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+};
+
+const setStore = (key: string, value: string) =>
+  SecureStore.setItemAsync(key, value);
+const getStore = (key: string) => SecureStore.getItemAsync(key);
+const delStore = (key: string) => SecureStore.deleteItemAsync(key);
+
+// ===== Component =====
+const ForgotPasswordScreen: React.FC = () => {
   const router = useRouter();
 
   const [currentStep, setCurrentStep] = useState<PasswordResetStep>("initiate");
   const [isLoading, setIsLoading] = useState(false);
+
   const [emailOrUsernameError, setEmailOrUsernameError] = useState<
     string | null
   >(null);
   const [otpError, setOtpError] = useState<string | null>(null);
-  const [resendCooldown, setResendCooldown] = useState(60); // 60 seconds cooldown
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  const [resendCooldown, setResendCooldown] = useState<number>(0);
+  const [remainingResends, setRemainingResends] = useState<number | null>(null);
+
   const [otpValue, setOtpValue] = useState("");
   const otpInputRef = useRef<any>(null);
 
@@ -58,271 +113,330 @@ const ForgotPasswordScreen = () => {
     handleSubmit,
     formState: { errors },
     watch,
+    reset,
   } = useForm<FormData>({
-    defaultValues: { emailOrUsername: "" },
+    defaultValues: {
+      emailOrUsername: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
   });
 
   const watchNewPassword = watch("newPassword");
 
-  // Timer for OTP resend cooldown
+  // Cooldown timer
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (resendCooldown > 0 && currentStep === "verify") {
-      timer = setTimeout(() => {
-        setResendCooldown((prev) => prev - 1);
-      }, 1000);
-    }
-    return () => clearTimeout(timer);
+    if (resendCooldown <= 0 || currentStep !== "verify") return;
+    const timer = setInterval(
+      () => setResendCooldown((s) => (s > 0 ? s - 1 : 0)),
+      1000
+    );
+    return () => clearInterval(timer);
   }, [resendCooldown, currentStep]);
 
-  // Handle OTP input change
+  // ===== Handlers =====
   const handleOtpChange = (otp: string) => {
     setOtpValue(otp);
     if (otpError) setOtpError(null);
   };
 
+  const extractErrorMessage = (err: any, fallback: string) => {
+    return err?.response?.data?.message || err?.message || fallback;
+  };
+
   // Step 1: Initiate Password Reset
-  const handleInitiatePasswordReset = async (data: FormData) => {
+  const onInitiate = async (data: FormData) => {
     setIsLoading(true);
+    setEmailOrUsernameError(null);
+    setOtpError(null);
+    setPasswordError(null);
 
     try {
-      await initiatePasswordResetApi({ identifier: data.emailOrUsername });
-      await SecureStore.setItemAsync(
-        "tempIdentifier",
-        JSON.stringify(data.emailOrUsername)
-      );
+      const resp = (await initiatePasswordResetApi({
+        identifier: data.emailOrUsername,
+      })) as InitiateResponse;
+
+      // Store identifier plainly (no JSON wrapper)
+      await setStore("tempIdentifier", data.emailOrUsername);
+
+      // Start verify step
       setCurrentStep("verify");
-      setResendCooldown(60);
+      setRemainingResends(
+        typeof resp?.remainingResends === "number"
+          ? resp.remainingResends
+          : null
+      );
+
+      const serverCooldown = secondsUntil(resp?.nextResendAvailableAt as any);
+      setResendCooldown(
+        serverCooldown > 0 ? serverCooldown : RESEND_COOLDOWN_SECONDS
+      );
     } catch (error: any) {
-      const message = error.response?.data?.message;
-      setEmailOrUsernameError(message);
+      const msg = extractErrorMessage(error, t("initiateErrorFallback"));
+      setEmailOrUsernameError(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
   // Step 2: Verify OTP
-  const handleVerifyOtp = async () => {
-    if (otpValue.length !== 4) {
+  const onVerify = async () => {
+    if (otpValue.length !== OTP_LENGTH) {
       setOtpError(t("invalidOtpLength"));
       return;
     }
+
     setIsLoading(true);
     setOtpError(null);
-    const identifier = JSON.parse(
-      (await SecureStore.getItemAsync("tempIdentifier")) || "null"
-    );
+
+    const identifier = await getStore("tempIdentifier");
     if (!identifier) {
       setOtpError(t("otpIdentifierMissing"));
       setIsLoading(false);
       return;
     }
+
     try {
       await verifyPasswordOtpApi({ identifier, otp: otpValue });
       setCurrentStep("reset");
+      setOtpError(null);
     } catch (error: any) {
-      const message =
-        error.response?.data?.message; /* || t("otpVerificationError") */
-      setOtpError(message);
+      const msg = extractErrorMessage(error, t("otpVerificationError"));
+      setOtpError(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
   // Step 3: Reset Password
-  const handleResetPassword = async (data: FormData) => {
+  const onResetPassword = async (data: FormData) => {
     setIsLoading(true);
-    const identifier = JSON.parse(
-      (await SecureStore.getItemAsync("tempIdentifier")) || "null"
-    );
+    setPasswordError(null);
+
+    const identifier = await getStore("tempIdentifier");
     if (!identifier) {
-      setEmailOrUsernameError(t("otpIdentifierMissing"));
+      setPasswordError(t("otpIdentifierMissing"));
       setIsLoading(false);
       return;
     }
+
+    // Frontend validation aligned to backend (>= 8 chars). Additional complexity is optional.
+    if (!data.newPassword || data.newPassword.length < PASSWORD_MIN_LENGTH) {
+      setPasswordError(t("passwordMinBackend", { count: PASSWORD_MIN_LENGTH }));
+      setIsLoading(false);
+      return;
+    }
+    if (data.newPassword !== data.confirmPassword) {
+      setPasswordError(t("passwordsMustMatch"));
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      await resetPasswordApi({
-        identifier,
-        newPassword: data.newPassword!,
-      });
-      await SecureStore.deleteItemAsync("tempIdentifier");
+      await resetPasswordApi({ identifier, newPassword: data.newPassword });
+      await delStore("tempIdentifier");
+      reset();
       router.push({
         pathname: "/(auth)/LoginScreen",
         params: { successMessage: t("passwordResetSuccess") },
       });
     } catch (error: any) {
-      // Handle password reset errors if any
+      const msg = extractErrorMessage(error, t("resetPasswordError"));
+      setPasswordError(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleResendOtp = async () => {
-    const identifier = await SecureStore.getItemAsync("tempIdentifier");
+  const onResend = async () => {
+    if (isLoading || resendCooldown > 0) return;
+
+    const identifier = await getStore("tempIdentifier");
     if (!identifier) {
       setEmailOrUsernameError(t("resendIdentifierMissing"));
       return;
     }
-    setResendCooldown(60);
+
     try {
-      await initiatePasswordResetApi({ identifier });
+      setIsLoading(true);
+      const resp = (await resendPasswordResetOtpApi({
+        identifier,
+      })) as ResendResponse;
       setOtpError(null);
+      setRemainingResends(
+        typeof resp?.remainingResends === "number"
+          ? resp.remainingResends
+          : remainingResends
+      );
+
+      const serverCooldown = secondsUntil(resp?.nextResendAvailableAt as any);
+      setResendCooldown(
+        serverCooldown > 0 ? serverCooldown : RESEND_COOLDOWN_SECONDS
+      );
     } catch (error: any) {
-      setOtpError(error.response?.data?.message || t("resendOtpError"));
+      const msg = extractErrorMessage(error, t("resendOtpError"));
+      setOtpError(msg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const renderContentByStep = () => {
-    switch (currentStep) {
-      case "initiate":
-        return (
-          <View style={styles.formContainer}>
-            <Text style={styles.subtitle}>{t("enterForgotEmail")}</Text>
-            <Controller
-              control={control}
-              name="emailOrUsername"
-              rules={{
-                required: t("emailOrUsernameRequired"),
-                validate: {
-                  validFormat: (value) => {
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    const usernameRegex = /^[a-zA-Z0-9_-]{3,20}$/;
-                    if (emailRegex.test(value) || usernameRegex.test(value)) {
-                      return true;
-                    }
-                    return t("invalidEmailOrUsername");
-                  },
-                },
-              }}
-              render={({
-                field: { onChange, value },
-                fieldState: { error },
-              }) => (
-                <CustomInput
-                  label={t("emailOrUsername")}
-                  value={value}
-                  onChangeText={onChange}
-                  placeholder={t("enterEmailOrUsername")}
-                  variant={error || emailOrUsernameError ? "error" : "default"}
-                  errorText={error?.message || emailOrUsernameError}
-                />
-              )}
-            />
-            <CustomCTAButton
-              onPress={handleSubmit(handleInitiatePasswordReset)}
-              style={{ width: "100%", marginTop: normalize("vertical", 8) }}
-              label={t("sendOtp")}
-            />
-          </View>
-        );
-      case "verify":
-        return (
-          <View style={styles.formContainer}>
-            <Text style={styles.subtitle}>{t("enterOtp")}</Text>
-            <OtpInput
-              numberOfDigits={4}
-              onTextChange={handleOtpChange}
-              onFilled={handleOtpChange}
-              focusColor={colors.orange400}
-              ref={otpInputRef}
-              theme={{
-                containerStyle: styles.otpContainer,
-                pinCodeContainerStyle: styles.pinCodeContainer,
-              }}
-            />
-            {otpError && <Text style={styles.errorText}>{otpError}</Text>}
-            <CustomCTAButton
-              onPress={handleVerifyOtp}
-              style={{ width: "100%", marginTop: normalize("vertical", 8) }}
-              label={t("verifyOtp")}
-            />
-            <View style={styles.resendTextContainer}>
-              <Text style={styles.resendText}>{t("didntReceiveCode")}</Text>
-              <TouchableOpacity
-                onPress={handleResendOtp}
-                disabled={resendCooldown > 0 || isLoading}
-              >
-                <Text
-                  style={[
-                    styles.resendLink,
-                    (resendCooldown > 0 || isLoading) && styles.disabledLink,
-                  ]}
-                >
-                  {resendCooldown > 0
-                    ? `${resendCooldown}s ${t("resendIn")} `
-                    : t("resendNow")}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        );
-      case "reset":
-        return (
-          <View style={styles.formContainer}>
-            <Text style={styles.subtitle}>{t("enterNewPassword")}</Text>
-            <Controller
-              control={control}
-              name="newPassword"
-              rules={{
-                required: t("passwordRequired"),
-                minLength: {
-                  value: 6,
-                  message: t("passwordMinLengthMessage"),
-                },
-                maxLength: {
-                  value: 12,
-                  message: t("passwordMaxLengthMessage"),
-                },
-                pattern: {
-                  value: /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/,
-                  message: t("passwordSpecialCharMessage"),
-                },
-              }}
-              render={({ field: { onChange, value } }) => (
-                <View>
-                  <CustomInput
-                    label={t("newPassword")}
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder={t("passwordPlaceholder")}
-                    isSecure={true}
-                    variant={errors.newPassword ? "error" : "default"}
-                    errorText={errors.newPassword?.message}
-                  />
-                </View>
-              )}
-            />
-            <Controller
-              control={control}
-              name="confirmPassword"
-              rules={{
-                required: t("confirmPasswordRequired"),
-                validate: (value) =>
-                  value === watchNewPassword || t("passwordsMustMatch"),
-              }}
-              render={({ field: { onChange, value } }) => (
-                <View>
-                  <CustomInput
-                    label={t("confirmPasswordLabel")}
-                    value={value}
-                    onChangeText={onChange}
-                    placeholder={t("confirmPasswordPlaceholder")}
-                    isSecure={true}
-                    variant={errors.confirmPassword ? "error" : "default"}
-                    errorText={errors.confirmPassword?.message}
-                  />
-                </View>
-              )}
-            />
-            <CustomCTAButton
-              onPress={handleSubmit(handleResetPassword)}
-              style={{ width: "100%", marginTop: normalize("vertical", 8) }}
-              label={t("resetPassword")}
-            />
-          </View>
-        );
-    }
-  };
+  // ===== Renderers =====
+  const renderInitiate = () => (
+    <View style={styles.formContainer}>
+      <Text style={styles.subtitle}>{t("enterForgotEmail")}</Text>
+      <Controller
+        control={control}
+        name="emailOrUsername"
+        rules={{
+          required: t("emailOrUsernameRequired") as unknown as boolean,
+          validate: {
+            validFormat: (value) => {
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              const usernameRegex = /^[a-zA-Z0-9_-]{3,20}$/;
+              return (
+                emailRegex.test(value) ||
+                usernameRegex.test(value) ||
+                (t("invalidEmailOrUsername") as unknown as boolean)
+              );
+            },
+          },
+        }}
+        render={({ field: { onChange, value }, fieldState: { error } }) => (
+          <CustomInput
+            label={t("emailOrUsername")}
+            value={value}
+            onChangeText={(v) => {
+              setEmailOrUsernameError(null);
+              onChange(v);
+            }}
+            placeholder={t("enterEmailOrUsername")}
+            variant={error || emailOrUsernameError ? "error" : "default"}
+            errorText={
+              (error?.message as any) || emailOrUsernameError || undefined
+            }
+          />
+        )}
+      />
+      <CustomCTAButton
+        onPress={handleSubmit(onInitiate)}
+        style={{ width: "100%", marginTop: normalize("vertical", 8) }}
+        label={isLoading ? t("sending") : t("sendOtp")}
+        disabled={isLoading}
+      />
+    </View>
+  );
+
+  const renderVerify = () => (
+    <View style={styles.formContainer}>
+      <Text style={styles.subtitle}>{t("enterOtp")}</Text>
+      <OtpInput
+        numberOfDigits={OTP_LENGTH}
+        onTextChange={handleOtpChange}
+        onFilled={handleOtpChange}
+        focusColor={colors.orange400}
+        ref={otpInputRef}
+        theme={{
+          containerStyle: styles.otpContainer,
+          pinCodeContainerStyle: styles.pinCodeContainer,
+        }}
+      />
+      {!!otpError && <Text style={styles.errorText}>{otpError}</Text>}
+      <CustomCTAButton
+        onPress={onVerify}
+        style={{ width: "100%", marginTop: normalize("vertical", 8) }}
+        label={isLoading ? t("verifying") : t("verifyOtp")}
+        disabled={isLoading}
+      />
+
+      <View style={styles.resendTextContainer}>
+        <Text style={styles.resendText}>{t("didntReceiveCode")}</Text>
+        <TouchableOpacity
+          onPress={onResend}
+          disabled={resendCooldown > 0 || isLoading}
+        >
+          <Text
+            style={[
+              styles.resendLink,
+              (resendCooldown > 0 || isLoading) && styles.disabledLink,
+            ]}
+          >
+            {resendCooldown > 0
+              ? `${formatMMSS(resendCooldown)} ${t("resendIn")}`
+              : t("resendNow")}
+          </Text>
+        </TouchableOpacity>
+        {typeof remainingResends === "number" && (
+          <Text style={styles.resendCounter}>
+            {t("resendsLeft", { count: remainingResends })}
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+
+  const renderReset = () => (
+    <View style={styles.formContainer}>
+      <Text style={styles.subtitle}>{t("enterNewPassword")}</Text>
+      <Controller
+        control={control}
+        name="newPassword"
+        rules={{
+          required: t("passwordRequired") as unknown as boolean,
+          minLength: {
+            value: PASSWORD_MIN_LENGTH,
+            message: t("passwordMinBackend", {
+              count: PASSWORD_MIN_LENGTH,
+            }) as any,
+          },
+        }}
+        render={({ field: { onChange, value }, fieldState: { error } }) => (
+          <CustomInput
+            label={t("newPassword")}
+            value={value}
+            onChangeText={(v) => {
+              setPasswordError(null);
+              onChange(v);
+            }}
+            placeholder={t("passwordPlaceholder")}
+            isSecure
+            variant={error || passwordError ? "error" : "default"}
+            errorText={(error?.message as any) || passwordError || undefined}
+          />
+        )}
+      />
+      <Controller
+        control={control}
+        name="confirmPassword"
+        rules={{
+          required: t("confirmPasswordRequired") as unknown as boolean,
+          validate: (value) =>
+            value === watchNewPassword ||
+            (t("passwordsMustMatch") as unknown as boolean),
+        }}
+        render={({ field: { onChange, value }, fieldState: { error } }) => (
+          <CustomInput
+            label={t("confirmPasswordLabel")}
+            value={value}
+            onChangeText={(v) => {
+              setPasswordError(null);
+              onChange(v);
+            }}
+            placeholder={t("confirmPasswordPlaceholder")}
+            isSecure
+            variant={error ? "error" : "default"}
+            errorText={(error?.message as any) || undefined}
+          />
+        )}
+      />
+      <CustomCTAButton
+        onPress={handleSubmit(onResetPassword)}
+        style={{ width: "100%", marginTop: normalize("vertical", 8) }}
+        label={isLoading ? t("resetting") : t("resetPassword")}
+        disabled={isLoading}
+      />
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -337,15 +451,18 @@ const ForgotPasswordScreen = () => {
       </View>
       <View style={styles.content}>
         <Text style={styles.title}>{t("forgotPassword")}</Text>
-        {renderContentByStep()}
+        {currentStep === "initiate" && renderInitiate()}
+        {currentStep === "verify" && renderVerify()}
+        {currentStep === "reset" && renderReset()}
+
         <View style={styles.registerContainer}>
-          {renderLoginText({ screen: "login" })}
+          {renderLoginText({ screen: "login" } as any)}
         </View>
         <View style={styles.orLogin}>
           <View style={styles.separatorContainer}>
-            <View style={styles.separatorLine} />
+            <View className="separatorLine" style={styles.separatorLine} />
             <Text style={styles.separatorText}>{t("orSeparator")}</Text>
-            <View style={styles.separatorLine} />
+            <View className="separatorLine" style={styles.separatorLine} />
           </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button}>
@@ -367,10 +484,7 @@ const ForgotPasswordScreen = () => {
 export default ForgotPasswordScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.primaryBg,
-  },
+  container: { flex: 1, backgroundColor: colors.primaryBg },
   header: {
     paddingHorizontal: normalize("width", 20),
     paddingTop: normalize("vertical", 10),
@@ -402,10 +516,7 @@ const styles = StyleSheet.create({
     lineHeight: normalize("font", 24),
     marginBottom: normalize("vertical", 24),
   },
-  formContainer: {
-    width: "100%",
-    gap: normalize("vertical", 16),
-  },
+  formContainer: { width: "100%", gap: normalize("vertical", 16) },
   otpContainer: {
     display: "flex",
     marginTop: normalize("vertical", 4),
@@ -431,18 +542,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: normalize("height", 20),
   },
-  resendText: {
-    fontSize: 14,
-    color: "#636e72",
-  },
-  resendLink: {
-    fontSize: 14,
-    color: colors.orange500,
-    fontWeight: "600",
-  },
-  disabledLink: {
-    color: "#95a5a6",
-  },
+  resendText: { fontSize: 14, color: "\n#636e72".replace("\n", "") },
+  resendLink: { fontSize: 14, color: colors.orange500, fontWeight: "600" },
+  disabledLink: { color: colors.orangeText },
+  resendCounter: { marginTop: 6, fontSize: 12, color: "#636e72" },
   registerContainer: {
     display: "flex",
     flexDirection: "row",
@@ -476,15 +579,11 @@ const styles = StyleSheet.create({
     borderRadius: normalize("width", 50),
     borderWidth: 1,
     borderColor: "#EBE7F2",
-    width: normalize("width", 50),
+    width: normalize("height", 50),
     height: normalize("height", 50),
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: normalize("width", 10),
   },
-  orLogin: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  orLogin: { display: "flex", justifyContent: "center", alignItems: "center" },
 });

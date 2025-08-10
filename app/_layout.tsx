@@ -8,6 +8,7 @@ import { ActivityIndicator, View, StyleSheet, StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider, useAuth } from "@/src/context/AuthContext";
 import { colors } from "@/src/theme/theme";
+import LanguageSwitcher from "@/src/components/ui/LanguageSwitcher/LanguageSwitchers";
 
 const InitialLayout = () => {
   const { isAuthenticated, isRegistered, loading } = useAuth();
@@ -46,6 +47,7 @@ export default function RootLayout() {
       <AuthProvider>
         <StatusBar backgroundColor={colors.primaryBg} />
         <InitialLayout />
+        <LanguageSwitcher />
       </AuthProvider>
     </GestureHandlerRootView>
   );

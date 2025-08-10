@@ -6,11 +6,11 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  Image,
   TouchableOpacity,
+  Image,
 } from "react-native";
 
-import { loginApi, resendOtpApi } from "@/app/api/authService";
+import { loginApi, resendOtpApi } from "@/src/api/authService";
 import { useRouter } from "expo-router";
 
 import { Controller, useForm } from "react-hook-form";
@@ -27,6 +27,7 @@ import FacebookIcon from "@/src/icons/social/FacebookIcon";
 import AppleIcon from "@/src/icons/social/AppleIcon";
 import { colors } from "@/src/theme/theme";
 import { normalize } from "@/src/theme/normalize";
+import pive from "@/src/assets/images/logo/pive.png";
 
 /* import { useUserStore } from "../store/userStore";
  */
@@ -111,11 +112,7 @@ export const LoginScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-      {/*     <Image
-            source={require("@/assets/images/logo/pive.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          /> */}
+          <Image source={pive} style={styles.logo} resizeMode="contain" />
         </View>
         <Text style={styles.greeting}>{t("youAreBack")}</Text>
         <Text style={styles.welcomeText}>{t("loginToGift")}</Text>
@@ -274,7 +271,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: normalize("horizontal", 2),
-    
   },
   separatorContainer: {
     flexDirection: "row",
@@ -300,7 +296,7 @@ const styles = StyleSheet.create({
     borderRadius: normalize("width", 50),
     borderWidth: 1,
     borderColor: "#EBE7F2",
-    width: normalize("width", 50),
+    width: normalize("height", 50),
     height: normalize("height", 50),
     justifyContent: "center",
     alignItems: "center",

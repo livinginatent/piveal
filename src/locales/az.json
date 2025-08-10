@@ -83,5 +83,8 @@
   "login2": "Daxil ol",
   "resetPassword": "Şifrəni dəyiş",
   "newPassword": "Yeni şifrə",
-  "confirmPasswordLabel": "Şifrəni təkrarlayın"
+  "confirmPasswordLabel": "Şifrəni təkrarlayın",
+  "passwordsMustMatch": "Şifrələr eyni olmalıdır",
+  "confirmPasswordRequired": "Şifrəni təkrarla",
+  "enterNewPassword": "Yeni şifrə təyin et"
 }

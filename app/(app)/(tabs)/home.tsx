@@ -15,7 +15,6 @@ import Champagne from "@/src/icons/beer/Champagne";
 import { t } from "i18next";
 import * as SecureStore from "expo-secure-store";
 import { useAuth } from "@/src/context/AuthContext";
-import { Header } from "react-native/Libraries/NewAppScreen";
 import MainSend from "@/src/components/Main/SendBeer/MainSend";
 import Soon from "@/src/components/Main/Soon/Soon";
 import Vendors from "@/src/components/Main/Vendors/Vendors";
@@ -23,6 +22,7 @@ import PeopleYouMayKnow from "@/src/components/Main/PeopleYou/PeopleYouMayKow";
 import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
 import { normalize } from "@/src/theme/normalize";
 import { colors } from "@/src/theme/theme";
+import Header from "@/src/components/ui/Header/Header";
 
 type User = {
   username: string;
@@ -80,8 +80,7 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Header username={user ? user.username : "guest"} />
-
+        <Header username={user?.username ? user.username : "Guest"} />
         <ScrollView
           contentContainerStyle={styles.contentContainer}
           style={styles.scrollView}
@@ -106,14 +105,13 @@ export default function Home() {
         </View>
 
         {/* Dev Logout Button */}
-        {__DEV__ && (
-          <TouchableOpacity
-            style={styles.devLogoutButton}
-            onPress={handleDevLogout}
-          >
-            <Text style={styles.devLogoutButtonText}>DEV LOGOUT</Text>
-          </TouchableOpacity>
-        )}
+
+        <TouchableOpacity
+          style={styles.devLogoutButton}
+          onPress={handleDevLogout}
+        >
+          <Text style={styles.devLogoutButtonText}>DEV LOGOUT</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

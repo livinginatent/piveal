@@ -166,13 +166,14 @@ export const CustomInput: React.FC<CustomInputProps> = ({
 
 const styles = StyleSheet.create({
   inputWrapper: {
-    borderRadius: 4,
-    borderWidth: 1.5,
+    borderRadius: normalize("width", 4),
+    borderWidth: normalize("width", 1.5),
     paddingHorizontal: normalize("horizontal", 12),
-    paddingVertical: 8,
+    paddingVertical: normalize("vertical", 8),
     marginBottom: normalize("vertical", 16),
     maxHeight: normalize("height", 68),
     minHeight: normalize("height", 65),
+    justifyContent: "center", // Center content vertically
   },
 
   containerUnfocused: {
@@ -193,8 +194,8 @@ const styles = StyleSheet.create({
   },
   upperLabel: {
     position: "absolute",
-    top: 4,
-    left: 12,
+    top: normalize("vertical", 4),
+    left: normalize("horizontal", 12),
     fontSize: normalize("font", 12),
     color: colors.grey400,
     zIndex: 1,
@@ -202,15 +203,15 @@ const styles = StyleSheet.create({
   inputContent: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: normalize("height", 12),
   },
   input: {
     flex: 1,
     fontWeight: "500",
-    paddingVertical: 0,
-    paddingHorizontal: 4,
+    paddingVertical: normalize("vertical", 0),
+    paddingHorizontal: normalize("horizontal", 4),
     color: colors.orange500,
     fontSize: normalize("font", 18),
+    textAlignVertical: "center", // Text alignment inside input
   },
   textDefault: {
     color: colors.orange500,
@@ -222,12 +223,12 @@ const styles = StyleSheet.create({
     color: colors.error,
   },
   iconContainer: {
-    paddingHorizontal: 5,
+    paddingHorizontal: normalize("horizontal", 5),
   },
   errorText: {
     position: "absolute",
-    top: 4,
-    left: 12,
+    top: normalize("vertical", 4),
+    left: normalize("horizontal", 12),
     color: colors.error,
     zIndex: 1,
     fontSize: normalize("font", 12),

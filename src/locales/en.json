@@ -86,5 +86,8 @@
   "confirmPasswordPlaceholder": "Confirm your password",
   "resetPassword": "Reset your password",
   "newPassword": "New password",
-  "confirmPasswordLabel":"Confirm password"
+  "confirmPasswordLabel": "Confirm password",
+  "passwordsMustMatch": "Passwords must match",
+  "confirmPasswordRequired":"Confirm your password",
+  "enterNewPassword":"Enter new password"
 }
