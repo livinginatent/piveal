@@ -28,6 +28,7 @@ import AppleIcon from "@/src/icons/social/AppleIcon";
 import { colors } from "@/src/theme/theme";
 import { normalize } from "@/src/theme/normalize";
 import pive from "@/src/assets/images/logo/pive.png";
+import LanguageSwitcher from "@/src/components/ui/LanguageSwitcher/LanguageSwitchers";
 
 /* import { useUserStore } from "../store/userStore";
  */
@@ -214,6 +215,7 @@ export const LoginScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
+ 
     </SafeAreaView>
   );
 };

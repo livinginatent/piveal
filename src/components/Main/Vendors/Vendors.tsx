@@ -32,9 +32,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flexGrow: 0,
-    marginTop: normalize("vertical", 12), // Prevents the ScrollView from taking up extra space
+    marginTop: normalize("vertical", 12),
+    gap: 2, // Prevents the ScrollView from taking up extra space
   },
   scrollContent: {
-    gap: 12, // 12-point gap between cards
+    gap: normalize("horizontal", 12),
+    paddingLeft: normalize("horizontal", 16), // 12-point gap between cards
   },
 });

@@ -8,6 +8,7 @@ import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
 import { colors } from "@/src/theme/theme";
 import { normalize } from "@/src/theme/normalize";
 import pive from "@/src/assets/images/logo/pive.png";
+import LanguageSwitcher from "@/src/components/ui/LanguageSwitcher/LanguageSwitchers";
 
 export const WelcomeScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -53,7 +54,7 @@ export const WelcomeScreen: React.FC = () => {
           style={styles.testButton}
         /> */}
       </View>
-      
+   
     </SafeAreaView>
   );
 };

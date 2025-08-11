@@ -46,8 +46,10 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
         <StatusBar backgroundColor={colors.primaryBg} />
+              <LanguageSwitcher/>
+        
         <InitialLayout />
-        <LanguageSwitcher />
+        
       </AuthProvider>
     </GestureHandlerRootView>
   );

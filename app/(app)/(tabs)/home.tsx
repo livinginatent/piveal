@@ -18,7 +18,7 @@ import { useAuth } from "@/src/context/AuthContext";
 import MainSend from "@/src/components/Main/SendBeer/MainSend";
 import Soon from "@/src/components/Main/Soon/Soon";
 import Vendors from "@/src/components/Main/Vendors/Vendors";
-import PeopleYouMayKnow from "@/src/components/Main/PeopleYou/PeopleYouMayKow";
+import PeopleYouMayKnow from "@/src/components/Main/PeopleYouMayKnow/PeopleYouMayKow";
 import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
 import { normalize } from "@/src/theme/normalize";
 import { colors } from "@/src/theme/theme";
@@ -113,6 +113,7 @@ export default function Home() {
           <Text style={styles.devLogoutButtonText}>DEV LOGOUT</Text>
         </TouchableOpacity>
       </View>
+    
     </SafeAreaView>
   );
 }

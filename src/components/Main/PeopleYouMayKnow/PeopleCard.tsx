@@ -18,7 +18,7 @@ const PeopleCard = () => {
           <View style={styles.leftInfo}>
             <Text style={styles.name}>Günay</Text>
 
-            <Marquee spacing={20} speed={0.7}>
+            <Marquee spacing={20} speed={0.6}>
               <Text style={styles.otherInfo}>99 connects</Text>
             </Marquee>
           </View>
