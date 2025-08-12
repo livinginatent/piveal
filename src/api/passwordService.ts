@@ -9,6 +9,8 @@ export type InitiatePasswordResetPayload = {
 type InitiatePasswordResetResponse = {
   message: string;
   expiresAt?: string;
+  remainingResends?: number;
+  nextResendAvailableAt?: Date;
 };
 
 export const initiatePasswordResetApi = async (
@@ -89,6 +91,8 @@ export type ResendPasswordOtpPayload = {
 
 type ResendPasswordOtpResponse = {
   message: string;
+  remainingResends?: number;
+  nextResendAvailableAt?: Date;
 };
 
 export const resendPasswordResetOtpApi = async (

@@ -178,12 +178,14 @@ export const LoginScreen: React.FC = () => {
               </View>
             )}
           />
-          <TouchableOpacity
-            onPress={() => router.push("/(auth)/ForgotPasswordScreen")}
-            style={styles.forgotContainer}
-          >
-            <Text style={styles.forgotText}>{t("forgotPassword")}</Text>
-          </TouchableOpacity>
+          <View style={styles.forgotContainer}>
+            <TouchableOpacity
+              onPress={() => router.push("/(auth)/ForgotPasswordScreen")}
+              style={{ alignSelf: "center" }}
+            >
+              <Text style={styles.forgotText}>{t("forgotPassword")}</Text>
+            </TouchableOpacity>
+          </View>
           <CustomCTAButton
             onPress={
               isAccountVerified ? handleSubmit(onSubmit) : handleVerifyOtp
@@ -215,7 +217,6 @@ export const LoginScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
       </View>
- 
     </SafeAreaView>
   );
 };

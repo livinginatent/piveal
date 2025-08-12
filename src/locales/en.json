@@ -88,6 +88,9 @@
   "newPassword": "New password",
   "confirmPasswordLabel": "Confirm password",
   "passwordsMustMatch": "Passwords must match",
-  "confirmPasswordRequired":"Confirm your password",
-  "enterNewPassword":"Enter new password"
+  "confirmPasswordRequired": "Confirm your password",
+  "enterNewPassword": "Enter new password",
+  "resendNow": "Resend now",
+  "resendsLeft":"Tries left",
+  "sending":"Sending"
 }

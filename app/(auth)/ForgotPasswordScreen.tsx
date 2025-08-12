@@ -59,14 +59,6 @@ type FormData = {
 
 type PasswordResetStep = "initiate" | "verify" | "reset";
 
-type InitiateResponse = {
-  expiresAt?: string | Date;
-  remainingResends?: number;
-  nextResendAvailableAt?: string | Date;
-};
-
-type ResendResponse = InitiateResponse;
-
 // ===== Helpers =====
 const toMs = (d: Date | string | number) => new Date(d).getTime();
 const secondsUntil = (future?: Date | string) => {
@@ -74,14 +66,6 @@ const secondsUntil = (future?: Date | string) => {
   const now = Date.now();
   const diff = Math.max(0, Math.ceil((toMs(future) - now) / 1000));
   return diff;
-};
-
-const formatMMSS = (totalSeconds: number) => {
-  const m = Math.floor(totalSeconds / 60)
-    .toString()
-    .padStart(2, "0");
-  const s = (totalSeconds % 60).toString().padStart(2, "0");
-  return `${m}:${s}`;
 };
 
 const setStore = (key: string, value: string) =>
@@ -108,13 +92,7 @@ const ForgotPasswordScreen: React.FC = () => {
   const [otpValue, setOtpValue] = useState("");
   const otpInputRef = useRef<any>(null);
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    reset,
-  } = useForm<FormData>({
+  const { control, handleSubmit, watch, reset } = useForm<FormData>({
     defaultValues: {
       emailOrUsername: "",
       newPassword: "",
@@ -152,22 +130,36 @@ const ForgotPasswordScreen: React.FC = () => {
     setPasswordError(null);
 
     try {
-      const resp = (await initiatePasswordResetApi({
+      const resp = await initiatePasswordResetApi({
         identifier: data.emailOrUsername,
-      })) as InitiateResponse;
+      });
+
+      // Debug log to see the actual response structure
+      console.log("Initiate API Response:", resp);
+      console.log("remainingResends:", resp?.remainingResends);
+      console.log("Type of remainingResends:", typeof resp?.remainingResends);
 
       // Store identifier plainly (no JSON wrapper)
       await setStore("tempIdentifier", data.emailOrUsername);
 
       // Start verify step
       setCurrentStep("verify");
-      setRemainingResends(
-        typeof resp?.remainingResends === "number"
-          ? resp.remainingResends
-          : null
-      );
 
-      const serverCooldown = secondsUntil(resp?.nextResendAvailableAt as any);
+      // More explicit handling of remainingResends
+      const resends = resp?.remainingResends;
+      if (
+        resends !== undefined &&
+        resends !== null &&
+        typeof resends === "number"
+      ) {
+        console.log("Setting remainingResends to:", resends);
+        setRemainingResends(resends);
+      } else {
+        console.log("remainingResends not found or invalid, setting to null");
+        setRemainingResends(null);
+      }
+
+      const serverCooldown = secondsUntil(resp?.nextResendAvailableAt);
       setResendCooldown(
         serverCooldown > 0 ? serverCooldown : RESEND_COOLDOWN_SECONDS
       );
@@ -259,17 +251,33 @@ const ForgotPasswordScreen: React.FC = () => {
 
     try {
       setIsLoading(true);
-      const resp = (await resendPasswordResetOtpApi({
+      const resp = await resendPasswordResetOtpApi({
         identifier,
-      })) as ResendResponse;
-      setOtpError(null);
-      setRemainingResends(
-        typeof resp?.remainingResends === "number"
-          ? resp.remainingResends
-          : remainingResends
-      );
+      });
 
-      const serverCooldown = secondsUntil(resp?.nextResendAvailableAt as any);
+      // Debug log for resend response
+      console.log("Resend API Response:", resp);
+      console.log("remainingResends:", resp?.remainingResends);
+
+      setOtpError(null);
+
+      // More explicit handling - don't fall back to previous value
+      const resends = resp?.remainingResends;
+      if (
+        resends !== undefined &&
+        resends !== null &&
+        typeof resends === "number"
+      ) {
+        console.log("Setting remainingResends from resend to:", resends);
+        setRemainingResends(resends);
+      } else {
+        console.log(
+          "remainingResends not in resend response, keeping current value"
+        );
+        // Keep current value, don't set to null
+      }
+
+      const serverCooldown = secondsUntil(resp?.nextResendAvailableAt);
       setResendCooldown(
         serverCooldown > 0 ? serverCooldown : RESEND_COOLDOWN_SECONDS
       );
@@ -361,16 +369,17 @@ const ForgotPasswordScreen: React.FC = () => {
               (resendCooldown > 0 || isLoading) && styles.disabledLink,
             ]}
           >
-            {resendCooldown > 0
-              ? `${formatMMSS(resendCooldown)} ${t("resendIn")}`
-              : t("resendNow")}
+            {typeof remainingResends === "number" && (
+              <Text style={styles.resendCounter}>{remainingResends}</Text>
+            )}
+            {typeof remainingResends === "number" && remainingResends >= 0 && (
+              <Text style={[styles.resendCounter, { marginTop: 4 }]}>
+                {t("resendsLeft", { count: remainingResends }) ||
+                  `${remainingResends} resends remaining`}
+              </Text>
+            )}
           </Text>
         </TouchableOpacity>
-        {typeof remainingResends === "number" && (
-          <Text style={styles.resendCounter}>
-            {t("resendsLeft", { count: remainingResends })}
-          </Text>
-        )}
       </View>
     </View>
   );

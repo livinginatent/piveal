@@ -86,5 +86,8 @@
   "confirmPasswordLabel": "Şifrəni təkrarlayın",
   "passwordsMustMatch": "Şifrələr eyni olmalıdır",
   "confirmPasswordRequired": "Şifrəni təkrarla",
-  "enterNewPassword": "Yeni şifrə təyin et"
+  "enterNewPassword": "Yeni şifrə təyin et",
+  "resendNow": "İndi göndər",
+  "resendsLeft": "cəhdiniz qaldı",
+  "sending": "Göndərilir"
 }

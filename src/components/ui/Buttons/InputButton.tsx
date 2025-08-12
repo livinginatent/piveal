@@ -110,7 +110,11 @@ export const CustomInput: React.FC<CustomInputProps> = ({
           </TouchableOpacity>
         )}
         <TextInput
-          style={[styles.input, getTextStyle()]}
+          style={[
+            styles.input,
+            getTextStyle(),
+            isFocused || value ? { marginTop: normalize("vertical", 8) } : null,
+          ]}
           placeholder={isFocused || errorText ? "" : placeholder}
           placeholderTextColor={getPlaceholderTextColor()}
           value={value}
