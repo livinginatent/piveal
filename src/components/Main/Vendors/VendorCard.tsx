@@ -63,8 +63,7 @@ export const VendorCard = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-  },
+  container: {},
   card: {
     width: normalize("width", 212),
     height: normalize("height", 204),
@@ -107,7 +106,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   content: {
-    padding: normalize("width", 12),
+    paddingVertical: normalize("width", 8),
+    paddingHorizontal: 16,
     height: normalize("height", 84),
     justifyContent: "space-between",
   },

@@ -5,7 +5,6 @@ import { colors } from "@/src/theme/theme";
 import Avatar from "../../ui/Avatar/Avatar";
 import Champagne from "@//src/icons/beer/Champagne";
 import { SendButton } from "../../ui/Buttons/SendButton";
-import { Marquee } from "@animatereactnative/marquee";
 import Connect from "@//src/icons/main/Connect";
 
 
@@ -18,9 +17,8 @@ const PeopleCard = () => {
           <View style={styles.leftInfo}>
             <Text style={styles.name}>Günay</Text>
 
-            <Marquee spacing={20} speed={0.6}>
               <Text style={styles.otherInfo}>99 connects</Text>
-            </Marquee>
+         
           </View>
         </View>
         <View style={styles.rightContainer}>
@@ -103,5 +101,6 @@ const styles = StyleSheet.create({
     fontSize: normalize("font", 16),
     fontWeight: "400",
     color: colors.grey400,
+    minWidth:normalize('width',86)
   },
 });

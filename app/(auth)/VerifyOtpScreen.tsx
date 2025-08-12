@@ -275,6 +275,7 @@ const VerifyOtpScreen = () => {
                 label={isLoading ? t("verifying") : t("verifyOtp")}
                 onPress={onSubmit}
                 disabled={isLoading || isResending}
+                style={{ width: "100%" }}
               />
             </View>
 
@@ -286,6 +287,7 @@ const VerifyOtpScreen = () => {
                   onPress={resendOtp}
                   disabled={isLoading || isResending}
                   variant="outlined" // Assuming you have a secondary variant
+                  style={{ width: "100%" }}
                 />
               </View>
             )}
@@ -342,12 +344,14 @@ const styles = StyleSheet.create({
     color: colors.textPrimaryBlack,
     marginBottom: 16,
     letterSpacing: -0.5,
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
     color: "#636e72",
     lineHeight: 24,
-    marginBottom: 60,
+    marginBottom: normalize("vertical", 30),
+    textAlign: "center",
   },
   otpContainer: {
     display: "flex",
@@ -362,12 +366,12 @@ const styles = StyleSheet.create({
   errorText: {
     color: "#d63031",
     fontSize: normalize("font", 14),
-    marginTop: 8,
+    marginTop: normalize('vertical',8),
     textAlign: "center",
     lineHeight: 20,
   },
   buttonStyle: {
-    marginTop: normalize("height", 14),
+    marginTop: normalize("height", 22),
     alignSelf: "center",
   },
   resendButtonStyle: {

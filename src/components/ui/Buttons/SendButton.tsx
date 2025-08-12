@@ -5,7 +5,7 @@ import { TouchableOpacity, Text, View, StyleSheet } from "react-native";
 interface IconButtonProps {
   title?: string;
   onPress?: () => void;
-  icon?: React.ReactElement | null; // Can be any React element (icon component)
+  icon?: React.ReactElement | null;
   iconPosition?: "left" | "right";
   backgroundColor?: string;
   textColor?: string;
@@ -61,6 +61,9 @@ export const SendButton: React.FC<IconButtonProps> = ({
           },
           textStyle,
         ]}
+        numberOfLines={1}
+        adjustsFontSizeToFit={true}
+        minimumFontScale={0.8}
       >
         {title}
       </Text>
@@ -76,18 +79,18 @@ export const SendButton: React.FC<IconButtonProps> = ({
 
     if (iconPosition === "right") {
       return (
-        <>
+        <View style={styles.contentContainer}>
           {textElement}
           {iconElement}
-        </>
+        </View>
       );
     }
 
     return (
-      <>
+      <View style={styles.contentContainer}>
         {iconElement}
         {textElement}
-      </>
+      </View>
     );
   };
 
@@ -100,7 +103,8 @@ export const SendButton: React.FC<IconButtonProps> = ({
           width,
           height,
           borderRadius,
-          padding,
+          paddingHorizontal: padding,
+          paddingVertical: Math.max(padding * 0.6, 6), // Reduce vertical padding
           gap,
           borderColor: borderColor ? borderColor : null,
           borderWidth: borderWidth ? borderWidth : null,
@@ -124,9 +128,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "stretch",
   },
+  contentContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
   text: {
     textAlign: "center",
     flexShrink: 1,
+    includeFontPadding: false, // Android-specific: removes extra padding
+    textAlignVertical: "center", // Android-specific: centers text vertically
   },
   iconContainer: {
     justifyContent: "center",
