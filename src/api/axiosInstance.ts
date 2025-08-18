@@ -1,7 +1,8 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-const API_BASE_URL = "https://piveal-backend.onrender.com"; // replace with ENV in prod
+/* const API_BASE_URL = "https://piveal-backend.onrender.com"; // replace with ENV in prod
+ */ const API_BASE_URL = "http://10.0.2.2:3000"; // replace with ENV in prod
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -14,9 +15,9 @@ const axiosInstance = axios.create({
 // Request interceptor: attach token if available
 axiosInstance.interceptors.request.use(
   async (config) => {
-    const token = await SecureStore.getItemAsync("auth_token");
+    const token = await SecureStore.getItemAsync("access_token");
     if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${JSON.parse(token)}`;
     }
     return config;
   },

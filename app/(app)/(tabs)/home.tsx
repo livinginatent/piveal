@@ -23,23 +23,25 @@ import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
 import { normalize } from "@/src/theme/normalize";
 import { colors } from "@/src/theme/theme";
 import Header from "@/src/components/ui/Header/Header";
+import { getAllPeople } from "@/src/api/peopleYouMayKnowService";
 
 type User = {
   username: string;
   email: string;
   isVerified: boolean;
+  access_token: string;
 };
 
-export default function Home() {
+export default async function Home() {
   const { logout } = useAuth();
   const [user, setUser] = useState<User | null>(null);
+  
 
   useEffect(() => {
     const getUser = async () => {
       try {
         const loggedUser = await SecureStore.getItemAsync("user");
         if (loggedUser) {
-          console.log(loggedUser);
           setUser(JSON.parse(loggedUser)); // Parse string to object
         }
       } catch (error) {
@@ -113,7 +115,6 @@ export default function Home() {
           <Text style={styles.devLogoutButtonText}>DEV LOGOUT</Text>
         </TouchableOpacity>
       </View>
-    
     </SafeAreaView>
   );
 }

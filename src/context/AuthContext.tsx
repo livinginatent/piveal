@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       SecureStore.setItemAsync("access_token", accessToken),
       SecureStore.setItemAsync("refresh_token", refreshToken),
     ]);
+    console.log(SecureStore.getItem("access_token"));
     setIsAuthenticated(true);
   };
 

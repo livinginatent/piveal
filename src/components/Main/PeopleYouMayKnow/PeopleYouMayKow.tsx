@@ -1,10 +1,29 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StyleSheet, View, ScrollView } from "react-native";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PeopleHeader from "./PeopleHeader";
-import PeopleCard from "./PeopleCard";
 import { normalize } from "@/src/theme/normalize";
+import { getAllPeople } from "@/src/api/peopleYouMayKnowService";
+import PeopleCard from "./PeopleCard";
+
+
 
 const PeopleYouMayKnow = () => {
+  const [users, setUsers] = useState<any[]>([]);
+
+  useEffect(() => {
+    const getUsers = async () => {
+      try {
+        const response = await getAllPeople();
+        setUsers(response.users); // Access the users array from the response
+      } catch (error: any) {
+        console.log(error.message);
+      }
+    };
+
+    getUsers();
+  }, []);
+
   return (
     <View style={styles.container}>
       <PeopleHeader />
@@ -14,11 +33,9 @@ const PeopleYouMayKnow = () => {
         contentContainerStyle={styles.scrollContent}
         style={styles.scrollView}
       >
-        <PeopleCard />
-        <PeopleCard />
-        <PeopleCard />
-        <PeopleCard />
-        <PeopleCard />
+        {users.map((user) => (
+          <PeopleCard key={user.id} username={user.username} />
+        ))}
       </ScrollView>
     </View>
   );
@@ -33,11 +50,8 @@ const styles = StyleSheet.create({
   scrollView: {
     paddingHorizontal: normalize("horizontal", 16),
     marginTop: normalize("vertical", 12),
-
-    // Optional: add some left padding
   },
   scrollContent: {
-    gap: normalize("horizontal", 12), // 4px gap between cards
-    // Optional: add some right padding so last card isn't cut off
+    gap: normalize("horizontal", 12),
   },
 });

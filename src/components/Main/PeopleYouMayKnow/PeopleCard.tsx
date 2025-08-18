@@ -7,18 +7,19 @@ import Champagne from "@//src/icons/beer/Champagne";
 import { SendButton } from "../../ui/Buttons/SendButton";
 import Connect from "@//src/icons/main/Connect";
 
-
-const PeopleCard = () => {
+type User = {
+  username: string;
+};
+const PeopleCard = ({ username }: User) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.leftContainer}>
           <Avatar size={40} uri={"https://avatar.iran.liara.run/public/38"} />
           <View style={styles.leftInfo}>
-            <Text style={styles.name}>Günay</Text>
+            <Text style={styles.name}>{username}</Text>
 
-              <Text style={styles.otherInfo}>99 connects</Text>
-         
+            <Text style={styles.otherInfo}>99 connects</Text>
           </View>
         </View>
         <View style={styles.rightContainer}>
@@ -101,6 +102,6 @@ const styles = StyleSheet.create({
     fontSize: normalize("font", 16),
     fontWeight: "400",
     color: colors.grey400,
-    minWidth:normalize('width',86)
+    minWidth: normalize("width", 86),
   },
 });
