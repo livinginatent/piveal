@@ -64,6 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await Promise.all([
       SecureStore.deleteItemAsync("access_token"),
       SecureStore.deleteItemAsync("refresh_token"),
+      SecureStore.deleteItemAsync("user"),
     ]);
     setIsAuthenticated(false);
     setIsRegistered(false);

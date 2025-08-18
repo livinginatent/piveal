@@ -28,7 +28,6 @@ import AppleIcon from "@/src/icons/social/AppleIcon";
 import { colors } from "@/src/theme/theme";
 import { normalize } from "@/src/theme/normalize";
 import pive from "@/src/assets/images/logo/pive.png";
-import LanguageSwitcher from "@/src/components/ui/LanguageSwitcher/LanguageSwitchers";
 
 /* import { useUserStore } from "../store/userStore";
  */
@@ -66,9 +65,8 @@ export const LoginScreen: React.FC = () => {
       if (response.user.isVerified) {
         const jsonAccessToken = JSON.stringify(response.accessToken);
         await login(jsonAccessToken, response.refreshToken);
-        console.log("test");
-        router.push("/(app)/(tabs)/home");
         await SecureStore.setItemAsync("user", JSON.stringify(response.user));
+        router.push("/(app)/(tabs)/home");
         /*    setUser({
           username: response.user.username,
           email: response.user.email,
