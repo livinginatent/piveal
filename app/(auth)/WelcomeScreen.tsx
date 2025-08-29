@@ -1,10 +1,14 @@
 import type React from "react";
 import { View, Text, StyleSheet, SafeAreaView, Image } from "react-native";
-import { normalize } from "@/app/theme/normalize";
+
 import { useRouter } from "expo-router";
-import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
-import { colors } from "@/app/theme/theme"; // Import colors
+
 import { useTranslation } from "react-i18next";
+import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
+import { colors } from "@/src/theme/theme";
+import { normalize } from "@/src/theme/normalize";
+import pive from "@/src/assets/images/logo/pive.png";
+import LanguageSwitcher from "@/src/components/ui/LanguageSwitcher/LanguageSwitchers";
 
 export const WelcomeScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -23,7 +27,8 @@ export const WelcomeScreen: React.FC = () => {
       <View style={styles.content}>
         <View style={styles.logoContainer}>
           <Image
-            source={require("@/assets/images/logo/pive.png")}
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            source={pive}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -49,6 +54,7 @@ export const WelcomeScreen: React.FC = () => {
           style={styles.testButton}
         /> */}
       </View>
+   
     </SafeAreaView>
   );
 };

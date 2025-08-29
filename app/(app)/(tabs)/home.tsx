@@ -8,37 +8,40 @@ import {
   ScrollView,
 } from "react-native";
 import { router } from "expo-router";
-import { useAuth } from "@/app/context/AuthContext";
-import Header from "@/app/components/ui/Header/Header";
-import MainSend from "@/app/components/Main/SendBeer/MainSend";
-import { colors } from "@/app/theme/theme";
-import Soon from "@/app/components/Main/Soon/Soon";
-import Vendors from "@/app/components/Main/Vendors/Vendors";
+
 import { useEffect, useState } from "react";
-import PeopleYouMayKnow from "@/app/components/Main/PeopleYou/PeopleYouMayKow";
-import { CustomCTAButton } from "@/app/components/ui/Buttons/CTAButton";
-import { normalize } from "@/app/theme/normalize";
-import Champagne from "@/app/src/icons/beer/Champagne";
+
+import Champagne from "@/src/icons/beer/Champagne";
 import { t } from "i18next";
 import * as SecureStore from "expo-secure-store";
-
+import { useAuth } from "@/src/context/AuthContext";
+import MainSend from "@/src/components/Main/SendBeer/MainSend";
+import Soon from "@/src/components/Main/Soon/Soon";
+import Vendors from "@/src/components/Main/Vendors/Vendors";
+import PeopleYouMayKnow from "@/src/components/Main/PeopleYouMayKnow/PeopleYouMayKow";
+import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
+import { normalize } from "@/src/theme/normalize";
+import { colors } from "@/src/theme/theme";
+import Header from "@/src/components/ui/Header/Header";
+import { getAllPeople } from "@/src/api/peopleYouMayKnowService";
 
 type User = {
   username: string;
   email: string;
   isVerified: boolean;
+  access_token: string;
 };
 
-export default function Home() {
+export default async function Home() {
   const { logout } = useAuth();
   const [user, setUser] = useState<User | null>(null);
+  
 
   useEffect(() => {
     const getUser = async () => {
       try {
         const loggedUser = await SecureStore.getItemAsync("user");
         if (loggedUser) {
-          console.log(loggedUser);
           setUser(JSON.parse(loggedUser)); // Parse string to object
         }
       } catch (error) {
@@ -79,8 +82,7 @@ export default function Home() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Header username={user ? user.username : "guest"} />
-
+        <Header username={user?.username ? user.username : "Guest"} />
         <ScrollView
           contentContainerStyle={styles.contentContainer}
           style={styles.scrollView}
@@ -105,14 +107,13 @@ export default function Home() {
         </View>
 
         {/* Dev Logout Button */}
-        {__DEV__ && (
-          <TouchableOpacity
-            style={styles.devLogoutButton}
-            onPress={handleDevLogout}
-          >
-            <Text style={styles.devLogoutButtonText}>DEV LOGOUT</Text>
-          </TouchableOpacity>
-        )}
+
+        <TouchableOpacity
+          style={styles.devLogoutButton}
+          onPress={handleDevLogout}
+        >
+          <Text style={styles.devLogoutButtonText}>DEV LOGOUT</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

@@ -6,63 +6,65 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  Image,
   TouchableOpacity,
+  Image,
 } from "react-native";
-import { normalize } from "@/app/theme/normalize";
-import { loginApi, resendOtpApi } from "@/app/api/authService";
+
+import { loginApi, resendOtpApi } from "@/src/api/authService";
 import { useRouter } from "expo-router";
-import { CustomCTAButton } from "../components/ui/Buttons/CTAButton";
-import { colors } from "@/app/theme/theme";
+
 import { Controller, useForm } from "react-hook-form";
 import { useState } from "react";
-import { GoogleIcon } from "../src/icons/social/GoogleIcon";
-import FacebookIcon from "../src/icons/social/FacebookIcon";
-import AppleIcon from "../src/icons/social/AppleIcon";
-import { CustomInput } from "../components/ui/Buttons/InputButton";
-import { useAuth } from "../context/AuthContext";
+
 import { useTranslation } from "react-i18next";
 import * as SecureStore from "expo-secure-store";
-import { renderLoginText } from "../components/Auth/HaveAccount/HaveAccount";
+import { useAuth } from "@/src/context/AuthContext";
+import { CustomInput } from "@/src/components/ui/Buttons/InputButton";
+import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
+import { renderLoginText } from "@/src/components/Auth/HaveAccount/HaveAccount";
+import { GoogleIcon } from "@/src/icons/social/GoogleIcon";
+import FacebookIcon from "@/src/icons/social/FacebookIcon";
+import AppleIcon from "@/src/icons/social/AppleIcon";
+import { colors } from "@/src/theme/theme";
+import { normalize } from "@/src/theme/normalize";
+import pive from "@/src/assets/images/logo/pive.png";
+
 /* import { useUserStore } from "../store/userStore";
  */
 type FormData = {
-  emailOrUsername: string;
+  identifier: string;
   password: string;
-  email: string;
 };
 
 export const LoginScreen: React.FC = () => {
   const { t } = useTranslation();
 
   const { control, handleSubmit } = useForm<FormData>({
-    defaultValues: { emailOrUsername: "", password: "" },
+    defaultValues: { identifier: "", password: "" },
   });
   const router = useRouter();
-  const [emailOrUsernameError, setEmailOrUsernameError] = useState<
-    string | null
-  >(null);
+  const [identifierError, setidentifierError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isAccountVerified, setIsAccountVerified] = useState<boolean>(true); // Track account verification status
-  const [emailOrUsername, setEmailOrUsername] = useState<string | null>(null);
+  const [identifier, setidentifier] = useState<string | null>(null);
 
   const { login } = useAuth();
 
   const onSubmit = async (data: FormData) => {
     const loginPayload = {
-      emailOrUsername: data.emailOrUsername,
+      identifier: data.identifier,
       password: data.password,
     };
 
     try {
       const response = await loginApi(loginPayload);
-
       if (response.user.isVerified) {
-        const jsonAccessToken = JSON.stringify(response.accessToken);
-        await login(jsonAccessToken, response.refreshToken);
-        console.log("test");
-        router.push("/(app)/(tabs)/home");
+        await login(
+          JSON.stringify(response.accessToken),
+          response.refreshToken
+        );
         await SecureStore.setItemAsync("user", JSON.stringify(response.user));
+        router.push("/(app)/(tabs)/home");
         /*    setUser({
           username: response.user.username,
           email: response.user.email,
@@ -71,17 +73,18 @@ export const LoginScreen: React.FC = () => {
     } catch (error: any) {
       const message =
         error.response?.data?.message || error.response?.data?.error;
+      console.log(error);
       if (message === "User not found.") {
-        setEmailOrUsernameError(t("userNotFound"));
+        setidentifierError(t("userNotFound"));
         setPasswordError(null);
       } else if (message.includes("Account")) {
-        setEmailOrUsernameError(t("notVerified"));
+        setidentifierError(t("notVerified"));
         setIsAccountVerified(false);
         // Store email securely only if account is not verified
         await SecureStore.setItemAsync("tempEmail", data.email);
       } else if (message.includes("Invalid")) {
         setPasswordError(t("wrongPassword"));
-        setEmailOrUsernameError(null);
+        setidentifierError(null);
       } else {
         // Handle other errors if necessary
       }
@@ -89,15 +92,15 @@ export const LoginScreen: React.FC = () => {
   };
 
   const handleVerifyOtp = async () => {
-    if (emailOrUsername) {
-      if (emailOrUsername.includes("@")) {
-        await SecureStore.setItemAsync("tempEmail", emailOrUsername);
+    if (identifier) {
+      if (identifier.includes("@")) {
+        await SecureStore.setItemAsync("tempEmail", identifier);
       } else {
-        await SecureStore.setItemAsync("tempUsername", emailOrUsername);
+        await SecureStore.setItemAsync("tempUsername", identifier);
       }
       await SecureStore.setItemAsync("isFromLogin", "true");
       // Call resendOtpApi to send OTP
-      const otpPayload = { emailOrUsername };
+      const otpPayload = { identifier };
       await resendOtpApi(otpPayload);
       router.push("/(auth)/VerifyOtpScreen");
     }
@@ -107,20 +110,16 @@ export const LoginScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Image
-            source={require("@/assets/images/logo/pive.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
+          <Image source={pive} style={styles.logo} resizeMode="contain" />
         </View>
         <Text style={styles.greeting}>{t("youAreBack")}</Text>
         <Text style={styles.welcomeText}>{t("loginToGift")}</Text>
         <View style={styles.input}>
           <Controller
             control={control}
-            name="emailOrUsername" // Update the name to reflect dual purpose
+            name="identifier" // Update the name to reflect dual purpose
             rules={{
-              required: t("emailOrUsernameRequired"),
+              required: t("identifierRequired"),
               validate: {
                 validFormat: (value) => {
                   // Email pattern
@@ -131,27 +130,27 @@ export const LoginScreen: React.FC = () => {
                   if (emailRegex.test(value) || usernameRegex.test(value)) {
                     return true;
                   }
-                  return t("invalidEmailOrUsername");
+                  return t("invalididentifier");
                 },
               },
             }}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <>
                 <CustomInput
-                  label={t("emailOrUsername")}
+                  label={t("identifier")}
                   value={value}
                   onChangeText={(text) => {
                     onChange(text);
-                    setEmailOrUsername(text);
+                    setidentifier(text);
                     if (text === "") {
                       setIsAccountVerified(true);
-                      setEmailOrUsernameError(null);
+                      setidentifierError(null);
                       setPasswordError(null);
                     }
                   }}
-                  placeholder={t("enterEmailOrUsername")}
-                  variant={error || emailOrUsernameError ? "error" : "default"}
-                  errorText={error?.message || emailOrUsernameError}
+                  placeholder={t("enteridentifier")}
+                  variant={error || identifierError ? "error" : "default"}
+                  errorText={error?.message || identifierError}
                 />
               </>
             )}
@@ -176,12 +175,14 @@ export const LoginScreen: React.FC = () => {
               </View>
             )}
           />
-          <TouchableOpacity
-            onPress={() => router.push("/(auth)/ForgotPasswordScreen")}
-            style={styles.forgotContainer}
-          >
-            <Text style={styles.forgotText}>{t("forgotPassword")}</Text>
-          </TouchableOpacity>
+          <View style={styles.forgotContainer}>
+            <TouchableOpacity
+              onPress={() => router.push("/(auth)/ForgotPasswordScreen")}
+              style={{ alignSelf: "center" }}
+            >
+              <Text style={styles.forgotText}>{t("forgotPassword")}</Text>
+            </TouchableOpacity>
+          </View>
           <CustomCTAButton
             onPress={
               isAccountVerified ? handleSubmit(onSubmit) : handleVerifyOtp
@@ -270,7 +271,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: normalize("horizontal", 2),
-    
   },
   separatorContainer: {
     flexDirection: "row",
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     borderRadius: normalize("width", 50),
     borderWidth: 1,
     borderColor: "#EBE7F2",
-    width: normalize("width", 50),
+    width: normalize("height", 50),
     height: normalize("height", 50),
     justifyContent: "center",
     alignItems: "center",
