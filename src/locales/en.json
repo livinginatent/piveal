@@ -91,6 +91,6 @@
   "confirmPasswordRequired": "Confirm your password",
   "enterNewPassword": "Enter new password",
   "resendNow": "Resend now",
-  "resendsLeft": "Tries left",
+  "resendsLeft": " tries left",
   "sending": "Sending"
 }

@@ -88,6 +88,7 @@
   "confirmPasswordRequired": "Şifrəni təkrarla",
   "enterNewPassword": "Yeni şifrə təyin et",
   "resendNow": "İndi göndər",
-  "resendsLeft": "cəhdiniz qaldı",
-  "sending": "Göndərilir"
+  "resendsLeft": " cəhdiniz qaldı",
+  "sending": "Göndərilir",
+  "notVerified": "İstifadəçi təsdiq olunmayıb"
 }

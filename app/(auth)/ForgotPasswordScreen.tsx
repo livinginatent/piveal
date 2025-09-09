@@ -42,6 +42,7 @@ import {
   resetPasswordApi,
   resendPasswordResetOtpApi,
 } from "@/src/api/passwordService";
+import { resendOtpApi } from "@/src/api/authService";
 
 // ===== Backend-aligned constants (keep in sync with server) =====
 const OTP_LENGTH = 4; // server generateOtp() length
@@ -86,6 +87,9 @@ const ForgotPasswordScreen: React.FC = () => {
 
   const [resendCooldown, setResendCooldown] = useState<number>(0);
   const [remainingResends, setRemainingResends] = useState<number | null>(null);
+
+  const [isAccountVerified, setIsAccountVerified] = useState<boolean>(true); // Track account verification status
+  const [identifier, setIdentifier] = useState<string | null>(null);
 
   const [otpValue, setOtpValue] = useState("");
   const otpInputRef = useRef<any>(null);
@@ -163,7 +167,13 @@ const ForgotPasswordScreen: React.FC = () => {
       );
     } catch (error: any) {
       const msg = extractErrorMessage(error, t("initiateErrorFallback"));
-      setIdentifierError(msg);
+      console.log(msg, "");
+      if (msg.includes("found")) {
+        setIdentifierError(t("userNotFound"));
+      } else if (msg.includes("verified")) {
+        setIdentifierError(t("notVerified"));
+        setIsAccountVerified(false);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -212,7 +222,9 @@ const ForgotPasswordScreen: React.FC = () => {
 
     // Frontend validation aligned to backend (>= 8 chars). Additional complexity is optional.
     if (!data.newPassword || data.newPassword.length < PASSWORD_MIN_LENGTH) {
-      setPasswordError(t("passwordMinBackend", { count: PASSWORD_MIN_LENGTH }));
+      setPasswordError(
+        t("passwordMinLengthMessage", { count: PASSWORD_MIN_LENGTH })
+      );
       setIsLoading(false);
       return;
     }
@@ -286,6 +298,20 @@ const ForgotPasswordScreen: React.FC = () => {
       setIsLoading(false);
     }
   };
+  const handleVerifyOtp = async () => {
+    if (identifier) {
+      if (identifier.includes("@")) {
+        await SecureStore.setItemAsync("tempEmail", identifier);
+      } else {
+        await SecureStore.setItemAsync("tempUsername", identifier);
+      }
+      await SecureStore.setItemAsync("isFromLogin", "true");
+      // Call resendOtpApi to send OTP
+      const otpPayload = { identifier };
+      await resendOtpApi(otpPayload);
+      router.push("/(auth)/VerifyOtpScreen");
+    }
+  };
 
   // ===== Renderers =====
   const renderInitiate = () => (
@@ -313,6 +339,7 @@ const ForgotPasswordScreen: React.FC = () => {
             label={t("identifier")}
             value={value}
             onChangeText={(v) => {
+              setIdentifier(v);
               setIdentifierError(null);
               onChange(v);
             }}
@@ -323,9 +350,15 @@ const ForgotPasswordScreen: React.FC = () => {
         )}
       />
       <CustomCTAButton
-        onPress={handleSubmit(onInitiate)}
+        onPress={isAccountVerified ? handleSubmit(onInitiate) : handleVerifyOtp}
         style={{ width: "100%", marginTop: normalize("vertical", 8) }}
-        label={isLoading ? t("sending") : t("sendOtp")}
+        label={
+          isLoading
+            ? t("sending")
+            : isAccountVerified
+            ? t("sendOtp")
+            : t("verifyOtp")
+        }
         disabled={isLoading}
       />
     </View>
@@ -390,7 +423,7 @@ const ForgotPasswordScreen: React.FC = () => {
           required: t("passwordRequired") as unknown as boolean,
           minLength: {
             value: PASSWORD_MIN_LENGTH,
-            message: t("passwordMinBackend", {
+            message: t("passworMinLengthMessage", {
               count: PASSWORD_MIN_LENGTH,
             }) as any,
           },
