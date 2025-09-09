@@ -47,12 +47,12 @@ import {
 const OTP_LENGTH = 4; // server generateOtp() length
 const RESEND_COOLDOWN_MINUTES = 2; // server constant
 const RESEND_COOLDOWN_SECONDS = RESEND_COOLDOWN_MINUTES * 60; // 120s
-const PASSWORD_MIN_LENGTH = 8; // server validation
+const PASSWORD_MIN_LENGTH = 6; // server validation
 
 // ===== Types =====
 
 type FormData = {
-  emailOrUsername: string;
+  identifier: string;
   newPassword?: string;
   confirmPassword?: string;
 };
@@ -80,9 +80,7 @@ const ForgotPasswordScreen: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<PasswordResetStep>("initiate");
   const [isLoading, setIsLoading] = useState(false);
 
-  const [emailOrUsernameError, setEmailOrUsernameError] = useState<
-    string | null
-  >(null);
+  const [identifierError, setIdentifierError] = useState<string | null>(null);
   const [otpError, setOtpError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
@@ -94,7 +92,7 @@ const ForgotPasswordScreen: React.FC = () => {
 
   const { control, handleSubmit, watch, reset } = useForm<FormData>({
     defaultValues: {
-      emailOrUsername: "",
+      identifier: "",
       newPassword: "",
       confirmPassword: "",
     },
@@ -125,13 +123,13 @@ const ForgotPasswordScreen: React.FC = () => {
   // Step 1: Initiate Password Reset
   const onInitiate = async (data: FormData) => {
     setIsLoading(true);
-    setEmailOrUsernameError(null);
+    setIdentifierError(null);
     setOtpError(null);
     setPasswordError(null);
 
     try {
       const resp = await initiatePasswordResetApi({
-        identifier: data.emailOrUsername,
+        identifier: data.identifier,
       });
 
       // Debug log to see the actual response structure
@@ -140,7 +138,7 @@ const ForgotPasswordScreen: React.FC = () => {
       console.log("Type of remainingResends:", typeof resp?.remainingResends);
 
       // Store identifier plainly (no JSON wrapper)
-      await setStore("tempIdentifier", data.emailOrUsername);
+      await setStore("tempIdentifier", data.identifier);
 
       // Start verify step
       setCurrentStep("verify");
@@ -165,7 +163,7 @@ const ForgotPasswordScreen: React.FC = () => {
       );
     } catch (error: any) {
       const msg = extractErrorMessage(error, t("initiateErrorFallback"));
-      setEmailOrUsernameError(msg);
+      setIdentifierError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -245,7 +243,7 @@ const ForgotPasswordScreen: React.FC = () => {
 
     const identifier = await getStore("tempIdentifier");
     if (!identifier) {
-      setEmailOrUsernameError(t("resendIdentifierMissing"));
+      setIdentifierError(t("resendIdentifierMissing"));
       return;
     }
 
@@ -295,9 +293,9 @@ const ForgotPasswordScreen: React.FC = () => {
       <Text style={styles.subtitle}>{t("enterForgotEmail")}</Text>
       <Controller
         control={control}
-        name="emailOrUsername"
+        name="identifier"
         rules={{
-          required: t("emailOrUsernameRequired") as unknown as boolean,
+          required: t("identifierRequired") as unknown as boolean,
           validate: {
             validFormat: (value) => {
               const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -305,24 +303,22 @@ const ForgotPasswordScreen: React.FC = () => {
               return (
                 emailRegex.test(value) ||
                 usernameRegex.test(value) ||
-                (t("invalidEmailOrUsername") as unknown as boolean)
+                (t("invalidIdentifier") as unknown as boolean)
               );
             },
           },
         }}
         render={({ field: { onChange, value }, fieldState: { error } }) => (
           <CustomInput
-            label={t("emailOrUsername")}
+            label={t("identifier")}
             value={value}
             onChangeText={(v) => {
-              setEmailOrUsernameError(null);
+              setIdentifierError(null);
               onChange(v);
             }}
-            placeholder={t("enterEmailOrUsername")}
-            variant={error || emailOrUsernameError ? "error" : "default"}
-            errorText={
-              (error?.message as any) || emailOrUsernameError || undefined
-            }
+            placeholder={t("enterIdentifier")}
+            variant={error || identifierError ? "error" : "default"}
+            errorText={(error?.message as any) || identifierError || undefined}
           />
         )}
       />

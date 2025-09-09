@@ -167,7 +167,7 @@ const VerifyOtpScreen = () => {
 
     try {
       const payload = {
-        emailOrUsername: identifier,
+        identifier: identifier,
         otp: otpValue,
       };
 
@@ -207,7 +207,7 @@ const VerifyOtpScreen = () => {
 
     try {
       const payload = {
-        emailOrUsername: identifier,
+        identifier: identifier,
       };
       const response = await resendOtpApi(payload);
 
@@ -366,7 +366,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: "#d63031",
     fontSize: normalize("font", 14),
-    marginTop: normalize('vertical',8),
+    marginTop: normalize("vertical", 8),
     textAlign: "center",
     lineHeight: 20,
   },

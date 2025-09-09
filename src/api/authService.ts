@@ -31,7 +31,7 @@ export const registerUser = async (
 type VerifyOtpPayload = {
   email?: string;
   otp: string;
-  emailOrUsername?: string | null;
+  identifier?: string | null;
 };
 
 type VerifyOtpResponse = {
@@ -49,7 +49,7 @@ export const verifyOtpApi = async (
 
 // For login
 type LoginPayload = {
-  emailOrUsername: string; // Keeping this flexible as per your controller
+  identifier: string; // Keeping this flexible as per your controller
   password: string;
 };
 
@@ -75,7 +75,7 @@ export const loginApi = async (
 // Payload & response for resending OTP
 export type ResendOtpPayload = {
   email?: string | null;
-  emailOrUsername?: string | null;
+  identifier?: string | null;
 };
 
 export type ResendOtpResponse = {
