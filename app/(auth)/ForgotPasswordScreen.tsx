@@ -238,7 +238,7 @@ const ForgotPasswordScreen: React.FC = () => {
       await resetPasswordApi({ identifier, newPassword: data.newPassword });
       await delStore("tempIdentifier");
       reset();
-      router.push({
+      router.replace({
         pathname: "/(auth)/LoginScreen",
         params: { successMessage: t("passwordResetSuccess") },
       });
@@ -420,12 +420,18 @@ const ForgotPasswordScreen: React.FC = () => {
         control={control}
         name="newPassword"
         rules={{
-          required: t("passwordRequired") as unknown as boolean,
+          required: t("passwordRequired"),
           minLength: {
-            value: PASSWORD_MIN_LENGTH,
-            message: t("passworMinLengthMessage", {
+            value: PASSWORD_MIN_LENGTH, // Use the constant
+            message: t("passwordMinLengthMessage", {
               count: PASSWORD_MIN_LENGTH,
-            }) as any,
+            }),
+          },
+          // The new pattern rule
+          pattern: {
+            value:
+              /^(?=.*[0-9])(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-])(?=.*[a-zA-Z]).{8,}$/,
+            message: t("passwordNumberCharMessage"),
           },
         }}
         render={({ field: { onChange, value }, fieldState: { error } }) => (

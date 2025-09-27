@@ -23,6 +23,7 @@ import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
 import { normalize } from "@/src/theme/normalize";
 import { colors } from "@/src/theme/theme";
 import Header from "@/src/components/ui/Header/Header";
+import { getAllUsers } from "@/src/api/peopleYouMayKnowService";
 
 type User = {
   username: string;
@@ -33,7 +34,27 @@ type User = {
 export default function Home() {
   const { logout } = useAuth();
   const [user, setUser] = useState<User | null>(null);
+  const testGetAllUsers = async () => {
+    
 
+    try {
+      console.log("Testing getAllUsers...");
+      const fetchedUsers = await getAllUsers();
+      console.log("Fetched users:", fetchedUsers);
+      
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.error("Test failed:", err.message);
+      
+    } finally {
+      
+    }
+  };
+
+  // Auto-test on component mount
+  useEffect(() => {
+    testGetAllUsers();
+  }, []);
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -113,7 +134,6 @@ export default function Home() {
           <Text style={styles.devLogoutButtonText}>DEV LOGOUT</Text>
         </TouchableOpacity>
       </View>
-    
     </SafeAreaView>
   );
 }

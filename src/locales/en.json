@@ -92,5 +92,7 @@
   "enterNewPassword": "Enter new password",
   "resendNow": "Resend now",
   "resendsLeft": " tries left",
-  "sending": "Sending"
+  "sending": "Sending",
+  "resetting": "Resetting",
+  "passwordNumberCharMessage": "Password must contain at least a number"
 }

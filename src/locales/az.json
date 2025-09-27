@@ -34,6 +34,7 @@
   "passwordMinLengthMessage": "Şifrə ən az 6 simvol olmalıdır",
   "passwordMaxLengthMessage": "Şifrə ən çox 12 simvol olmalıdır",
   "passwordSpecialCharMessage": "Ən azı bir xüsusi simvol olmalıdır",
+  "passwordNumberCharMessage": "Ən azı bir rəqəm olmalıdır",
   "passwordLabel": "Yeni şifrə",
   "passwordPlaceholder": "Şifrə təyin edək",
   "letsStartButton": "BAŞLAYAQ!",
@@ -90,5 +91,7 @@
   "resendNow": "İndi göndər",
   "resendsLeft": " cəhdiniz qaldı",
   "sending": "Göndərilir",
-  "notVerified": "İstifadəçi təsdiq olunmayıb"
+  "notVerified": "İstifadəçi təsdiq olunmayıb",
+  "resetting": "Şifrə dəyişilir"
+
 }

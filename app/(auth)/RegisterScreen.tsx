@@ -51,7 +51,7 @@ const RegisterScreen = () => {
         await SecureStore.setItemAsync("tempEmail", data.email);
         await SecureStore.setItemAsync("user", JSON.stringify(response.user));
 
-        router.push("/(auth)/VerifyOtpScreen");
+        router.replace("/(auth)/VerifyOtpScreen");
       } catch (error: any) {
         const message =
           error.response?.data?.message || error.response?.data?.error;
