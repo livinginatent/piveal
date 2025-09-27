@@ -64,6 +64,7 @@ export const LoginScreen: React.FC = () => {
         const jsonAccessToken = JSON.stringify(response.accessToken);
         await login(jsonAccessToken, response.refreshToken);
         await SecureStore.setItemAsync("user", JSON.stringify(response.user));
+        
         router.replace("/(app)/(tabs)/home");
         /*    setUser({
           username: response.user.username,

@@ -1,46 +1,43 @@
-import axiosInstance from "./axiosInstance"; // adjust path as needed
+// src/api/passwordService.ts
+import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  profilePicture?: string;
-  // Add other user properties as needed based on your user model
-}
+// Define the user type based on what your API returns
+type User = {
+  id: number;
+  username: string;
+};
 
-export interface PeopleYouMayKnowResponse {
-  success: boolean;
-  data: User[];
-  message?: string;
-}
+// API response type
+type GetAllUsersResponse = {
+  users: User[];
+  // Add other response fields if your API returns them
+  // message?: string;
+  // success?: boolean;
+};
 
-/**
- * Fetch all users from the database
- * @returns Promise<User[]> - Array of users
- */
-export const getAllUsers = async (): Promise<User[]> => {
+// Error response type for better error handling
+type ApiErrorResponse = {
+  message: string;
+  error?: string;
+};
+
+export const getAllUsers = async (): Promise<GetAllUsersResponse> => {
   try {
-    const response = await axiosInstance.get<PeopleYouMayKnowResponse>(
-      "people/getAll"
+    const response = await axiosInstance.get<GetAllUsersResponse>(
+      "/people/getAll"
     );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 401) {
+        throw new Error("Unauthorized - Please login again");
+      }
 
-    if (response.data.success) {
-      return response.data.data;
-    } else {
-      throw new Error(response.data.message || "Failed to fetch users");
+      // Type the error response data
+      const errorData = error.response?.data as ApiErrorResponse;
+      throw new Error(errorData?.message || "Failed to fetch people");
     }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.error("Error fetching all users:", error);
-
-    if (error.response?.status === 404) {
-      throw new Error("Users endpoint not found");
-    } else if (error.response?.status === 500) {
-      throw new Error("Server error while fetching users");
-    } else if (error.code === "ECONNABORTED") {
-      throw new Error("Request timeout - please try again");
-    } else {
-      throw new Error(error.message || "Failed to fetch users");
-    }
+    throw new Error("Network error - Please check your connection");
   }
 };

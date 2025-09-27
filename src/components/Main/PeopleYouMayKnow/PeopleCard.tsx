@@ -7,23 +7,46 @@ import Champagne from "@//src/icons/beer/Champagne";
 import { SendButton } from "../../ui/Buttons/SendButton";
 import Connect from "@//src/icons/main/Connect";
 
+type User = {
+  id: number;
+  username: string;
+};
 
-const PeopleCard = () => {
+type PeopleCardProps = {
+  user: User;
+  onSendDrink?: (userId: number) => void;
+  onConnect?: (userId: number) => void;
+};
+
+const PeopleCard: React.FC<PeopleCardProps> = ({
+  user,
+  onSendDrink,
+  onConnect,
+}) => {
+  const handleSendDrink = () => {
+    onSendDrink?.(user.id);
+  };
+
+  const handleConnect = () => {
+    onConnect?.(user.id);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.leftContainer}>
-          <Avatar size={40} uri={"https://avatar.iran.liara.run/public/38"} />
+          <Avatar size={40} uri="https://avatar.iran.liara.run/public/38" />
           <View style={styles.leftInfo}>
-            <Text style={styles.name}>Günay</Text>
-
-              <Text style={styles.otherInfo}>99 connects</Text>
-         
+            <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+              {user.username}
+            </Text>
+            <Text style={styles.otherInfo}>99 connects</Text>
           </View>
         </View>
+
         <View style={styles.rightContainer}>
           <SendButton
-            title={""}
+            title=""
             width={normalize("width", 32)}
             height={normalize("height", 32)}
             icon={
@@ -33,10 +56,10 @@ const PeopleCard = () => {
                 color="white"
               />
             }
-            onPress={() => null}
+            onPress={handleSendDrink}
           />
           <SendButton
-            title={""}
+            title=""
             backgroundColor="transparent"
             textColor={colors.orangeText}
             borderColor={colors.orangeText}
@@ -49,7 +72,7 @@ const PeopleCard = () => {
                 color={colors.orangeText}
               />
             }
-            onPress={() => null}
+            onPress={handleConnect}
           />
         </View>
       </View>
@@ -61,46 +84,45 @@ export default PeopleCard;
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    // Remove redundant styles since content handles the layout
   },
   content: {
     flexDirection: "row",
-    justifyContent: "space-between", // Add this to push content to opposite ends
-    alignItems: "center", // Add this to center vertically
+    justifyContent: "space-between",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: colors.orangeText,
     borderRadius: 24,
+    minWidth: normalize("width", 200), // Ensure consistent card width
   },
   leftContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: normalize("vertical", 8),
+    gap: normalize("horizontal", 8), // Use horizontal for horizontal gap
     paddingVertical: normalize("vertical", 16),
-    paddingHorizontal: normalize("horizontal", 8),
+    paddingLeft: normalize("horizontal", 12),
+    flex: 1, // Take available space
   },
   rightContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: normalize("vertical", 4),
+    gap: normalize("horizontal", 4), // Use horizontal for horizontal gap
     paddingVertical: normalize("vertical", 16),
-    paddingHorizontal: normalize("horizontal", 8),
+    paddingRight: normalize("horizontal", 12),
   },
   leftInfo: {
     flexDirection: "column",
     gap: normalize("vertical", 2),
-    maxWidth: normalize("width", 160), // LIMIT WIDTH HERE
-    overflow: "hidden",
+    flex: 1, // Take remaining space
+    maxWidth: normalize("width", 120), // Adjust based on your needs
   },
   name: {
     fontSize: normalize("font", 14),
     fontWeight: "700",
   },
   otherInfo: {
-    fontSize: normalize("font", 16),
+    fontSize: normalize("font", 12), // Made smaller for secondary info
     fontWeight: "400",
     color: colors.grey400,
-    minWidth:normalize('width',86)
   },
 });

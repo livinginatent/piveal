@@ -35,9 +35,9 @@ export default function Home() {
   const { logout } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const testGetAllUsers = async () => {
-    
 
     try {
+      
       console.log("Testing getAllUsers...");
       const fetchedUsers = await getAllUsers();
       console.log("Fetched users:", fetchedUsers);
@@ -56,11 +56,13 @@ export default function Home() {
     testGetAllUsers();
   }, []);
   useEffect(() => {
+    
     const getUser = async () => {
       try {
+       
         const loggedUser = await SecureStore.getItemAsync("user");
         if (loggedUser) {
-          console.log(loggedUser);
+          console.log(loggedUser,'hello');
           setUser(JSON.parse(loggedUser)); // Parse string to object
         }
       } catch (error) {
