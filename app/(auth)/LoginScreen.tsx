@@ -10,7 +10,7 @@ import {
   Image,
 } from "react-native";
 
-import { loginApi, resendOtpApi } from "@/src/api/authService";
+import { loginApi, resendOtpApi } from "@/src/api/services/authService";
 import { useRouter } from "expo-router";
 
 import { Controller, useForm } from "react-hook-form";
@@ -64,7 +64,7 @@ export const LoginScreen: React.FC = () => {
         const jsonAccessToken = JSON.stringify(response.accessToken);
         await login(jsonAccessToken, response.refreshToken);
         await SecureStore.setItemAsync("user", JSON.stringify(response.user));
-        
+
         router.replace("/(app)/(tabs)/home");
         /*    setUser({
           username: response.user.username,

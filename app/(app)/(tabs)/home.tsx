@@ -10,7 +10,6 @@ import {
 import { router } from "expo-router";
 
 import { useEffect, useState } from "react";
-
 import Champagne from "@/src/icons/beer/Champagne";
 import { t } from "i18next";
 import * as SecureStore from "expo-secure-store";
@@ -23,7 +22,8 @@ import { CustomCTAButton } from "@/src/components/ui/Buttons/CTAButton";
 import { normalize } from "@/src/theme/normalize";
 import { colors } from "@/src/theme/theme";
 import Header from "@/src/components/ui/Header/Header";
-import { getAllUsers } from "@/src/api/peopleYouMayKnowService";
+import { getAllUsers } from "@/src/api/services/peopleYouMayKnowService";
+import { useNotifications } from "@/src/context/NotificationContext";
 
 type User = {
   username: string;
@@ -34,20 +34,20 @@ type User = {
 export default function Home() {
   const { logout } = useAuth();
   const [user, setUser] = useState<User | null>(null);
+  const { notifications, markAsRead, clearNotifications, loading } =
+    useNotifications();
+    console.log(notifications,'notifications')
+    console.log(12)
   const testGetAllUsers = async () => {
-
     try {
-      
       console.log("Testing getAllUsers...");
       const fetchedUsers = await getAllUsers();
       console.log("Fetched users:", fetchedUsers);
-      
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Test failed:", err.message);
-      
     } finally {
-      
     }
   };
 
@@ -56,13 +56,11 @@ export default function Home() {
     testGetAllUsers();
   }, []);
   useEffect(() => {
-    
     const getUser = async () => {
       try {
-       
         const loggedUser = await SecureStore.getItemAsync("user");
         if (loggedUser) {
-          console.log(loggedUser,'hello');
+          console.log(loggedUser, "hello");
           setUser(JSON.parse(loggedUser)); // Parse string to object
         }
       } catch (error) {

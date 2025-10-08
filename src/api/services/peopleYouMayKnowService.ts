@@ -1,6 +1,6 @@
 // src/api/passwordService.ts
 import axios from "axios";
-import axiosInstance from "./axiosInstance";
+import axiosInstance from "../axiosInstance";
 
 // Define the user type based on what your API returns
 type User = {

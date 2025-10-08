@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import PeopleHeader from "./PeopleHeader";
 import PeopleCard from "./PeopleCard";
 import { normalize } from "@/src/theme/normalize";
-import { getAllUsers } from "@/src/api/peopleYouMayKnowService";
+import { getAllUsers } from "@/src/api/services/peopleYouMayKnowService";
 
 // Define the User type (should match your API response)
 type User = {
