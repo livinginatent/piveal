@@ -6,6 +6,7 @@ import Avatar from "../../ui/Avatar/Avatar";
 import Champagne from "@//src/icons/beer/Champagne";
 import { SendButton } from "../../ui/Buttons/SendButton";
 import Connect from "@//src/icons/main/Connect";
+import { sendFriendRequest } from "@/src/api/services/friendRequestService";
 
 type User = {
   id: number;
@@ -21,14 +22,13 @@ type PeopleCardProps = {
 const PeopleCard: React.FC<PeopleCardProps> = ({
   user,
   onSendDrink,
-  onConnect,
 }) => {
   const handleSendDrink = () => {
     onSendDrink?.(user.id);
   };
 
-  const handleConnect = () => {
-    onConnect?.(user.id);
+  const handleConnect = async () => {
+    await sendFriendRequest(user.id);
   };
 
   return (

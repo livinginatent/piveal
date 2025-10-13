@@ -1,4 +1,4 @@
-// src/api/passwordService.ts
+// src/api/peopleYouMayKnowService.ts
 import axios from "axios";
 import axiosInstance from "../axiosInstance";
 

@@ -4,17 +4,27 @@ import PeopleHeader from "./PeopleHeader";
 import PeopleCard from "./PeopleCard";
 import { normalize } from "@/src/theme/normalize";
 import { getAllUsers } from "@/src/api/services/peopleYouMayKnowService";
+import * as SecureStore from "expo-secure-store";
 
-// Define the User type (should match your API response)
+// Define the User type for people in the list (you might want to add more properties)
 type User = {
   id: number;
   username: string;
 };
 
+// Define the type for the full logged-in user object stored in SecureStore
+// (Based on your previous log: {"id":20,"username":"test", ...})
+type LoggedUser = {
+  id: number;
+  username: string;
+  email: string;
+  role: string; // or 'user' | 'admin' if you have fixed roles
+  isVerified: boolean;
+};
+
 type GetAllUsersResponse = {
   users: User[];
 };
-
 const PeopleYouMayKnow = () => {
   const [people, setPeople] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -26,8 +36,24 @@ const PeopleYouMayKnow = () => {
         setLoading(true);
         setError(null);
         const response: GetAllUsersResponse = await getAllUsers();
-        setPeople(response.users);
-        console.log("Fetched people:", response.users);
+        const loggedUserString = await SecureStore.getItemAsync("user");
+
+        // Initialize as null or LoggedUser type
+        let loggedUser: LoggedUser | null = null;
+
+        if (loggedUserString) {
+          // Parse the JSON string and cast it to the LoggedUser type
+          loggedUser = JSON.parse(loggedUserString) as LoggedUser;
+        }
+
+        // Apply the filter: only include users whose ID is NOT the logged-in user's ID
+        const filteredPeople = response.users.filter(
+          // CORRECTED: use loggedUser?.id instead of loggedUser?.userId
+          (user) => user.id !== loggedUser?.id
+        );
+
+        setPeople(filteredPeople);
+        console.log("Fetched people (filtered):", filteredPeople);
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to fetch people";

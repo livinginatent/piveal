@@ -4,8 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Button } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 
 export default function ProfileScreen() {
-    const { notifications, markAsRead, clearNotifications, loading } =
-      useNotifications();
+  const { notifications, markAsRead, clearNotifications } = useNotifications();
   return (
     <View style={styles.container}>
       <ScrollView>

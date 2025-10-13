@@ -8,6 +8,8 @@ import { AuthProvider, useAuth } from "@/src/context/AuthContext";
 import { NotificationProvider } from "@/src/context/NotificationContext"; // Add this
 import { colors } from "@/src/theme/theme";
 import LanguageSwitcher from "@/src/components/ui/LanguageSwitcher/LanguageSwitchers";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "@/src/constants/toastConfig";
 
 const InitialLayout = () => {
   const { isAuthenticated, isRegistered, loading } = useAuth();
@@ -49,6 +51,7 @@ export default function RootLayout() {
           <InitialLayout />
         </NotificationProvider>
       </AuthProvider>
+      <Toast config={toastConfig}/>
     </GestureHandlerRootView>
   );
 }
