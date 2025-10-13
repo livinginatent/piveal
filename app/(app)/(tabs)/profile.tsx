@@ -1,10 +1,23 @@
+import { useNotifications } from "@/src/context/NotificationContext";
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Button } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function ProfileScreen() {
+  const { notifications, markAsRead, clearNotifications } = useNotifications();
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Profile Screen</Text>
+      <ScrollView>
+        {notifications.map((n) => (
+          <TouchableOpacity key={n.id} onPress={() => markAsRead(n.id)}>
+            <Text style={{ fontWeight: n.isRead ? "normal" : "bold" }}>
+              {n.title}
+            </Text>
+            <Text>{n.body}</Text>
+          </TouchableOpacity>
+        ))}
+        <Button title="Clear All" onPress={clearNotifications} />
+      </ScrollView>
     </View>
   );
 }

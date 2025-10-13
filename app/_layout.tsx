@@ -1,14 +1,15 @@
-// File: app/_layout.tsx
 import "react-native-gesture-handler";
 import "@/src/i18n";
 import React, { useEffect } from "react";
 import { Slot, useRouter, useSegments } from "expo-router";
 import { ActivityIndicator, View, StyleSheet, StatusBar } from "react-native";
-
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider, useAuth } from "@/src/context/AuthContext";
+import { NotificationProvider } from "@/src/context/NotificationContext"; // Add this
 import { colors } from "@/src/theme/theme";
 import LanguageSwitcher from "@/src/components/ui/LanguageSwitcher/LanguageSwitchers";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "@/src/constants/toastConfig";
 
 const InitialLayout = () => {
   const { isAuthenticated, isRegistered, loading } = useAuth();
@@ -17,15 +18,13 @@ const InitialLayout = () => {
 
   useEffect(() => {
     if (loading) return;
-
     const inAuthGroup = segments[0] === "(auth)";
-    // Only handle redirects here, not in other layouts
+
     if (!isAuthenticated && !inAuthGroup && !isRegistered) {
       router.replace("/(auth)/WelcomeScreen");
     } else if (isRegistered && !isAuthenticated && inAuthGroup) {
       router.replace("/(auth)/VerifyOtpScreen");
     } else if (isAuthenticated && inAuthGroup) {
-      // If authenticated and in auth group, redirect to home
       router.replace("/(app)/(tabs)/home");
     }
   }, [isAuthenticated, isRegistered, segments, loading, router]);
@@ -45,11 +44,14 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
-        <StatusBar backgroundColor={colors.primaryBg} />
-        <LanguageSwitcher />
-
-        <InitialLayout />
+        <NotificationProvider>
+          
+          <StatusBar backgroundColor={colors.primaryBg} />
+          <LanguageSwitcher />
+          <InitialLayout />
+        </NotificationProvider>
       </AuthProvider>
+      <Toast config={toastConfig}/>
     </GestureHandlerRootView>
   );
 }

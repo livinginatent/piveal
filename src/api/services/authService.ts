@@ -1,5 +1,5 @@
 // src/api/auth.api.ts
-import axiosInstance from "./axiosInstance";
+import axiosInstance from "../axiosInstance";
 
 export type RegisterPayload = {
   email: string; // Changed from email

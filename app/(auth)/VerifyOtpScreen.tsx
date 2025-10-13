@@ -14,7 +14,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { OtpInput } from "react-native-otp-entry";
-import { resendOtpApi, verifyOtpApi } from "../../src/api/authService";
+import { resendOtpApi, verifyOtpApi } from "../../src/api/services/authService";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import * as SecureStore from "expo-secure-store";

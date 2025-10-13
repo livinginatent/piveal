@@ -1,5 +1,5 @@
 // src/api/passwordService.ts
-import axiosInstance from "./axiosInstance";
+import axiosInstance from "../axiosInstance";
 
 // Payload for initiating password reset (sending OTP)
 export type InitiatePasswordResetPayload = {

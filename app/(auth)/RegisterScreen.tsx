@@ -6,7 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 
-import { registerUser } from "../../src/api/authService";
+import { registerUser } from "../../src/api/services/authService";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useTranslation } from "react-i18next";

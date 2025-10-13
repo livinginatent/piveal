@@ -41,8 +41,8 @@ import {
   verifyPasswordOtpApi,
   resetPasswordApi,
   resendPasswordResetOtpApi,
-} from "@/src/api/passwordService";
-import { resendOtpApi } from "@/src/api/authService";
+} from "@/src/api/services/passwordService";
+import { resendOtpApi } from "@/src/api/services/authService";
 
 // ===== Backend-aligned constants (keep in sync with server) =====
 const OTP_LENGTH = 4; // server generateOtp() length
