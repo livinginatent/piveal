@@ -7,6 +7,8 @@ import Champagne from "@//src/icons/beer/Champagne";
 import { SendButton } from "../../ui/Buttons/SendButton";
 import Connect from "@//src/icons/main/Connect";
 import { sendFriendRequest } from "@/src/api/services/friendRequestService";
+import { useFriendRequestModal } from "../../ui/Modals/useFriendRequestModal";
+import { FriendRequestModal } from "../../ui/Modals/FriendRequestModal";
 
 type User = {
   id: number;
@@ -23,13 +25,77 @@ const PeopleCard: React.FC<PeopleCardProps> = ({
   user,
   onSendDrink,
 }) => {
+
+   const {
+     modalVisible,
+     modalType,
+     modalTitle,
+     modalMessage,
+     hideModal,
+     showLoading,
+     showSuccess,
+     showError,
+   } = useFriendRequestModal();
+
   const handleSendDrink = () => {
     onSendDrink?.(user.id);
   };
 
   const handleConnect = async () => {
-    await sendFriendRequest(user.id);
+    try {
+      // Show loading modal
+      showLoading("Sending Friend Request", "Please wait...");
+
+      // Send the actual request - use debug version first
+      const result = await sendFriendRequest(user.id, "Let's be friends!");
+
+      console.log("✅ Frontend received result:", result);
+
+      // If we get here, the request was successful
+      showSuccess(
+        "Request Sent!",
+        "Your friend request has been sent successfully."
+      );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log("❌ Frontend caught error:", error);
+
+      // Check if this is actually a success case
+      if (
+        error.message?.includes("Friend request created") ||
+        error.status === 201 ||
+        error.status === 200
+      ) {
+        console.log("Actually a success, showing success modal");
+        showSuccess(
+          "Request Sent!",
+          "Your friend request has been sent successfully."
+        );
+        return;
+      }
+
+      // Show error modal based on the error type
+      if (error.message?.includes("already exists")) {
+        showError(
+          "Request Already Sent",
+          "You already have a pending friend request with this user."
+        );
+      } else if (error.message?.includes("already friends")) {
+        showError("Already Friends", "You are already friends with this user.");
+      } else if (error.message?.includes("not accepting")) {
+        showError(
+          "Cannot Send Request",
+          "This user is not accepting friend requests."
+        );
+      } else {
+        showError(
+          "Failed to Send",
+          error.message || "Something went wrong. Please try again."
+        );
+      }
+    }
   };
+
 
   return (
     <View style={styles.container}>
@@ -76,6 +142,16 @@ const PeopleCard: React.FC<PeopleCardProps> = ({
           />
         </View>
       </View>
+      {/* The reusable modal */}
+      <FriendRequestModal
+        visible={modalVisible}
+        type={modalType}
+        title={modalTitle}
+        message={modalMessage}
+        onClose={hideModal}
+        autoClose={modalType !== "loading"}
+        autoCloseDelay={3000}
+      />
     </View>
   );
 };

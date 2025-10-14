@@ -70,8 +70,34 @@ export const sendFriendRequest = async (
       }
     );
     return response.data;
-  } catch (error) {
-    handleApiError(error, "Failed to send friend request");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.log("Friend request error details:", error);
+
+    // Extract the actual error message from the backend response
+    const errorMessage =
+      error.response?.data?.error || "Failed to send friend request";
+
+    // Handle specific error cases for user display
+    if (error.response?.status === 409) {
+      // Conflict - already exists, already friends, etc.
+      handleApiError(error, errorMessage); // This will show "A pending friend request already exists"
+    } else if (error.response?.status === 403) {
+      // Forbidden - privacy settings, blocked, user not found
+      handleApiError(error, errorMessage);
+    } else if (error.response?.status === 400) {
+      // Bad Request - validation errors
+      handleApiError(error, errorMessage);
+    } else if (error.response?.status === 401) {
+      // Unauthorized
+      handleApiError(error, "Please log in to send friend requests");
+    } else {
+      // Network errors or other issues
+      handleApiError(error, errorMessage);
+    }
+
+    // Re-throw the error so calling code can handle it if needed
+    throw new Error(errorMessage);
   }
 };
 
