@@ -18,7 +18,7 @@ export default function MainSend() {
       {/* Main Content */}
       <View style={styles.content}>
         <View style={styles.card}>
-          <ChampagneRound />
+          <ChampagneRound color="white" width={48} height={48}/>
 
           <Text style={styles.cardTitle}>{t("sendGift")}</Text>
 

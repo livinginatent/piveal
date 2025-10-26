@@ -47,7 +47,6 @@ export default function RootLayout() {
         <NotificationProvider>
           
           <StatusBar backgroundColor={colors.primaryBg} />
-          <LanguageSwitcher />
           <InitialLayout />
         </NotificationProvider>
       </AuthProvider>

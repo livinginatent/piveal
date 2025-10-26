@@ -1,8 +1,8 @@
-import { normalize } from "@/app/theme/normalize";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
-import Svg, { Rect, Path, G, Defs } from "react-native-svg";
+import Svg, { Rect, Path, G } from "react-native-svg";
 
-export const AppleIcon = (props: any) => (
+export const AppleIcon = () => (
   <Svg width="44" height="44" fill="none" viewBox="0 0 44 44">
     <Rect
      

@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import Svg, { Path } from "react-native-svg";
-const Location = (props) => (
+const Location = (props:any) => (
   <Svg
     width={24}
     height={24}
