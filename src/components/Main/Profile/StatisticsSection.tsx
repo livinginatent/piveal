@@ -23,7 +23,11 @@ const StatisticsSection = ({ statistics }: StatisticsSectionProps) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <Location/>
+          <Location
+            color={colors.orangeText}
+            width={normalize("width", 24)}
+            height={normalize("height", 24)}
+          />
           <Text style={styles.title}>Statistika</Text>
         </View>
         <TouchableOpacity>
@@ -67,9 +71,9 @@ const styles = StyleSheet.create({
   },
   grid: {
     flexDirection: "row",
-    flexWrap:'wrap',
-    justifyContent:'center',
-    gap:normalize('width',12)
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: normalize("width", 12),
   },
 });
 

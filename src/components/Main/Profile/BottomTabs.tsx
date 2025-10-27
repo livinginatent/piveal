@@ -1,7 +1,10 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { normalize } from "@/src/theme/normalize";
+import Location from "@/src/icons/main/Location";
+import Champagne from "@/src/icons/beer/Champagne";
+import Clock from "@/src/icons/main/Clock";
+import { colors } from "@/src/theme/theme";
 
 interface BottomTabsProps {
   activeTab: string;
@@ -13,7 +16,32 @@ const BottomTabs = ({ activeTab }: BottomTabsProps) => {
     { id: "venues", label: "Venues", icon: "location" },
     { id: "history", label: "History", icon: "time" },
   ];
+  const getIconComponent = (iconName: string,tabId:string) => {
+    switch (iconName) {
+      case "wine":
+        return <Champagne width={24} height={24}  color={activeTab===tabId ? colors.orangeText : colors.grey400} />;
 
+      case "location":
+        return (
+          <Location
+            width={24}
+            height={24}
+            color={activeTab === tabId ? colors.orangeText : colors.grey400}
+          />
+        );
+      case "time":
+        return (
+          <Clock
+            width={24}
+            height={24}
+            color={activeTab === tabId ? colors.orangeText : colors.grey400}
+          />
+        );
+      
+      default:
+        return null;
+    }
+  };
   return (
     <View style={styles.container}>
       {tabs.map((tab) => (
@@ -22,12 +50,7 @@ const BottomTabs = ({ activeTab }: BottomTabsProps) => {
           style={[styles.tab, activeTab === tab.id && styles.activeTab]}
           activeOpacity={0.7}
         >
-          <Ionicons
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            name={tab.icon as any}
-            size={20}
-            color={activeTab === tab.id ? "#FF6B35" : "#999"}
-          />
+          {getIconComponent(tab.icon,tab.id)}
           <Text
             style={[
               styles.tabLabel,
@@ -46,7 +69,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     backgroundColor: "#F3EFF8",
-    paddingVertical: 12,
+    paddingVertical: 4,
     marginHorizontal: normalize("horizontal", 16),
     marginVertical: normalize("vertical", 16),
 
@@ -57,14 +80,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
-    marginLeft: 8,
+    paddingVertical: normalize("vertical", 8),
+    marginLeft: normalize("vertical", 4),
     borderRadius: normalize("width", 12),
   },
   tabLabel: {
-    fontSize: 13,
+    fontSize: normalize("font", 14),
     color: "#999",
     marginLeft: 6,
+    fontWeight: 600,
   },
   activeTab: {
     backgroundColor: "#FFFFFF",

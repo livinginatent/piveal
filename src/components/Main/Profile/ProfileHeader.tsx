@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { normalize } from "@/src/theme/normalize";
+import { colors } from "@/src/theme/theme";
 
 interface ProfileHeaderProps {
   username: string;
@@ -12,7 +13,7 @@ const ProfileHeader = ({ username }: ProfileHeaderProps) => {
     <View style={styles.container}>
       <Text style={styles.username}>{username}</Text>
       <TouchableOpacity>
-        <Ionicons name="settings-outline" size={24} color="#FF6B35" />
+        <Ionicons name="settings-outline" size={24} color={colors.orangeText} />
       </TouchableOpacity>
     </View>
   );

@@ -10,7 +10,7 @@ const PeopleHeader = () => {
     <View style={styles.headerContainer}>
       {/* Left Side: Text and Icon */}
       <View style={styles.leftContainer}>
-        <People />
+        <People width={32} height={32} color={colors.orangeText}  />
         <Text style={styles.headerText}>{t("youMayKnow")} </Text>
       </View>
 

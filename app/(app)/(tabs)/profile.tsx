@@ -9,7 +9,7 @@ import { colors } from "@/src/theme/theme";
 
 const ProfileScreen = () => {
   const userData = {
-    username: "@aylalıfova",
+    username: "@ aylalıfova",
     name: "Ayla Alifova",
     bioText: "bio text",
     followers: 265,
@@ -62,7 +62,7 @@ const ProfileScreen = () => {
         <ProfileHeader username={userData.username} />
         <ProfileInfo userData={userData} />
         <StatisticsSection statistics={statistics} />
-      <BottomTabs activeTab="fav-drinks" />
+        <BottomTabs activeTab="fav-drinks" />
       </ScrollView>
     </View>
   );
